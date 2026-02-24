@@ -1,0 +1,23 @@
+<div class="flex align-items-center justify-content-center min-h-screen login-body">
+    <p-card header="Iniciar Sesión" [style]="{ width: '400px' }" class="shadow-4">
+        <div class="flex flex-column gap-4">
+            <div class="flex flex-column gap-2">
+                <label for="username">Usuario o Correo</label>
+                <input pInputText id="username" aria-describedby="username-help" class="w-full" />
+            </div>
+
+            <div class="flex flex-column gap-2">
+                <label for="pass">Contraseña</label>
+                <p-password id="pass" [feedback]="false" [toggleMask]="true" styleClass="w-full"
+                    inputStyleClass="w-full" />
+            </div>
+
+            <p-button label="Ingresar" icon="pi pi-sign-in" class="w-full" severity="primary" />
+
+            <div class="text-center">
+                <p>¿Aún no tienes cuenta? <a routerLink="/register"
+                        class="font-bold no-underline text-primary">Regístrate aquí</a></p>
+            </div>
+        </div>
+    </p-card>
+</div>
