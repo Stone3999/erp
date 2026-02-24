@@ -1,0 +1,11 @@
+.login-body {
+    display: flex;
+    justify-content: center;
+    /* Centrado horizontal */
+    align-items: center;
+    /* Centrado vertical */
+    height: 100vh;
+    /* 100% del alto de la ventana */
+    width: 100%;
+    margin: 0;
+}

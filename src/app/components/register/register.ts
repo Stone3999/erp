@@ -1,14 +1,19 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import { RouterModule } from '@angular/router';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { InputTextModule } from 'primeng/inputtext';
+import { PasswordModule } from 'primeng/password';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, /* Módulos PrimeNG */],
+  imports: [ReactiveFormsModule, CommonModule, ButtonModule, CardModule, InputTextModule, PasswordModule, RouterModule],
   templateUrl: './register.html'
 })
-export class RegisterComponent {
+export class Register {
   registerForm = new FormGroup({
     usuario: new FormControl('', Validators.required),
     email: new FormControl('', [Validators.required, Validators.email]),

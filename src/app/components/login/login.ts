@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
@@ -9,10 +9,10 @@ import { PasswordModule } from 'primeng/password';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, ButtonModule, InputTextModule, PasswordModule, CardModule],
+  imports: [ReactiveFormsModule, ButtonModule, InputTextModule, PasswordModule, CardModule, RouterModule],
   templateUrl: './login.html'
 })
-export class LoginComponent {
+export class Login {
   loginForm = new FormGroup({
     username: new FormControl('', Validators.required),
     password: new FormControl('', Validators.required)
@@ -22,11 +22,11 @@ export class LoginComponent {
 
   onLogin() {
     const { username, password } = this.loginForm.value;
-    if (username === 'admin@uteq.edu.mx' && password === 'Pass123!#') {
-      console.log('Login exitoso');
-      this.router.navigate(['/landing']);
+    if (username === 'admin@uteq.edu.mx' && password === 'Admin123!#') {
+      alert('¡Acceso concedido!');
+      this.router.navigate(['/']);
     } else {
-      alert('Usuario o contraseña incorrectos');
+      alert('Credenciales inválidas. Intenta de nuevo.');
     }
   }
 }
