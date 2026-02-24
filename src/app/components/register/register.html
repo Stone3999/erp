@@ -22,5 +22,8 @@
                 <p-button label="Cancelar" [routerLink]="['/']" class="flex-auto" severity="secondary" variant="text" />
             </div>
         </div>
+        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+            <p-button type="submit" label="Registrar" [disabled]="registerForm.invalid" severity="success" />
+        </form>
     </p-card>
 </div>
