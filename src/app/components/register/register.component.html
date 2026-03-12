@@ -1,0 +1,202 @@
+<p-toast></p-toast>
+<div class="auth-container" style="background-color: var(--r4u-bg-page); min-height: 100vh;">
+  <div class="auth-card-wrapper register" >
+
+    <!-- LOGO -->
+    <div class="auth-logo" (click)="goToHome()">
+      <span>Rooms4ums</span>
+    </div>
+
+    <!-- CARD REGISTER -->
+    <p-card>
+      <ng-template pTemplate="header">
+        <div class="auth-header">
+          <h2>Crear una cuenta</h2>
+        </div>
+      </ng-template>
+
+      <p-fluid>
+        <!-- USUARIO -->
+        <div class="field-group">
+          <label for="usuario">
+            <i class="pi pi-user mr-1"></i>Usuario <span class="required">*</span>
+          </label>
+          <p-iconfield>
+            <p-inputicon styleClass="pi pi-user"></p-inputicon>
+            <input pInputText id="usuario" type="text" [(ngModel)]="usuario" placeholder="nombre_usuario" />
+          </p-iconfield>
+          <small *ngIf="fieldErrors['usuario']" class="field-error">
+            <i class="pi pi-exclamation-circle"></i>{{ fieldErrors['usuario'] }}
+          </small>
+        </div>
+
+        <!-- EMAIL -->
+        <div class="field-group">
+          <label for="regEmail">
+            <i class="pi pi-envelope mr-1"></i>Correo electrónico <span class="required">*</span>
+          </label>
+          <p-iconfield>
+            <p-inputicon styleClass="pi pi-envelope"></p-inputicon>
+            <input pInputText id="regEmail" type="email" [(ngModel)]="email" placeholder="tu@email.com" />
+          </p-iconfield>
+          <small *ngIf="fieldErrors['email']" class="field-error">
+            <i class="pi pi-exclamation-circle"></i>{{ fieldErrors['email'] }}
+          </small>
+        </div>
+
+        <!-- NOMBRE COMPLETO -->
+        <div class="field-group">
+          <label for="fullName">
+            <i class="pi pi-id-card mr-1"></i>Nombre completo <span class="required">*</span>
+          </label>
+          <p-iconfield>
+            <p-inputicon styleClass="pi pi-id-card"></p-inputicon>
+            <input pInputText id="fullName" type="text" [(ngModel)]="fullName" placeholder="Juan Pérez García" />
+          </p-iconfield>
+          <small *ngIf="fieldErrors['fullName']" class="field-error">
+            <i class="pi pi-exclamation-circle"></i>{{ fieldErrors['fullName'] }}
+          </small>
+        </div>
+
+        <!-- TELÉFONO -->
+        <div class="field-group">
+          <label for="phone">
+            <i class="pi pi-phone mr-1"></i>Teléfono <span class="required">*</span>
+            <span class="hint">(solo números)</span>
+          </label>
+          <p-iconfield>
+            <p-inputicon styleClass="pi pi-phone"></p-inputicon>
+            <input pInputText id="phone" type="text" [(ngModel)]="phone" (input)="onPhoneInput($event)"
+              placeholder="1234567890" maxlength="10" />
+          </p-iconfield>
+          <small *ngIf="fieldErrors['phone']" class="field-error">
+            <i class="pi pi-exclamation-circle"></i>{{ fieldErrors['phone'] }}
+          </small>
+        </div>
+
+        <!-- FECHA DE NACIMIENTO -->
+        <div class="field-group">
+          <label for="birthDate">
+            <i class="pi pi-calendar mr-1"></i>Fecha de nacimiento <span class="required">*</span>
+            <span class="hint">(mayor de 18 años)</span>
+          </label>
+          <p-datepicker id="birthDate" [(ngModel)]="birthDate" [maxDate]="maxDate" dateFormat="dd/mm/yy"
+            placeholder="Selecciona tu fecha de nacimiento" [showIcon]="true" [showButtonBar]="true" appendTo="body">
+          </p-datepicker>
+          <small *ngIf="fieldErrors['birthDate']" class="field-error">
+            <i class="pi pi-exclamation-circle"></i>{{ fieldErrors['birthDate'] }}
+          </small>
+        </div>
+
+        <!-- DIRECCIÓN -->
+        <div class="field-group">
+          <label for="address">
+            <i class="pi pi-map-marker mr-1"></i>Dirección <span class="required">*</span>
+          </label>
+          <textarea pTextarea id="address" [(ngModel)]="address" placeholder="Calle, Número, Colonia, Ciudad, Estado"
+            rows="2" [autoResize]="true"></textarea>
+          <small *ngIf="fieldErrors['address']" class="field-error">
+            <i class="pi pi-exclamation-circle"></i>{{ fieldErrors['address'] }}
+          </small>
+        </div>
+
+        <!-- CONTRASEÑA -->
+        <div class="field-group">
+          <label for="regPassword">
+            <i class="pi pi-lock mr-1"></i>Contraseña <span class="required">*</span>
+          </label>
+          <p-password id="regPassword" [(ngModel)]="password" placeholder="Mínimo 10 caracteres con símbolos"
+            [toggleMask]="true" (onFocus)="showPasswordReqs = true" promptLabel="Ingresa una contraseña"
+            weakLabel="Débil" mediumLabel="Media" strongLabel="Fuerte">
+          </p-password>
+          <small *ngIf="fieldErrors['password']" class="field-error">
+            <i class="pi pi-exclamation-circle"></i>{{ fieldErrors['password'] }}
+          </small>
+
+          <!-- Requisitos de contraseña -->
+          <div *ngIf="showPasswordReqs || password.length > 0" class="password-reqs-box">
+            <p class="text-sm font-semibold" style="color: #ffffff">Requisitos de contraseña:</p>
+            <div class="flex flex-column gap-1">
+              <div class="text-sm" [style.color]="passwordChecks.length ? '#22c55e' : '#f87171'">
+                <i [class]="passwordChecks.length ? 'pi pi-check-circle' : 'pi pi-times-circle'" class="mr-1"></i>
+                Al menos 10 caracteres
+              </div>
+              <div class="text-sm" [style.color]="passwordChecks.uppercase ? '#22c55e' : '#f87171'">
+                <i [class]="passwordChecks.uppercase ? 'pi pi-check-circle' : 'pi pi-times-circle'" class="mr-1"></i>
+                Al menos una letra mayúscula (A-Z)
+              </div>
+              <div class="text-sm" [style.color]="passwordChecks.lowercase ? '#22c55e' : '#f87171'">
+                <i [class]="passwordChecks.lowercase ? 'pi pi-check-circle' : 'pi pi-times-circle'" class="mr-1"></i>
+                Al menos una letra minúscula (a-z)
+              </div>
+              <div class="text-sm" [style.color]="passwordChecks.number ? '#22c55e' : '#f87171'">
+                <i [class]="passwordChecks.number ? 'pi pi-check-circle' : 'pi pi-times-circle'" class="mr-1"></i>
+                Al menos un número (0-9)
+              </div>
+              <div class="text-sm" [style.color]="passwordChecks.special ? '#22c55e' : '#f87171'">
+                <i [class]="passwordChecks.special ? 'pi pi-check-circle' : 'pi pi-times-circle'" class="mr-1"></i>
+                Al menos un símbolo especial (!&#64;#$%^&amp;*()_+-=[]{{ '{' }}{{ '}' }}|;:,.&lt;&gt;?)
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CONFIRMAR CONTRASEÑA -->
+        <div class="field-group">
+          <label for="confirmPassword">
+            <i class="pi pi-lock mr-1"></i>Confirmar contraseña <span class="required">*</span>
+          </label>
+          <p-password id="confirmPassword" [(ngModel)]="confirmPassword" placeholder="Repite tu contraseña"
+            [toggleMask]="true" [feedback]="false">
+          </p-password>
+          <small *ngIf="fieldErrors['confirmPassword']" class="field-error">
+            <i class="pi pi-exclamation-circle"></i>{{ fieldErrors['confirmPassword'] }}
+          </small>
+          <small *ngIf="confirmPassword && password && confirmPassword === password && !fieldErrors['confirmPassword']"
+            class="field-success">
+            <i class="pi pi-check-circle"></i>Las contraseñas coinciden
+          </small>
+        </div>
+
+        <!-- TERMS -->
+        <div class="flex align-items-start gap-2 mb-4">
+          <p-checkbox [(ngModel)]="acceptTerms" [binary]="true" inputId="terms"></p-checkbox>
+          <div class="text-sm line-height-3" style="margin-top: 2px;">
+            <span class="text-color-secondary">Acepto los </span>
+            <span class="terms-link">Términos y Condiciones</span>
+            <span class="text-color-secondary"> y la </span>
+            <span class="terms-link">Política de Privacidad</span>
+          </div>
+        </div>
+
+        <small *ngIf="fieldErrors['terms']" class="field-error mb-3" style="display: block;">
+          <i class="pi pi-exclamation-circle"></i>{{ fieldErrors['terms'] }}
+        </small>
+
+        <!-- REGISTER BUTTON -->
+        <p-button label="Crear cuenta" (onClick)="onRegister()" [loading]="loading" icon="pi pi-user-plus"
+          iconPos="right" class="mb-3" [disabled]="!isFormValid">
+        </p-button>
+
+        <p-divider align="center">
+          <span class="text-sm" style="color: #6b7280;">O regístrate con</span>
+        </p-divider>
+
+        <!-- SOCIAL -->
+        <div class="flex gap-3">
+          <p-button icon="pi pi-google" label="Google" severity="secondary" [outlined]="true" class="flex-1"></p-button>
+          <p-button icon="pi pi-apple" label="Apple" severity="secondary" [outlined]="true" class="flex-1"></p-button>
+        </div>
+      </p-fluid>
+
+      <ng-template pTemplate="footer">
+        <div class="auth-footer pt-3">
+          <span class="text-color-secondary">¿Ya tienes cuenta?</span>
+          <div class="auth-link-btn pt-3">
+            <p-button label="Inicia sesión" [text]="true" (onClick)="goToLogin()" class="auth-link-btn"></p-button>
+          </div>
+        </div>
+      </ng-template>
+    </p-card>
+  </div>
+</div>

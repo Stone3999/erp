@@ -1,0 +1,24 @@
+<div class="flex flex-column" style="min-height: 100vh; background-color: var(--r4u-bg-page); color: var(--r4u-text-main);">
+
+  <div class="flex flex-1 flex-column align-items-center justify-content-center text-center p-8">
+    
+    <h1 class="text-6xl font-bold mb-3">
+      Rooms<span class="text-primary">4</span>ums
+    </h1>
+
+    <p class="text-xl text-color-secondary mb-5 line-height-3" style="max-width: 550px;">
+      Un foro para expresarte, chatear, y jugar.
+    </p>
+
+    <div class="flex gap-3">
+      <p-button label="Iniciar Sesión" [routerLink]="['/login']" severity="secondary" [outlined]="true" class="mr-2" icon="pi pi-sign-in"></p-button>
+      <p-button label="Registrarse" [routerLink]="['/register']" severity="primary" icon="pi pi-user-plus"></p-button>
+    </div>
+    
+  </div>
+
+  <div class="flex justify-content-center p-4">
+    <span class="text-color-secondary text-sm">&copy; 2026 rooms4ums. Todos los derechos reservados.</span>
+  </div>
+
+</div>

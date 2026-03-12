@@ -1,0 +1,34 @@
+.auth-card-wrapper.register {
+    max-width: 520px;
+}
+
+.password-reqs-box {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-top: 0.5rem;
+    background-color: #030303;
+    border: 1px solid #575757;
+    color: #374151;
+}
+
+.password-reqs-box p {
+    margin: 0 0 0.5rem 0;
+}
+
+/* Fila de términos inline */
+.terms-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.15rem;
+    color: #6b7280;
+}
+
+/* Botón con aspecto de link inline */
+:host ::ng-deep .auth-link-btn.p-button {
+    padding: 0;
+    height: auto;
+    font-weight: 600;
+    font-size: inherit;
+    vertical-align: baseline;
+}

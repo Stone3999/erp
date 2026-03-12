@@ -1,0 +1,146 @@
+<p-toast></p-toast>
+<p-confirmdialog></p-confirmdialog>
+
+<div class="page-container">
+
+    <div class="page-header">
+        <h2>Perfil de Usuario</h2>
+        <p>Información y datos de tu cuenta.</p>
+    </div>
+
+    <div class="card-wrapper">
+        <p-card class="perfil-card">
+            <ng-template pTemplate="header">
+                <div class="card-header-bar">
+                    <i class="pi pi-user card-header-icon"></i>
+                    <span class="card-header-title">Datos del Usuario</span>
+                </div>
+            </ng-template>
+
+            <!-- Avatar + name/role -->
+            <div class="user-avatar-block">
+                <p-avatar
+                    [label]="isLoggedIn ? 'JD' : '?'"
+                    size="xlarge"
+                    shape="circle"
+                    class="user-avatar"
+                ></p-avatar>
+                @if (isLoggedIn) {
+                <div class="user-meta">
+                    <span class="user-name-label">{{ profileName }}</span>
+                    <span class="user-role-badge">{{ profileRole }}</span>
+                </div>
+                }
+            </div>
+
+            <!-- Info fields -->
+            <div class="user-fields">
+
+                <!-- Nombre Completo -->
+                <div class="field-group">
+                    <label class="field-label">Nombre Completo</label>
+                    @if (editMode) {
+                        <input
+                            type="text"
+                            pInputText
+                            [(ngModel)]="editName"
+                            placeholder="Nombre completo"
+                            class="w-full"
+                        />
+                    } @else {
+                        <input
+                            type="text"
+                            pInputText
+                            [disabled]="true"
+                            [value]="isLoggedIn ? profileName : '—'"
+                            class="w-full"
+                        />
+                    }
+                </div>
+
+                <!-- Rol -->
+                <div class="field-group">
+                    <label class="field-label">Rol</label>
+                    @if (editMode) {
+                        <input
+                            type="text"
+                            pInputText
+                            [(ngModel)]="editRole"
+                            placeholder="Rol o cargo"
+                            class="w-full"
+                        />
+                    } @else {
+                        <input
+                            type="text"
+                            pInputText
+                            [disabled]="true"
+                            [value]="isLoggedIn ? profileRole : '—'"
+                            class="w-full"
+                        />
+                    }
+                </div>
+
+                <!-- Correo (siempre solo lectura) -->
+                <div class="field-group">
+                    <label class="field-label">Correo Electrónico</label>
+                    <input
+                        type="text"
+                        pInputText
+                        [disabled]="true"
+                        [value]="isLoggedIn ? currentUser : '—'"
+                        class="w-full"
+                    />
+                </div>
+
+                <!-- Última Conexión (siempre solo lectura) -->
+                <div class="field-group">
+                    <label class="field-label">Última Conexión</label>
+                    <input
+                        type="text"
+                        pInputText
+                        [disabled]="true"
+                        [value]="isLoggedIn ? '27/02/2026 10:30' : '—'"
+                        class="w-full"
+                    />
+                </div>
+            </div>
+
+            <!-- Acciones -->
+            <div class="user-actions">
+                @if (editMode) {
+                    <p-button
+                        label="Guardar"
+                        icon="pi pi-check"
+                        size="small"
+                        (onClick)="saveProfile()"
+                    ></p-button>
+                    <p-button
+                        label="Cancelar"
+                        icon="pi pi-times"
+                        size="small"
+                        severity="secondary"
+                        [text]="true"
+                        (onClick)="cancelEdit()"
+                    ></p-button>
+                } @else {
+                    <p-button
+                        label="Editar Perfil"
+                        icon="pi pi-user-edit"
+                        size="small"
+                        [disabled]="!isLoggedIn"
+                        (onClick)="startEdit()"
+                    ></p-button>
+                    <p-button
+                        label="Eliminar Perfil"
+                        icon="pi pi-trash"
+                        size="small"
+                        severity="danger"
+                        [outlined]="true"
+                        [disabled]="!isLoggedIn"
+                        (onClick)="confirmDeleteProfile()"
+                    ></p-button>
+                }
+            </div>
+        </p-card>
+    </div>
+</div>

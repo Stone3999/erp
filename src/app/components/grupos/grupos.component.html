@@ -1,0 +1,216 @@
+<p-toast></p-toast>
+<p-confirmdialog [style]="{ width: '420px' }"></p-confirmdialog>
+
+<div class="page-container">
+
+    <!-- Header -->
+    <div class="page-header">
+        <h2>Grupos</h2>
+        <p>Gestión y administración de grupos registrados en el sistema.</p>
+    </div>
+
+    <!-- Toolbar -->
+    <p-toolbar class="grupos-toolbar">
+        <ng-template pTemplate="start">
+            <p-button
+                label="Nuevo Grupo"
+                icon="pi pi-plus"
+                (onClick)="openNew()"
+            ></p-button>
+        </ng-template>
+        <ng-template pTemplate="end">
+            <span class="total-label">Total: <strong>{{ groups.length }}</strong></span>
+        </ng-template>
+    </p-toolbar>
+
+    <!-- Table -->
+    <p-table
+        [value]="groups"
+        [paginator]="true"
+        [rows]="8"
+        [rowsPerPageOptions]="[5, 8, 15]"
+        responsiveLayout="scroll"
+        [stripedRows]="true"
+        class="grupos-table"
+    >
+        <ng-template pTemplate="header">
+            <tr>
+                <th>Nombre</th>
+                <th>Categoría</th>
+                <th>Nivel</th>
+                <th>Autor</th>
+                <th style="text-align:center">Miembros</th>
+                <th style="text-align:center">Tickets</th>
+                <th style="text-align:center">Acciones</th>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-group>
+            <tr>
+                <td><strong>{{ group.nombre }}</strong></td>
+                <td>{{ group.categoria }}</td>
+                <td>
+                    <span [class]="'nivel-badge nivel-' + group.nivel.toLowerCase()">
+                        {{ group.nivel }}
+                    </span>
+                </td>
+                <td>{{ group.autor }}</td>
+                <td style="text-align:center">{{ group.miembros }}</td>
+                <td style="text-align:center">{{ group.tickets }}</td>
+                <td style="text-align:center">
+                    <p-button
+                        icon="pi pi-pencil"
+                        [text]="true"
+                        severity="info"
+                        (onClick)="editGroup(group)"
+                        pTooltip="Editar"
+                        tooltipPosition="top"
+                    ></p-button>
+                    <p-button
+                        icon="pi pi-trash"
+                        [text]="true"
+                        severity="danger"
+                        (onClick)="deleteGroup(group)"
+                        pTooltip="Eliminar"
+                        tooltipPosition="top"
+                    ></p-button>
+                </td>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="7" class="empty-message">
+                    <i class="pi pi-inbox empty-icon"></i>
+                    <span>No hay grupos registrados. Crea uno nuevo.</span>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+
+</div>
+
+<!-- Dialog Crear / Editar -->
+<p-dialog
+    [(visible)]="dialogVisible"
+    [header]="isEditMode ? 'Editar Grupo' : 'Nuevo Grupo'"
+    [modal]="true"
+    [style]="{ width: '500px' }"
+    [closable]="true"
+    (onHide)="closeDialog()"
+>
+    <form [formGroup]="groupForm" class="group-form">
+
+        <!-- Nombre -->
+        <div class="field">
+            <label for="nombre">Nombre <span class="required">*</span></label>
+            <input
+                id="nombre"
+                type="text"
+                pInputText
+                formControlName="nombre"
+                placeholder="Nombre del grupo"
+                [class.ng-invalid]="isInvalid('nombre')"
+                [class.ng-dirty]="isInvalid('nombre')"
+            />
+            @if (isInvalid('nombre')) {
+                <small class="p-error">El nombre es requerido (mínimo 3 caracteres).</small>
+            }
+        </div>
+
+        <!-- Categoria -->
+        <div class="field">
+            <label for="categoria">Categoría <span class="required">*</span></label>
+            <p-select
+                id="categoria"
+                formControlName="categoria"
+                [options]="categorias"
+                placeholder="Selecciona una categoría"
+                [class.ng-invalid]="isInvalid('categoria')"
+                styleClass="w-full"
+            ></p-select>
+            @if (isInvalid('categoria')) {
+                <small class="p-error">La categoría es requerida.</small>
+            }
+        </div>
+
+        <!-- Nivel -->
+        <div class="field">
+            <label for="nivel">Nivel <span class="required">*</span></label>
+            <p-select
+                id="nivel"
+                formControlName="nivel"
+                [options]="niveles"
+                placeholder="Selecciona un nivel"
+                [class.ng-invalid]="isInvalid('nivel')"
+                styleClass="w-full"
+            ></p-select>
+            @if (isInvalid('nivel')) {
+                <small class="p-error">El nivel es requerido.</small>
+            }
+        </div>
+
+        <!-- Autor -->
+        <div class="field">
+            <label for="autor">Autor (correo) <span class="required">*</span></label>
+            <input
+                id="autor"
+                type="email"
+                pInputText
+                formControlName="autor"
+                placeholder="correo@ejemplo.com"
+                [class.ng-invalid]="isInvalid('autor')"
+                [class.ng-dirty]="isInvalid('autor')"
+            />
+            @if (isInvalid('autor')) {
+                <small class="p-error">Ingresa un correo electrónico válido.</small>
+            }
+        </div>
+
+        <!-- Miembros y Tickets en fila -->
+        <div class="field-row">
+            <div class="field">
+                <label for="miembros">Miembros <span class="required">*</span></label>
+                <p-inputnumber
+                    id="miembros"
+                    formControlName="miembros"
+                    [min]="1"
+                    [showButtons]="true"
+                    [class.ng-invalid]="isInvalid('miembros')"
+                ></p-inputnumber>
+                @if (isInvalid('miembros')) {
+                    <small class="p-error">Mínimo 1 miembro.</small>
+                }
+            </div>
+            <div class="field">
+                <label for="tickets">Tickets <span class="required">*</span></label>
+                <p-inputnumber
+                    id="tickets"
+                    formControlName="tickets"
+                    [min]="0"
+                    [showButtons]="true"
+                    [class.ng-invalid]="isInvalid('tickets')"
+                ></p-inputnumber>
+                @if (isInvalid('tickets')) {
+                    <small class="p-error">Ingresa un valor válido (mínimo 0).</small>
+                }
+            </div>
+        </div>
+
+    </form>
+
+    <ng-template pTemplate="footer">
+        <p-button
+            label="Cancelar"
+            icon="pi pi-times"
+            [text]="true"
+            severity="secondary"
+            (onClick)="closeDialog()"
+        ></p-button>
+        <p-button
+            [label]="isEditMode ? 'Actualizar' : 'Guardar'"
+            icon="pi pi-check"
+            (onClick)="saveGroup()"
+        ></p-button>
+    </ng-template>
+</p-dialog>
