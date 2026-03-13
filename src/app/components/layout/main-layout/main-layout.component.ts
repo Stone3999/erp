@@ -61,13 +61,16 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
                 routerLink: '/dashboard',
                 styleClass: url === '/dashboard' ? 'menu-active-item' : '',
             },
-            {
-                label: 'Rooms (Grupos)',
-                icon: 'pi pi-users',
-                routerLink: '/dashboard/grupos',
-                styleClass: url.includes('/dashboard/grupos') ? 'menu-active-item' : '',
-            }
         ];
+
+        if (this.authService.hasPermission('group:edit')) {
+            this.menuItems.push({
+                label: 'Gestión de Rooms',
+                icon: 'pi pi-users',
+                routerLink: '/dashboard/grupos', // O la ruta que estés usando para este componente
+                styleClass: url.includes('/dashboard/grupos') ? 'menu-active-item' : '',
+            });
+        }
 
         // CONDICIONAL: Solo si el JWT dice que tiene permiso de ver usuarios
         if (this.authService.hasPermission('view:users')) {

@@ -124,3 +124,49 @@
 :host ::ng-deep .field-row .p-inputnumber .p-inputtext {
     width: 100%;
 }
+
+
+/* ==============================================
+   NUEVOS ESTILOS PARA LA GESTIÓN DE MIEMBROS (MODAL)
+   ============================================== */
+
+.panel-miembros {
+    border-left: 1px solid var(--r4u-border);
+}
+
+@media screen and (max-width: 768px) {
+    .panel-miembros {
+        border-left: none;
+        border-top: 1px solid var(--r4u-border);
+        padding-top: 1.5rem;
+    }
+}
+
+.members-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 280px; /* Limita la altura de la lista */
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+.member-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--r4u-border);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    transition: background-color 0.2s;
+}
+
+.member-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Scrollbars custom para la lista de miembros */
+.members-list::-webkit-scrollbar { width: 6px; }
+.members-list::-webkit-scrollbar-track { background: transparent; }
+.members-list::-webkit-scrollbar-thumb { background-color: var(--r4u-border); border-radius: 10px; }

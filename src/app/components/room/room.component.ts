@@ -11,6 +11,7 @@ import { InputTextModule } from 'primeng/inputtext'; // Para el título del tick
 import { SelectModule } from 'primeng/select';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
+import { Divider } from 'primeng/divider';
 
 // IMPORTANTE: Módulos para arrastrar y soltar
 import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
@@ -52,7 +53,7 @@ export interface Ticket {
         CommonModule, RouterModule, FormsModule, 
         ButtonModule, CardModule, AvatarModule, 
         TagModule, ChartModule, DialogModule, InputTextModule,
-        DragDropModule, TableModule, SelectModule
+        DragDropModule, TableModule, SelectModule, Divider
     ],
     templateUrl: './room.component.html',
     styleUrl: './room.component.css',
@@ -78,10 +79,28 @@ export class RoomComponent implements OnInit {
 
     ticketCounter = 1;
 
-    vistaTabla: boolean = false;
+    // --- VARIABLES DE VISTAS Y FILTROS ---
+    vistaTabla: boolean = false; 
+    filtroActivo: string = 'todos'; // Puede ser: 'todos', 'mis-tickets', 'sin-asignar', 'prioridad-alta'
 
-    get todosLosTickets(): Ticket[] {
-        return [...this.pendientes, ...this.enProgreso, ...this.revision, ...this.finalizados];
+    // Función que evalúa si un ticket debe mostrarse según el filtro actual
+    cumpleFiltro(ticket: any): boolean {
+        if (this.filtroActivo === 'mis-tickets') {
+            return ticket.asignado === this.currentUser;
+        }
+        if (this.filtroActivo === 'sin-asignar') {
+            return !ticket.asignado || ticket.asignado.trim() === '';
+        }
+        if (this.filtroActivo === 'prioridad-alta') {
+            return ticket.prioridad === 'Alta';
+        }
+        return true; // Si es 'todos', mostramos todo
+    }
+
+    // Actualizamos el GET de la tabla para que filtre en vivo
+    get todosLosTickets(): any[] {
+        return [...this.pendientes, ...this.enProgreso, ...this.revision, ...this.finalizados]
+            .filter(t => this.cumpleFiltro(t));
     }
 
     constructor(

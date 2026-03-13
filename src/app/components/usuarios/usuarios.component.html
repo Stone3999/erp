@@ -1,198 +1,107 @@
 <p-toast></p-toast>
 <p-confirmdialog [style]="{ width: '420px' }"></p-confirmdialog>
 
-<div class="page-container">
+<div class="page-container p-4" style="background-color: var(--r4u-bg-page); min-height: 100vh;">
 
-    <!-- Header -->
     <div class="page-header">
-        <h2>Usuarios</h2>
-        <p>Gestión y administración de usuarios registrados en el sistema.</p>
+        <h2 style="color: var(--r4u-text-main);">Usuarios y Permisos</h2>
+        <p style="color: var(--r4u-text-muted);">Gestión y administración de usuarios y sus niveles de acceso.</p>
     </div>
 
-    <!-- Toolbar -->
-    <p-toolbar class="usuarios-toolbar">
+    <p-toolbar class="usuarios-toolbar" styleClass="dark-toolbar">
         <ng-template pTemplate="start">
-            <p-button
-                label="Nuevo Usuario"
-                icon="pi pi-user-plus"
-                (onClick)="openNew()"
-            ></p-button>
+            <p-button label="Nuevo Usuario" icon="pi pi-user-plus" (onClick)="openNew()"></p-button>
         </ng-template>
         <ng-template pTemplate="end">
-            <span class="total-label">Total: <strong>{{ usuarios.length }}</strong></span>
+            <span class="total-label" style="color: var(--r4u-text-muted);">Total: <strong style="color: var(--r4u-text-main);">{{ usuarios.length }}</strong></span>
         </ng-template>
     </p-toolbar>
 
-    <!-- Table -->
-    <p-table
-        [value]="usuarios"
-        [paginator]="true"
-        [rows]="8"
-        [rowsPerPageOptions]="[5, 8, 15]"
-        responsiveLayout="scroll"
-        [stripedRows]="true"
-        class="usuarios-table"
-    >
-        <ng-template pTemplate="header">
-            <tr>
-                <th>Nombre</th>
-                <th>Correo</th>
-                <th>Rol</th>
-                <th>Grupo</th>
-                <th style="text-align:center">Estado</th>
-                <th style="text-align:center">Acciones</th>
-            </tr>
-        </ng-template>
+    <div class="table-card p-3 mt-3">
+        <p-table [value]="usuarios" [paginator]="true" [rows]="8" responsiveLayout="scroll" class="usuarios-table dark-table">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Nombre</th>
+                    <th>Correo</th>
+                    <th>Rol</th>
+                    <th>Grupo</th>
+                    <th style="width: 25%;">Permisos</th>
+                    <th style="text-align:center">Estado</th>
+                    <th style="text-align:center">Acciones</th>
+                </tr>
+            </ng-template>
 
-        <ng-template pTemplate="body" let-usuario>
-            <tr>
-                <td><strong>{{ usuario.nombre }} {{ usuario.apellido }}</strong></td>
-                <td>{{ usuario.correo }}</td>
-                <td>
-                    <span [class]="'rol-badge rol-' + usuario.rol.toLowerCase()">
-                        {{ usuario.rol }}
-                    </span>
-                </td>
-                <td>{{ usuario.grupo }}</td>
-                <td style="text-align:center">
-                    <span [class]="'estado-badge ' + (usuario.activo ? 'estado-activo' : 'estado-inactivo')">
-                        {{ usuario.activo ? 'Activo' : 'Inactivo' }}
-                    </span>
-                </td>
-                <td style="text-align:center">
-                    <p-button
-                        icon="pi pi-pencil"
-                        [text]="true"
-                        severity="info"
-                        (onClick)="editUsuario(usuario)"
-                        pTooltip="Editar"
-                        tooltipPosition="top"
-                    ></p-button>
-                    <p-button
-                        icon="pi pi-trash"
-                        [text]="true"
-                        severity="danger"
-                        (onClick)="deleteUsuario(usuario)"
-                        pTooltip="Eliminar"
-                        tooltipPosition="top"
-                    ></p-button>
-                </td>
-            </tr>
-        </ng-template>
-
-        <ng-template pTemplate="emptymessage">
-            <tr>
-                <td colspan="6" class="empty-message">
-                    <i class="pi pi-users empty-icon"></i>
-                    <span>No hay usuarios registrados. Crea uno nuevo.</span>
-                </td>
-            </tr>
-        </ng-template>
-    </p-table>
+            <ng-template pTemplate="body" let-usuario>
+                <tr>
+                    <td><strong style="color: var(--r4u-text-main);">{{ usuario.nombre }} {{ usuario.apellido }}</strong></td>
+                    <td style="color: var(--r4u-text-muted);">{{ usuario.correo }}</td>
+                    <td>
+                        <span [class]="'rol-badge rol-' + usuario.rol.toLowerCase()">{{ usuario.rol }}</span>
+                    </td>
+                    <td style="color: var(--r4u-text-muted);">{{ usuario.grupo }}</td>
+                    <td>
+                        <div class="flex flex-wrap gap-1">
+                            <p-tag *ngFor="let p of usuario.permisos" [value]="p" severity="secondary" [rounded]="true" styleClass="text-xs"></p-tag>
+                            <span *ngIf="!usuario.permisos || usuario.permisos.length === 0" style="color: var(--r4u-text-muted); font-size: 0.8rem;">Ninguno</span>
+                        </div>
+                    </td>
+                    <td style="text-align:center">
+                        <span [class]="'estado-badge ' + (usuario.activo ? 'estado-activo' : 'estado-inactivo')">
+                            {{ usuario.activo ? 'Activo' : 'Inactivo' }}
+                        </span>
+                    </td>
+                    <td style="text-align:center">
+                        <p-button icon="pi pi-pencil" class="p-2" [text]="true" severity="info" (onClick)="editUsuario(usuario)" pTooltip="Editar"></p-button>
+                        <p-button icon="pi pi-trash" class="p-2" [text]="true" severity="danger" (onClick)="deleteUsuario(usuario)" pTooltip="Eliminar" [disabled]="usuario.rol === 'superAdmin'"></p-button>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
 
 </div>
 
-<!-- Dialog Crear / Editar -->
-<p-dialog
-    [(visible)]="dialogVisible"
-    [header]="isEditMode ? 'Editar Usuario' : 'Nuevo Usuario'"
-    [modal]="true"
-    [style]="{ width: '500px' }"
-    [closable]="true"
-    (onHide)="closeDialog()"
->
+<p-dialog [(visible)]="dialogVisible" [header]="isEditMode ? 'Editar Usuario' : 'Nuevo Usuario'" [modal]="true" [style]="{ width: '550px' }" [closable]="true" (onHide)="closeDialog()">
     <form [formGroup]="usuarioForm" class="usuario-form">
 
-        <!-- Nombre y Apellido en fila -->
         <div class="field-row">
             <div class="field">
                 <label for="nombre">Nombre <span class="required">*</span></label>
-                <input
-                    id="nombre"
-                    type="text"
-                    pInputText
-                    formControlName="nombre"
-                    placeholder="Nombre"
-                    [class.ng-invalid]="isInvalid('nombre')"
-                    [class.ng-dirty]="isInvalid('nombre')"
-                />
-                @if (isInvalid('nombre')) {
-                    <small class="p-error">Nombre requerido (mínimo 2 caracteres).</small>
-                }
+                <input id="nombre" type="text" pInputText formControlName="nombre" placeholder="Nombre" [class.ng-invalid]="isInvalid('nombre')" />
             </div>
             <div class="field">
                 <label for="apellido">Apellido <span class="required">*</span></label>
-                <input
-                    id="apellido"
-                    type="text"
-                    pInputText
-                    formControlName="apellido"
-                    placeholder="Apellido"
-                    [class.ng-invalid]="isInvalid('apellido')"
-                    [class.ng-dirty]="isInvalid('apellido')"
-                />
-                @if (isInvalid('apellido')) {
-                    <small class="p-error">Apellido requerido (mínimo 2 caracteres).</small>
-                }
+                <input id="apellido" type="text" pInputText formControlName="apellido" placeholder="Apellido" [class.ng-invalid]="isInvalid('apellido')" />
             </div>
         </div>
 
-        <!-- Correo -->
         <div class="field">
             <label for="correo">Correo electrónico <span class="required">*</span></label>
-            <input
-                id="correo"
-                type="email"
-                pInputText
-                formControlName="correo"
-                placeholder="correo@ejemplo.com"
-                [class.ng-invalid]="isInvalid('correo')"
-                [class.ng-dirty]="isInvalid('correo')"
-            />
-            @if (isInvalid('correo')) {
-                <small class="p-error">Ingresa un correo electrónico válido.</small>
-            }
+            <input id="correo" type="email" pInputText formControlName="correo" placeholder="correo@ejemplo.com" [class.ng-invalid]="isInvalid('correo')" />
         </div>
 
-        <!-- Rol -->
-        <div class="field">
-            <label for="rol">Rol <span class="required">*</span></label>
-            <p-select
-                id="rol"
-                formControlName="rol"
-                [options]="roles"
-                placeholder="Selecciona un rol"
-                [class.ng-invalid]="isInvalid('rol')"
-                styleClass="w-full"
-            ></p-select>
-            @if (isInvalid('rol')) {
-                <small class="p-error">El rol es requerido.</small>
-            }
+        <div class="field-row">
+            <div class="field">
+                <label for="rol">Rol <span class="required">*</span></label>
+                <p-select id="rol" formControlName="rol" [options]="roles" placeholder="Selecciona un rol" [class.ng-invalid]="isInvalid('rol')" styleClass="w-full" appendTo="body"></p-select>
+            </div>
+            <div class="field">
+                <label for="grupo">Grupo <span class="required">*</span></label>
+                <p-select id="grupo" formControlName="grupo" [options]="grupos" placeholder="Selecciona un grupo" [class.ng-invalid]="isInvalid('grupo')" styleClass="w-full" appendTo="body"></p-select>
+            </div>
         </div>
 
-        <!-- Grupo -->
-        <div class="field">
-            <label for="grupo">Grupo <span class="required">*</span></label>
-            <p-select
-                id="grupo"
-                formControlName="grupo"
-                [options]="grupos"
-                placeholder="Selecciona un grupo"
-                [class.ng-invalid]="isInvalid('grupo')"
-                styleClass="w-full"
-            ></p-select>
-            @if (isInvalid('grupo')) {
-                <small class="p-error">El grupo es requerido.</small>
-            }
+        <div class="field mt-2">
+            <label>Permisos de Acceso <span class="required">*</span></label>
+            <p-multiSelect formControlName="permisos" [options]="listaPermisos" defaultLabel="Selecciona los permisos" display="chip" styleClass="w-full" appendTo="body" [class.ng-invalid]="isInvalid('permisos')"></p-multiSelect>
         </div>
 
-        <!-- Estado activo -->
-        <div class="field field-toggle">
+        <div class="field field-toggle mt-2">
             <label>Estado</label>
             <div class="toggle-row">
                 <p-toggleswitch formControlName="activo"></p-toggleswitch>
-                <span class="toggle-label">
-                    {{ usuarioForm.get('activo')?.value ? 'Activo' : 'Inactivo' }}
+                <span class="toggle-label" style="color: var(--r4u-text-main);">
+                    {{ usuarioForm.get('activo')?.value ? 'Activo (Permite login)' : 'Inactivo (Bloqueado)' }}
                 </span>
             </div>
         </div>
@@ -200,17 +109,7 @@
     </form>
 
     <ng-template pTemplate="footer">
-        <p-button
-            label="Cancelar"
-            icon="pi pi-times"
-            [text]="true"
-            severity="secondary"
-            (onClick)="closeDialog()"
-        ></p-button>
-        <p-button
-            [label]="isEditMode ? 'Actualizar' : 'Guardar'"
-            icon="pi pi-check"
-            (onClick)="saveUsuario()"
-        ></p-button>
+        <p-button label="Cancelar" icon="pi pi-times" [text]="true" severity="secondary" (onClick)="closeDialog()"></p-button>
+        <p-button [label]="isEditMode ? 'Actualizar' : 'Guardar'" icon="pi pi-check" (onClick)="saveUsuario()"></p-button>
     </ng-template>
 </p-dialog>

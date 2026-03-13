@@ -22,8 +22,17 @@
         </p-card>
     </div>
 
+    <p-divider class=""></p-divider>
 
-    <h2 class="text-2xl font-bold mb-3" style="color: var(--r4u-text-main);">Tablero de Trabajo</h2>
+    <h2 class="text-2xl font-bold mb-3 text-center pt-4" style="color: var(--r4u-text-main);">Tablero de Trabajo</h2>
+    <h3 class="font-bold mb-1" style="color: var(--r4u-text-main);">Filtros</h3>
+
+    <div class="flex gap-2 mr-3 p-1 hidden md:flex">
+        <p-button label="Todos" [outlined]="filtroActivo !== 'todos'" size="small" severity="secondary" (onClick)="filtroActivo = 'todos'"></p-button>
+        <p-button label="Mis Tickets" icon="pi pi-user" [outlined]="filtroActivo !== 'mis-tickets'" size="small" severity="info" (onClick)="filtroActivo = 'mis-tickets'"></p-button>
+        <p-button label="Sin Asignar" icon="pi pi-question-circle" [outlined]="filtroActivo !== 'sin-asignar'" size="small" severity="warn" (onClick)="filtroActivo = 'sin-asignar'"></p-button>
+        <p-button label="Prioridad Alta" icon="pi pi-bolt" [outlined]="filtroActivo !== 'prioridad-alta'" size="small" severity="danger" (onClick)="filtroActivo = 'prioridad-alta'"></p-button>
+    </div>
     <p-button [icon]="vistaTabla ? 'pi pi-th-large' : 'pi pi-list'" [label]="vistaTabla ? 'Ver Tablero' : 'Ver Tabla'" (onClick)="vistaTabla = !vistaTabla" severity="secondary" class="mb-3"></p-button>
     
     <div class="kanban-board" cdkDropListGroup *ngIf="!vistaTabla">
@@ -33,7 +42,7 @@
                 <h3>Pendiente ({{pendientes.length}})</h3>
             </div>
             <div class="kanban-list" cdkDropList [cdkDropListData]="pendientes" (cdkDropListDropped)="drop($event, 'Pendiente')">
-                <div class="ticket-card" *ngFor="let item of pendientes" cdkDrag [cdkDragDisabled]="!puedeMoverTicket(item)" (click)="abrirDetalles(item)">
+                <div class="ticket-card" *ngFor="let item of pendientes" cdkDrag [cdkDragDisabled]="!puedeMoverTicket(item)" (click)="abrirDetalles(item)" [style.display]="cumpleFiltro(item) ? 'block' : 'none'">
                     <div class="font-bold mb-2">{{item.titulo}}</div>
                     <div class="flex justify-content-between align-items-center text-sm mb-2">
                         <span style="color: var(--r4u-text-muted);"><i class="pi pi-user mr-1"></i>{{item.asignado}}</span>
@@ -51,7 +60,7 @@
                 <h3>En Progreso ({{enProgreso.length}})</h3>
             </div>
             <div class="kanban-list" cdkDropList [cdkDropListData]="enProgreso" (cdkDropListDropped)="drop($event, 'En Progreso')">
-                <div class="ticket-card" *ngFor="let item of enProgreso" cdkDrag [cdkDragDisabled]="!puedeMoverTicket(item)" (click)="abrirDetalles(item)">
+                <div class="ticket-card" *ngFor="let item of enProgreso" cdkDrag [cdkDragDisabled]="!puedeMoverTicket(item)" (click)="abrirDetalles(item)"[style.display]="cumpleFiltro(item) ? 'block' : 'none'">
                     <div class="font-bold mb-2">{{item.titulo}}</div>
                     <div class="flex justify-content-between align-items-center text-sm">
                         <span style="color: var(--r4u-text-muted);"><i class="pi pi-user mr-1"></i>{{item.asignado}}</span>
@@ -69,7 +78,7 @@
                 <h3>Revisión ({{revision.length}})</h3>
             </div>
             <div class="kanban-list" cdkDropList [cdkDropListData]="revision" (cdkDropListDropped)="drop($event, 'Revisión')">
-                <div class="ticket-card" *ngFor="let item of revision" cdkDrag  [cdkDragDisabled]="!puedeMoverTicket(item)" (click)="abrirDetalles(item)">
+                <div class="ticket-card" *ngFor="let item of revision" cdkDrag  [cdkDragDisabled]="!puedeMoverTicket(item)" (click)="abrirDetalles(item)" [style.display]="cumpleFiltro(item) ? 'block' : 'none'">
                     <div class="font-bold mb-2">{{item.titulo}}</div>
                     <div class="flex justify-content-between align-items-center text-sm">
                         <span style="color: var(--r4u-text-muted);"><i class="pi pi-user mr-1"></i>{{item.asignado}}</span>
@@ -87,7 +96,7 @@
                 <h3>Finalizado ({{finalizados.length}})</h3>
             </div>
             <div class="kanban-list" cdkDropList [cdkDropListData]="finalizados" (cdkDropListDropped)="drop($event, 'Finalizado')">
-                <div class="ticket-card" *ngFor="let item of finalizados" cdkDrag [cdkDragDisabled]="!puedeMoverTicket(item)" (click)="abrirDetalles(item)">
+                <div class="ticket-card" *ngFor="let item of finalizados" cdkDrag [cdkDragDisabled]="!puedeMoverTicket(item)" (click)="abrirDetalles(item)" [style.display]="cumpleFiltro(item) ? 'block' : 'none'" >
                     <div class="font-bold mb-2 text-strike" style="color: var(--r4u-text-muted)">{{item.titulo}}</div>
                     <div class="flex justify-content-between align-items-center text-sm">
                         <span style="color: var(--r4u-text-muted);"><i class="pi pi-user mr-1"></i>{{item.asignado}}</span>

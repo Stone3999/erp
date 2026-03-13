@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { permissionGuard } from './services/permission.guard';
 
 export const routes: Routes = [
     {
@@ -34,11 +35,15 @@ export const routes: Routes = [
                 path: 'grupos',
                 loadComponent: () =>
                     import('./components/grupos/grupos.component').then((m) => m.GruposComponent),
+                canActivate: [permissionGuard], // <-- Guardián activo
+                data: { permission: 'group:edit' } // <-- Requiere ser Admin de grupos
             },
             {
                 path: 'usuarios',
                 loadComponent: () =>
                     import('./components/usuarios/usuarios.component').then((m) => m.UsuariosComponent),
+                canActivate: [permissionGuard], // <-- Guardián activo
+                data: { permission: 'view:users' } // <-- Requiere tener permiso de ver usuarios
             },
             {
                 path: 'perfil',

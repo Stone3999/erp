@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 
+
 export interface RegisteredUser {
     usuario: string;
     email: string;
@@ -16,7 +17,7 @@ export interface RegisteredUser {
 export class AuthService {
     // 1. Agregamos name y permissions a tus usuarios existentes
     private readonly HARDCODED_CREDENTIALS = [
-        { email: 'admin@miapp.com', password: 'Admin@12345', name: 'Admin Jefe', permissions: ['ticket:create', 'ticket:edit_all', 'ticket:delete', 'view:dashboard', 'view:users'] },
+        { email: 'admin@miapp.com', password: 'Admin@12345', name: 'Admin Jefe', permissions: ['ticket:create', 'ticket:edit_all', 'ticket:delete', 'view:dashboard', 'view:users', 'group:add', 'group:edit', 'group:delete'] },
         { email: 'usuario@miapp.com', password: 'User@12345!', name: 'Agente Soporte', permissions: ['ticket:edit_assigned', 'ticket:comment', 'view:dashboard'] },
         { email: 'test@miapp.com', password: 'Test#12345', name: 'Solo Lector', permissions: ['view:dashboard'] },
     ];
