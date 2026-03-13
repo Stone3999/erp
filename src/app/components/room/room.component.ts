@@ -8,6 +8,8 @@ import { CardModule } from 'primeng/card';
 import { ChartModule } from 'primeng/chart';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext'; // Para el título del ticket
+import { SelectModule } from 'primeng/select';
+import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 
 // IMPORTANTE: Módulos para arrastrar y soltar
@@ -50,7 +52,7 @@ export interface Ticket {
         CommonModule, RouterModule, FormsModule, 
         ButtonModule, CardModule, AvatarModule, 
         TagModule, ChartModule, DialogModule, InputTextModule,
-        DragDropModule // <--- Añadimos el módulo aquí
+        DragDropModule, TableModule, SelectModule
     ],
     templateUrl: './room.component.html',
     styleUrl: './room.component.css',
@@ -65,14 +67,22 @@ export class RoomComponent implements OnInit {
     showTicketModal = false;
     selectedStatus: string | null = null;
     nuevoTitulo: string = '';
+    nuevoComentario: string = '';
 
     // --- ARREGLOS DEL KANBAN ---
     pendientes: Ticket[] = [];
     enProgreso: Ticket[] = [];
     revision: Ticket[] = [];
     finalizados: Ticket[] = [];
+    usuariosDisponibles: string[] = ['Admin Jefe', 'Agente Soporte', 'Solo Lector'];
 
     ticketCounter = 1;
+
+    vistaTabla: boolean = false;
+
+    get todosLosTickets(): Ticket[] {
+        return [...this.pendientes, ...this.enProgreso, ...this.revision, ...this.finalizados];
+    }
 
     constructor(
         private authService: AuthService,
@@ -89,9 +99,9 @@ export class RoomComponent implements OnInit {
             { 
                 id: 1, 
                 titulo: 'Diseñar logo', 
-                descripcion: 'Se necesita el logo en formato SVG',
+                descripcion: 'Se necesita el logo nuevo',
                 estado: 'Pendiente', 
-                asignado: 'admin@miapp.com', 
+                asignado: 'Agente Soporte', 
                 creador: 'admin@miapp.com', // <-- Nuevo
                 prioridad: 'Alta', 
                 fecha: new Date(),
@@ -105,8 +115,8 @@ export class RoomComponent implements OnInit {
                 id: 2, 
                 titulo: 'Configurar base de datos', 
                 estado: 'En Progreso', 
-                asignado: this.currentUser, 
-                creador: 'usuario@miapp.com', // <-- Nuevo
+                asignado: 'Admin Jefe', 
+                creador: 'admin@miapp.com', // <-- Nuevo
                 prioridad: 'Media', 
                 fecha: new Date(),
                 comentarios: [], // <-- Nuevo
@@ -214,9 +224,21 @@ export class RoomComponent implements OnInit {
     }
 
     abrirDetalles(ticket: Ticket) {
-        // Hacemos una copia del ticket para no modificar el original hasta darle "Guardar"
+        if (!this.puedeMoverTicket(ticket)) {
+            return; 
+        }
+
+        this.ticketEditando = JSON.parse(JSON.stringify(ticket));
+        this.nuevoComentario = '';
+        this.showEditModal = true;
         this.ticketEditando = { ...ticket };
         this.showEditModal = true;
+    }
+
+    cambiarEstado(nuevoEstado: string) {
+        if (this.ticketEditando && (this.puedeEditarTodo || this.esAsignado)) {
+            this.ticketEditando.estado = nuevoEstado;
+        }
     }
 
     guardarDetalles() {
@@ -245,9 +267,39 @@ export class RoomComponent implements OnInit {
     }
 
     puedeMoverTicket(ticket: Ticket): boolean {
-        // Para arrastrar un ticket necesitas ser el creador, el asignado, o ser Admin supremo
-        return ticket.creador === this.currentUser || 
-               ticket.asignado === this.currentUser || 
-               this.authService.hasPermission('ticket:edit_all');
+        return ticket.asignado === this.currentUser || this.authService.hasPermission('ticket:edit_all');
+    }
+
+    get puedeEditarTodo(): boolean {
+        if (!this.ticketEditando) return false;
+        // Si tú lo creaste o eres admin supremo (por el JWT), puedes editar todo el ticket
+        return this.ticketEditando.creador === this.currentUser || this.authService.hasPermission('ticket:edit_all');
+    }
+
+    get esAsignado(): boolean {
+        if (!this.ticketEditando) return false;
+        // Eres el asignado (solo te deja comentar y cambiar de estado)
+        return this.ticketEditando.asignado === this.currentUser;
+    }
+
+    agregarComentario() {
+        if (!this.nuevoComentario.trim() || !this.ticketEditando) return;
+        
+        // 1. Metemos el mensaje al arreglo de comentarios
+        this.ticketEditando.comentarios.push({
+            usuario: this.currentUser,
+            texto: this.nuevoComentario,
+            fecha: new Date()
+        });
+        
+        // 2. Registramos en el historial que este wey comentó
+        this.ticketEditando.historial.unshift({
+            accion: 'Añadió un comentario',
+            usuario: this.currentUser,
+            fecha: new Date()
+        });
+
+        // 3. Limpiamos el input para que pueda escribir otro
+        this.nuevoComentario = '';
     }
 }

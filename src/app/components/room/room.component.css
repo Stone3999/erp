@@ -190,3 +190,43 @@
 .text-strike {
     text-decoration: line-through;
 }
+
+/* ==============================================
+   ESTILOS DE LAS TARJETAS DEL MODAL (CARD-PANELS)
+   ============================================== */
+.card-panel {
+    background-color: #242526; /* Fondo de la tarjeta */
+    border: 1px solid var(--r4u-border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Scrollbars chidas para el chat y el historial */
+.comentarios-box::-webkit-scrollbar,
+.historial-box::-webkit-scrollbar {
+    width: 6px;
+}
+.comentarios-box::-webkit-scrollbar-track,
+.historial-box::-webkit-scrollbar-track {
+    background: transparent;
+}
+.comentarios-box::-webkit-scrollbar-thumb,
+.historial-box::-webkit-scrollbar-thumb {
+    background-color: var(--r4u-border);
+    border-radius: 10px;
+}
+
+.ticket-card.cdk-drag-disabled {
+    cursor: not-allowed !important; /* Cursor de prohibido */
+    opacity: 0.8;
+}
+
+.ticket-card.cdk-drag-disabled:hover {
+    border-color: var(--r4u-border) !important; /* Le quitamos el brillo naranja al pasar el mouse */
+    transform: none !important; /* Que no flote */
+}
+
+.ticket-card.cdk-drag-disabled:active {
+    cursor: not-allowed !important; /* Que no salga la manita agarrando */
+}

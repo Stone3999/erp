@@ -4,6 +4,7 @@
         <div>
             <h1 class="text-3xl font-bold m-0" style="color: var(--r4u-text-main);">Panel del Room</h1>
         </div>
+        
         <p-button label="Crear Ticket" icon="pi pi-plus" (onClick)="openTicketModal()" severity="primary"></p-button>
     </div>
 
@@ -21,16 +22,18 @@
         </p-card>
     </div>
 
+
     <h2 class="text-2xl font-bold mb-3" style="color: var(--r4u-text-main);">Tablero de Trabajo</h2>
+    <p-button [icon]="vistaTabla ? 'pi pi-th-large' : 'pi pi-list'" [label]="vistaTabla ? 'Ver Tablero' : 'Ver Tabla'" (onClick)="vistaTabla = !vistaTabla" severity="secondary" class="mb-3"></p-button>
     
-    <div class="kanban-board" cdkDropListGroup>
+    <div class="kanban-board" cdkDropListGroup *ngIf="!vistaTabla">
         
         <div class="kanban-column">
             <div class="kanban-header warning-header">
                 <h3>Pendiente ({{pendientes.length}})</h3>
             </div>
             <div class="kanban-list" cdkDropList [cdkDropListData]="pendientes" (cdkDropListDropped)="drop($event, 'Pendiente')">
-                <div class="ticket-card" *ngFor="let item of pendientes" cdkDrag (click)="abrirDetalles(item)">
+                <div class="ticket-card" *ngFor="let item of pendientes" cdkDrag [cdkDragDisabled]="!puedeMoverTicket(item)" (click)="abrirDetalles(item)">
                     <div class="font-bold mb-2">{{item.titulo}}</div>
                     <div class="flex justify-content-between align-items-center text-sm mb-2">
                         <span style="color: var(--r4u-text-muted);"><i class="pi pi-user mr-1"></i>{{item.asignado}}</span>
@@ -48,7 +51,7 @@
                 <h3>En Progreso ({{enProgreso.length}})</h3>
             </div>
             <div class="kanban-list" cdkDropList [cdkDropListData]="enProgreso" (cdkDropListDropped)="drop($event, 'En Progreso')">
-                <div class="ticket-card" *ngFor="let item of enProgreso" cdkDrag (click)="abrirDetalles(item)">
+                <div class="ticket-card" *ngFor="let item of enProgreso" cdkDrag [cdkDragDisabled]="!puedeMoverTicket(item)" (click)="abrirDetalles(item)">
                     <div class="font-bold mb-2">{{item.titulo}}</div>
                     <div class="flex justify-content-between align-items-center text-sm">
                         <span style="color: var(--r4u-text-muted);"><i class="pi pi-user mr-1"></i>{{item.asignado}}</span>
@@ -66,7 +69,7 @@
                 <h3>Revisión ({{revision.length}})</h3>
             </div>
             <div class="kanban-list" cdkDropList [cdkDropListData]="revision" (cdkDropListDropped)="drop($event, 'Revisión')">
-                <div class="ticket-card" *ngFor="let item of revision" cdkDrag (click)="abrirDetalles(item)">
+                <div class="ticket-card" *ngFor="let item of revision" cdkDrag  [cdkDragDisabled]="!puedeMoverTicket(item)" (click)="abrirDetalles(item)">
                     <div class="font-bold mb-2">{{item.titulo}}</div>
                     <div class="flex justify-content-between align-items-center text-sm">
                         <span style="color: var(--r4u-text-muted);"><i class="pi pi-user mr-1"></i>{{item.asignado}}</span>
@@ -84,7 +87,7 @@
                 <h3>Finalizado ({{finalizados.length}})</h3>
             </div>
             <div class="kanban-list" cdkDropList [cdkDropListData]="finalizados" (cdkDropListDropped)="drop($event, 'Finalizado')">
-                <div class="ticket-card" *ngFor="let item of finalizados" cdkDrag (click)="abrirDetalles(item)">
+                <div class="ticket-card" *ngFor="let item of finalizados" cdkDrag [cdkDragDisabled]="!puedeMoverTicket(item)" (click)="abrirDetalles(item)">
                     <div class="font-bold mb-2 text-strike" style="color: var(--r4u-text-muted)">{{item.titulo}}</div>
                     <div class="flex justify-content-between align-items-center text-sm">
                         <span style="color: var(--r4u-text-muted);"><i class="pi pi-user mr-1"></i>{{item.asignado}}</span>
@@ -97,6 +100,40 @@
             </div>
         </div>
 
+    </div>
+    <div *ngIf="vistaTabla" class="mt-4 p-4 border-round" style="background-color: #242526; border: 1px solid var(--r4u-border);">
+        
+        <p-table [value]="todosLosTickets" [paginator]="true" [rows]="10" responsiveLayout="scroll" [rowHover]="true">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="id" style="color: var(--r4u-text-muted); background: transparent;">ID <p-sortIcon field="id"></p-sortIcon></th>
+                    <th pSortableColumn="titulo" style="color: var(--r4u-text-muted); background: transparent;">Título <p-sortIcon field="titulo"></p-sortIcon></th>
+                    <th pSortableColumn="estado" style="color: var(--r4u-text-muted); background: transparent;">Estado <p-sortIcon field="estado"></p-sortIcon></th>
+                    <th pSortableColumn="asignado" style="color: var(--r4u-text-muted); background: transparent;">Asignado <p-sortIcon field="asignado"></p-sortIcon></th>
+                    <th pSortableColumn="prioridad" style="color: var(--r4u-text-muted); background: transparent;">Prioridad <p-sortIcon field="prioridad"></p-sortIcon></th>
+                    <th pSortableColumn="fechaLimite" style="color: var(--r4u-text-muted); background: transparent;">Fecha Límite <p-sortIcon field="fechaLimite"></p-sortIcon></th>
+                    <th style="color: var(--r4u-text-muted); background: transparent;">Acciones</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-ticket>
+                <tr style="color: var(--r4u-text-main);">
+                    <td class="font-bold text-primary">#{{ticket.id}}</td>
+                    <td class="font-bold">{{ticket.titulo}}</td>
+                    <td><p-tag [value]="ticket.estado" severity="info"></p-tag></td>
+                    <td><i class="pi pi-user mr-2 text-sm" style="color: var(--r4u-text-muted);"></i>{{ticket.asignado}}</td>
+                    <td><p-tag [value]="ticket.prioridad" [severity]="getPrioritySeverity(ticket.prioridad)"></p-tag></td>
+                    <td>{{ticket.fechaLimite ? (ticket.fechaLimite | date:'dd MMM yyyy') : '---'}}</td>
+                    <td>
+                        <p-button icon="pi pi-eye" [disabled]="!puedeMoverTicket(ticket)" (onClick)="abrirDetalles(ticket)" pTooltip="Ver Detalles" tooltipPosition="left" styleClass="p-button-rounded p-button-text p-button-sm"></p-button>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="7" class="text-center p-4" style="color: var(--r4u-text-muted);">No hay tickets registrados en el Room.</td>
+                </tr>
+            </ng-template>
+        </p-table>
     </div>
 
     <p-dialog header="Crear Nuevo Ticket" [(visible)]="showTicketModal" [modal]="true" [style]="{width: '450px'}">
@@ -124,45 +161,111 @@
         </ng-template>
     </p-dialog>
 
-    <p-dialog *ngIf="ticketEditando" header="Detalles del Ticket" [(visible)]="showEditModal" [modal]="true" [style]="{width: '500px'}">
-        <div class="flex flex-column gap-4 pt-3">
+    <p-dialog *ngIf="ticketEditando" header="Detalles del Ticket" [(visible)]="showEditModal" [modal]="true" [style]="{width: '1100px'}" [maximizable]="true">
+        
+        <div class="grid pt-3 m-0 flex-wrap">
+
+            <div class="col-12 lg:col-6 flex p-1">
+                <div class="card-panel flex flex-column gap-3 w-full h-full">
+                    <div class="flex flex-column gap-1">
+                        <label class="font-bold text-sm" style="color: var(--r4u-text-muted);">Título del Ticket</label>
+                        <input pInputText [(ngModel)]="ticketEditando.titulo" class="w-full font-bold text-lg" [disabled]="!puedeEditarTodo" />
+                    </div>
+
+                    <div class="flex flex-column gap-1 flex-1">
+                        <label class="font-bold text-sm" style="color: var(--r4u-text-muted);">Descripción</label>
+                        <textarea [(ngModel)]="ticketEditando.descripcion" class="w-full p-inputtext flex-1" style="resize: none; min-height: 120px;" placeholder="Añade detalles del ticket..." [disabled]="!puedeEditarTodo"></textarea>
+                    </div>
+
+                    <div class="flex gap-3">
+                        <div class="flex flex-column gap-1 flex-1">
+                            <label class="font-bold text-sm" style="color: var(--r4u-text-muted);">Asignado a</label>
+                            <div class="p-inputgroup">
+                                <span class="p-inputgroup-addon mr-2"><i class="pi pi-user"></i></span>
+                                <p-select 
+                                    [options]="usuariosDisponibles" 
+                                    [(ngModel)]="ticketEditando.asignado" 
+                                    [disabled]="!puedeEditarTodo" 
+                                    placeholder="Selecciona usuario" 
+                                    appendTo="body">
+                                </p-select>
+                            </div>
+                        </div>
+                        <div class="flex flex-column gap-1 flex-1">
+                            <label class="font-bold text-sm" style="color: var(--r4u-text-muted);">Fecha Límite</label>
+                            <input type="date" [(ngModel)]="ticketEditando.fechaLimite" class="p-inputtext w-full" [disabled]="!puedeEditarTodo" style="color: var(--r4u-text-main); background: var(--r4u-bg-page); border: 1px solid var(--r4u-border); border-radius: 6px; padding: 0.5rem;" />
+                        </div>
+                    </div>
+
+                    <div class="flex flex-column gap-1">
+                        <label class="font-bold text-sm" style="color: var(--r4u-text-muted);">Prioridad</label>
+                        <div class="flex flex-wrap mt-1 gap-2">
+                            <p-button label="Baja" [outlined]="ticketEditando.prioridad !== 'Baja'" severity="success" (onClick)="puedeEditarTodo && ticketEditando.prioridad = 'Baja'" [disabled]="!puedeEditarTodo"></p-button>
+                            <p-button label="Media" [outlined]="ticketEditando.prioridad !== 'Media'" severity="warn" (onClick)="puedeEditarTodo && ticketEditando.prioridad = 'Media'" [disabled]="!puedeEditarTodo"></p-button>
+                            <p-button label="Alta" [outlined]="ticketEditando.prioridad !== 'Alta'" severity="danger" (onClick)="puedeEditarTodo && ticketEditando.prioridad = 'Alta'" [disabled]="!puedeEditarTodo"></p-button>
+                        </div>
+                    </div>
+
+                    <div class="text-xs mt-2 p-2 border-round flex justify-content-between" style="background-color: rgba(255,255,255,0.03); color: var(--r4u-text-muted);">
+                        <span><strong>Creado por:</strong> {{ticketEditando.creador}}</span>
+                        <span><strong>Creado el:</strong> {{ticketEditando.fecha | date:'dd MMM yyyy'}}</span>
+                    </div>
+                </div>
+            </div>
             
-            <div class="flex flex-column gap-2">
-                <label class="font-bold" style="color: var(--r4u-text-main);">Título</label>
-                <input pInputText [(ngModel)]="ticketEditando.titulo" class="w-full" />
-            </div>
+            <div class="col-12 lg:col-3 flex p-1">
+                <div class="card-panel flex flex-column gap-3 w-full h-full">
+                    <h3 class="m-0 text-md uppercase tracking-wide flex align-items-center" style="color: var(--r4u-text-muted);">
+                        <i class="pi pi-comments mr-2"></i>Comentarios
+                    </h3>
+                    
+                    <div class="comentarios-box flex-1 border-round p-2" style="background: rgba(0,0,0,0.1); border: 1px solid var(--r4u-border); min-height: 250px; max-height: 500px; overflow-y: auto;">
+                        <div *ngIf="ticketEditando.comentarios.length === 0" class="text-center text-sm p-3" style="color: var(--r4u-text-muted);">No hay comentarios aún.</div>
+                        
+                        <div *ngFor="let msg of ticketEditando.comentarios" class="mb-3">
+                            <div class="flex justify-content-between align-items-baseline mb-1">
+                                <span class="font-bold text-sm" [ngStyle]="{'color': msg.usuario === currentUser ? 'var(--r4u-primary)' : 'var(--r4u-text-main)'}">{{msg.usuario}}</span>
+                                <span class="text-xs" style="color: var(--r4u-text-muted);">{{msg.fecha | date:'shortTime'}}</span>
+                            </div>
+                            <div class="p-2 border-round text-sm line-height-3" style="background: var(--r4u-bg-card); border: 1px solid var(--r4u-border);">
+                                {{msg.texto}}
+                            </div>
+                        </div>
+                    </div>
 
-            <div class="flex flex-column gap-2">
-                <label class="font-bold" style="color: var(--r4u-text-main);">Descripción</label>
-                <textarea [(ngModel)]="ticketEditando.descripcion" rows="4" class="w-full p-inputtext" style="resize: vertical; font-family: inherit;" placeholder="Añade detalles, links o notas del ticket..."></textarea>
-            </div>
-
-            <div class="flex gap-3">
-                <div class="flex flex-column gap-2 flex-1">
-                    <label class="font-bold" style="color: var(--r4u-text-main);">Asignado a</label>
-                    <input pInputText [(ngModel)]="ticketEditando.asignado" class="w-full" />
+                    <div class="p-inputgroup mt-auto">
+                        <input pInputText [(ngModel)]="nuevoComentario" placeholder="Escribe..." (keyup.enter)="agregarComentario()" />
+                        <button type="button" pButton icon="pi pi-send" severity="primary" (click)="agregarComentario()" [disabled]="!nuevoComentario.trim()"></button>
+                    </div>
                 </div>
             </div>
 
-            <div class="flex flex-column gap-2">
-                <label class="font-bold" style="color: var(--r4u-text-main);">Prioridad</label>
-                <div class="flex gap-2">
-                    <p-button label="Baja" [outlined]="ticketEditando.prioridad !== 'Baja'" severity="success" (onClick)="ticketEditando.prioridad = 'Baja'" class="flex-1"></p-button>
-                    <p-button label="Media" [outlined]="ticketEditando.prioridad !== 'Media'" severity="warn" (onClick)="ticketEditando.prioridad = 'Media'" class="flex-1"></p-button>
-                    <p-button label="Alta" [outlined]="ticketEditando.prioridad !== 'Alta'" severity="danger" (onClick)="ticketEditando.prioridad = 'Alta'" class="flex-1"></p-button>
-                </div>
-            </div>
 
-            <div class="text-sm mt-3 p-3 border-round" style="background-color: rgba(255,255,255,0.03); color: var(--r4u-text-muted);">
-                <div><strong>Estado actual:</strong> <p-tag [value]="ticketEditando.estado" severity="info" styleClass="ml-2 text-xs"></p-tag></div>
-                <div class="mt-2"><strong>Fecha de creación:</strong> {{ticketEditando.fecha | date:'medium'}}</div>
+            <div class="col-12 lg:col-3 flex p-1">
+                <div class="card-panel flex flex-column gap-3 w-full h-full">
+                    <h3 class="m-0 text-md uppercase tracking-wide flex align-items-center" style="color: var(--r4u-text-muted);">
+                        <i class="pi pi-history mr-2"></i>Historial
+                    </h3>
+                    
+                    <div class="historial-box flex-1 border-round p-2" style="background: rgba(255,255,255,0.02); min-height: 250px; max-height: 500px; overflow-y: auto;">
+                        <div *ngIf="ticketEditando.historial.length === 0" class="text-center text-xs p-3" style="color: var(--r4u-text-muted);">Sin movimientos.</div>
+                        
+                        <div *ngFor="let h of ticketEditando.historial" class="flex flex-column gap-1 mb-3 text-sm border-left-2 pl-2" style="border-color: var(--r4u-border);">
+                            <div class="text-xs" style="color: var(--r4u-text-muted);">{{h.fecha | date:'dd MMM, HH:mm'}}</div>
+                            <div>
+                                <span class="font-bold" style="color: var(--r4u-text-main);">{{h.usuario}}</span>
+                                <div style="color: var(--r4u-text-muted); font-size: 0.85rem; line-height: 1.2; margin-top: 2px;">{{h.accion}}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
         </div>
         
         <ng-template pTemplate="footer">
-            <p-button label="Cerrar" class="pt-3-5" icon="pi pi-times" (onClick)="showEditModal = false" severity="secondary" [text]="true"></p-button>
-            <p-button label="Guardar Cambios" class="pt-3-5" icon="pi pi-save" (onClick)="guardarDetalles()" severity="primary"></p-button>
+            <p-button label="Cancelar" icon="pi pi-times" (onClick)="showEditModal = false" severity="secondary" [text]="true" class="pt-3-5"></p-button>
+            <p-button label="Guardar y Actualizar" icon="pi pi-save" (onClick)="guardarDetalles()" severity="primary" class="pt-3-5"></p-button>
         </ng-template>
     </p-dialog>
 </div>
