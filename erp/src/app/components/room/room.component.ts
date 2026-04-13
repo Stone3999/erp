@@ -15,6 +15,7 @@ import { Divider } from 'primeng/divider';
 import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { AuthService } from '../../services/auth.service';
 import { TicketService } from '../../services/ticket.service';
+import { UserService } from '../../services/user.service';
 import { HasPermissionDirective } from '../../directives/has-permission.directive';
 
 export interface Comentario {
@@ -64,16 +65,23 @@ export class RoomComponent implements OnInit {
     chartOptions: any;
     stats = { total: 0, pendiente: 0, enProgreso: 0, revision: 0, finalizado: 0 };
 
+    // --- VARIABLES MODAL CREAR ---
     showTicketModal = false;
-    selectedStatus: string | null = null;
     nuevoTitulo: string = '';
+    nuevaDescripcion: string = '';
+    nuevaPrioridad: string = 'Media';
+    nuevoEstado: string = 'Pendiente';
+    nuevoAsignado: string = '';
+    nuevaFechaLimite: string = '';
+
     nuevoComentario: string = '';
 
     pendientes: RoomTicket[] = [];
     enProgreso: RoomTicket[] = [];
     revision: RoomTicket[] = [];
     finalizados: RoomTicket[] = [];
-    usuariosDisponibles: string[] = ['Admin Jefe', 'Agente Soporte', 'Solo Lector'];
+    
+    usuariosDisponibles: string[] = [];
 
     vistaTabla: boolean = false; 
     filtroActivo: string = 'todos'; 
@@ -93,6 +101,7 @@ export class RoomComponent implements OnInit {
     constructor(
         private authService: AuthService,
         private ticketService: TicketService,
+        private userService: UserService,
         private route: ActivatedRoute
     ) {}
 
@@ -101,6 +110,14 @@ export class RoomComponent implements OnInit {
         this.currentUser = this.authService.getCurrentUser();
         this.groupId = this.route.snapshot.paramMap.get('id');
         this.cargarTickets();
+        this.cargarUsuarios();
+    }
+
+    async cargarUsuarios() {
+        const res = await this.userService.getUsers();
+        if (res.statusCode === 200 && res.data) {
+            this.usuariosDisponibles = res.data.map(u => u.name);
+        }
     }
     
     private mapToRoomTicket(t: any): RoomTicket {
@@ -121,7 +138,6 @@ export class RoomComponent implements OnInit {
 
     async cargarTickets() {
         if (!this.groupId) return;
-        // FIX: Quitamos el Number() porque el ID es un UUID (string)
         const response = await this.ticketService.getTicketsByGroup(this.groupId as any);
         if (response.statusCode === 200 && response.data) {
             const tickets = response.data.map(t => this.mapToRoomTicket(t));
@@ -162,35 +178,34 @@ export class RoomComponent implements OnInit {
     }
 
     openTicketModal() {
-        this.selectedStatus = null; 
-        this.nuevoTitulo = ''; 
+        this.nuevoTitulo = '';
+        this.nuevaDescripcion = '';
+        this.nuevaPrioridad = 'Media';
+        this.nuevoEstado = 'Pendiente';
+        this.nuevoAsignado = this.currentUser;
+        this.nuevaFechaLimite = '';
         this.showTicketModal = true;
     }
 
     async crearTicket() {
-        if (!this.selectedStatus || !this.nuevoTitulo.trim() || !this.groupId) return;
+        if (!this.nuevoTitulo.trim() || !this.groupId) return;
 
         const nuevoTicket: any = {
             titulo: this.nuevoTitulo,
-            descripcion: '',
-            estado: this.selectedStatus,
-            asignadoA: this.currentUser,
-            creador: this.authService.getUserId(),
-            prioridad: 'Media',
-            grupoId: this.groupId // Cambiado de workspace_id a grupoId
+            descripcion: this.nuevaDescripcion,
+            estado: this.nuevoEstado,
+            asignadoA: this.nuevoAsignado,
+            creador: this.authService.getUserId(), // Enviamos UUID
+            prioridad: this.nuevaPrioridad,
+            grupoId: this.groupId,
+            fechaLimite: this.nuevaFechaLimite || undefined
         };
 
         const res = await this.ticketService.createTicket(nuevoTicket);
         if (res.statusCode === 201 && res.data) {
-             const created = this.mapToRoomTicket(res.data);
-             if (this.selectedStatus === 'Pendiente') this.pendientes.push(created);
-             else if (this.selectedStatus === 'En Progreso') this.enProgreso.push(created);
-             else if (this.selectedStatus === 'Revisión') this.revision.push(created);
-             else if (this.selectedStatus === 'Finalizado') this.finalizados.push(created);
-             
-             this.updateStatsFromLists(); 
+             await this.cargarTickets();
+             this.showTicketModal = false;
         }
-        this.showTicketModal = false; 
     }
 
     showEditModal = false;
@@ -234,12 +249,6 @@ export class RoomComponent implements OnInit {
         this.showEditModal = true;
     }
 
-    cambiarEstado(nuevoEstado: string) {
-        if (this.ticketEditando && (this.puedeEditarTodo || this.esAsignado)) {
-            this.ticketEditando.estado = nuevoEstado;
-        }
-    }
-
     async guardarDetalles() {
         if (!this.ticketEditando) return;
 
@@ -249,11 +258,12 @@ export class RoomComponent implements OnInit {
             asignadoA: this.ticketEditando.asignado,
             estado: this.ticketEditando.estado,
             prioridad: this.ticketEditando.prioridad,
+            fechaLimite: this.ticketEditando.fechaLimite
         };
 
         const res = await this.ticketService.updateTicket(this.ticketEditando.id, payload);
         if (res.statusCode === 200 && res.data) {
-             await this.cargarTickets(); // Recargamos para organizar las listas
+             await this.cargarTickets();
         }
 
         this.showEditModal = false;
@@ -272,12 +282,9 @@ export class RoomComponent implements OnInit {
 
     get puedeEditarTodo(): boolean {
         if (!this.ticketEditando) return false;
+        // Comparamos nombre o id? El creador en el objeto mapeado es el nombre.
+        // Pero para seguridad real comparamos con el usuario logueado.
         return this.ticketEditando.creador === this.currentUser || this.authService.hasPermission('tickets:edit_all');
-    }
-
-    get esAsignado(): boolean {
-        if (!this.ticketEditando) return false;
-        return this.ticketEditando.asignado === this.currentUser;
     }
 
     async agregarComentario() {
