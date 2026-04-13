@@ -150,7 +150,7 @@ export class GruposComponent implements OnInit {
             name: formValue.nombre,
             category: formValue.categoria,
             level: formValue.nivel,
-            created_by: formValue.autor
+            created_by: this.authService.getUserId() || undefined // USAMOS EL UUID REAL
         };
 
         let response;
@@ -205,4 +205,4 @@ export class GruposComponent implements OnInit {
         const ctrl = this.groupForm.get(field);
         return !!(ctrl && ctrl.invalid && ctrl.touched);
     }
-}   
+}
