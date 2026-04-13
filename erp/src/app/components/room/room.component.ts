@@ -163,7 +163,7 @@ export class RoomComponent implements OnInit {
     }
 
     async crearTicket() {
-        if (!this.selectedStatus || !this.nuevoTitulo.trim()) return;
+        if (!this.selectedStatus || !this.nuevoTitulo.trim() || !this.groupId) return;
 
         const nuevoTicket: any = {
             titulo: this.nuevoTitulo,
@@ -172,7 +172,7 @@ export class RoomComponent implements OnInit {
             asignadoA: this.currentUser,
             creador: this.authService.getUserId(),
             prioridad: 'Media',
-            grupoId: 1 // Default
+            grupoId: this.groupId // Mantenemos el UUID como string
         };
 
         const res = await this.ticketService.createTicket(nuevoTicket);
