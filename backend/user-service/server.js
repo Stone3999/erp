@@ -7,79 +7,99 @@ import bcrypt from 'bcrypt';
 dotenv.config();
 
 const fastify = Fastify({ logger: true });
-const supabase = createClient(process.env.SUPABASE_URL || 'https://placeholder.supabase.co', process.env.SUPABASE_KEY || 'placeholder');
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 const JWT_SECRET = process.env.JWT_SECRET || 'super-secreto-para-jwt-local';
 
 fastify.post('/auth/register', async (request, reply) => {
-  const { email, password, name } = request.body;
-  if (!email || !password || !name) {
-      return reply.code(400).send({ statusCode: 400, intOpCode: 'ExUS400', data: { message: 'Faltan campos obligatorios' } });
+  try {
+    const { email, password, name } = request.body;
+    console.log(`[Register] Intentando registrar a: ${email}`);
+
+    if (!email || !password || !name) {
+        return reply.code(400).send({ statusCode: 400, intOpCode: 'ExUS400', message: 'Faltan campos' });
+    }
+
+    // Buscamos si existe (usamos maybeSingle para evitar error de 0 filas)
+    const { data: existing, error: searchError } = await supabase.from('users').select('id').eq('email', email).maybeSingle();
+    
+    if (searchError) {
+        console.error('[Supabase Search Error]:', searchError);
+        throw searchError;
+    }
+
+    if (existing) {
+        return reply.code(400).send({ statusCode: 400, intOpCode: 'ExUS400', message: 'El correo ya existe' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const { data, error } = await supabase.from('users').insert([{ email, password: hashedPassword, name }]).select().single();
+    
+    if (error) {
+        console.error('[Supabase Insert Error]:', error);
+        return reply.code(500).send({ statusCode: 500, intOpCode: 'ExUS500', message: error.message });
+    }
+
+    return { statusCode: 201, intOpCode: 'SxUS201', data: { message: 'Usuario registrado con éxito' }};
+  } catch (err) {
+    console.error('[Register Catch]:', err);
+    return reply.code(500).send({ statusCode: 500, message: 'Error interno del servidor' });
   }
-
-  const { data: existing } = await supabase.from('users').select('id').eq('email', email).single();
-  if (existing) {
-      return reply.code(400).send({ statusCode: 400, intOpCode: 'ExUS400', data: { message: 'El correo ya existe' }});
-  }
-
-  const hashedPassword = await bcrypt.hash(password, 10);
-  const { data, error } = await supabase.from('users').insert([{ email, password: hashedPassword, name }]).select().single();
-  if (error) return reply.code(500).send({ statusCode: 500, intOpCode: 'ExUS500', data: null });
-
-  return { statusCode: 201, intOpCode: 'SxUS201', data: { message: 'Usuario registrado con éxito', user: data }};
 });
 
 fastify.post('/auth/login', async (request, reply) => {
-  const { email, password } = request.body;
-  const { data: user, error } = await supabase.from('users').select('*').eq('email', email).single();
+  try {
+    const { email, password } = request.body;
+    console.log(`[Login] Intento de entrada: ${email}`);
 
-  if (error || !user) {
-     return reply.code(401).send({ statusCode: 401, intOpCode: 'ExUS401', data: null, message: 'Credenciales inválidas' });
+    const { data: user, error } = await supabase.from('users').select('*').eq('email', email).maybeSingle();
+
+    if (error) {
+        console.error('[Supabase Login Search Error]:', error);
+        return reply.code(500).send({ statusCode: 500, message: 'Error de base de datos' });
+    }
+
+    if (!user) {
+       console.log('[Login] Usuario no encontrado');
+       return reply.code(401).send({ statusCode: 401, message: 'Credenciales inválidas' });
+    }
+
+    let isMatch = false;
+    if (user.password === password) {
+        isMatch = true;
+    } else {
+        isMatch = await bcrypt.compare(password, user.password);
+    }
+
+    if (!isMatch) {
+       console.log('[Login] Contraseña incorrecta');
+       return reply.code(401).send({ statusCode: 401, message: 'Credenciales inválidas' });
+    }
+
+    const token = jwt.sign({ 
+      id: user.id, 
+      email: user.email, 
+      name: user.name, 
+      permissions: user.permissions 
+    }, JWT_SECRET, { expiresIn: '24h' });
+
+    console.log('[Login] Éxito');
+    return { statusCode: 200, intOpCode: 'SxUS200', data: { token, user: { name: user.name, email: user.email, id: user.id, permissions: user.permissions } }};
+  } catch (err) {
+    console.error('[Login Catch]:', err);
+    return reply.code(500).send({ statusCode: 500, message: 'Error interno' });
   }
-
-  // Permitimos texto plano temporalmente por si tienes cuentas viejas de pruebas
-  let isMatch = false;
-  if (user.password === password) {
-      isMatch = true;
-  } else {
-      isMatch = await bcrypt.compare(password, user.password);
-  }
-
-  if (!isMatch) {
-     return reply.code(401).send({ statusCode: 401, intOpCode: 'ExUS401', data: null, message: 'Credenciales inválidas' });
-  }
-
-  const token = jwt.sign({ 
-    id: user.id, 
-    email: user.email, 
-    name: user.name, 
-    permissions: user.permissions 
-  }, JWT_SECRET, { expiresIn: '24h' });
-
-  return { statusCode: 200, intOpCode: 'SxUS200', data: { token, user: { name: user.name, email: user.email, id: user.id, permissions: user.permissions } }};
 });
 
 fastify.get('/users', async (request, reply) => {
   const { data, error } = await supabase.from('users').select('id, email, name, permissions');
-  if (error) return reply.code(500).send({ statusCode: 500, intOpCode: 'ExUS500', data: null });
-  return { statusCode: 200, intOpCode: 'SxUS200', data };
-});
-
-fastify.patch('/users/:id/permissions', async (request, reply) => {
-  const { permissions } = request.body;
-  const { id } = request.params;
-  const { data, error } = await supabase.from('users').update({ permissions }).eq('id', id).select('id, email, name, permissions').single();
-  
-  if (error) return reply.code(500).send({ statusCode: 500, intOpCode: 'ExUS500', data: null });
-  return { statusCode: 200, intOpCode: 'SxUS200', data };
+  return { statusCode: 200, data };
 });
 
 const start = async () => {
   try {
-    const port = 3001; // Puerto fijo interno
+    const port = 3001;
     await fastify.listen({ port, host: '0.0.0.0' });
-    console.log(`[User Service] Escuchando en el puerto ${port}`);
   } catch (err) {
-    fastify.log.error(err);
     process.exit(1);
   }
 };
