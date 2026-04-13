@@ -4,9 +4,9 @@
   "type": "module",
   "scripts": {
     "start:gateway": "node api-gateway/server.js",
-    "start:user": "node user-service/server.js",
-    "start:tickets": "node tickets-service/server.js",
-    "start:groups": "node groups-service/server.js",
+    "start:user": "cross-env PORT=3001 node user-service/server.js",
+    "start:tickets": "cross-env PORT=3002 node tickets-service/server.js",
+    "start:groups": "cross-env PORT=3003 node groups-service/server.js",
     "dev": "concurrently \"npm run start:gateway\" \"npm run start:user\" \"npm run start:tickets\" \"npm run start:groups\""
   },
   "dependencies": {
@@ -16,6 +16,7 @@
     "@supabase/supabase-js": "^2.39.8",
     "bcrypt": "^6.0.0",
     "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3",
     "dotenv": "^16.4.5",
     "fastify": "^4.26.2",
     "jsonwebtoken": "^9.0.2"
