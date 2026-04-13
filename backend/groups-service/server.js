@@ -39,7 +39,7 @@ fastify.delete('/:id', async (request, reply) => {
 
 const start = async () => {
   try {
-    const port = process.env.PORT || 3003;
+    const port = 3003; // Puerto fijo interno
     await fastify.listen({ port, host: '0.0.0.0' });
     console.log(`[Groups Service] Escuchando en el puerto ${port}`);
   } catch (err) {

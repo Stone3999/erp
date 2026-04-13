@@ -75,7 +75,7 @@ fastify.patch('/users/:id/permissions', async (request, reply) => {
 
 const start = async () => {
   try {
-    const port = process.env.PORT || 3001;
+    const port = 3001; // Puerto fijo interno
     await fastify.listen({ port, host: '0.0.0.0' });
     console.log(`[User Service] Escuchando en el puerto ${port}`);
   } catch (err) {

@@ -60,7 +60,7 @@ fastify.delete('/:id', async (request, reply) => {
 
 const start = async () => {
   try {
-    const port = process.env.PORT || 3002;
+    const port = 3002; // Puerto fijo interno
     await fastify.listen({ port, host: '0.0.0.0' });
     console.log(`[Tickets Service] Escuchando en el puerto ${port}`);
   } catch (err) {
