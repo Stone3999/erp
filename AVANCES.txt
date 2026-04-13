@@ -1,0 +1,27 @@
+PROYECTO ERP - SEGURIDAD EN DESARROLLO DE APLICACIONES
+ESTADO DE AVANCES
+
+--- ARQUITECTURA CORE ---
+[x] Implementar Esquema JSON Universal { statusCode, intOpCode, data }
+[x] Cambiar almacenamiento de Token de LocalStorage a Cookies
+[x] Crear PermissionService centralizado
+[x] Crear Directiva appHasPermission (Eliminar del DOM, no solo ocultar)
+
+--- COMPONENTES Y VISTAS (FRONTEND 100%) ---
+[x] Login: Ajustado a esquema de respuesta y cookies
+[x] Register: Ajustado a esquema de respuesta
+[x] Dashboard: Implementación final
+[x] GroupTicketsComponent (Room): Vista Kanban con Drag & Drop y reglas de movimiento
+[x] AdminGroupComponent: Gestión de Workspaces y Miembros
+[x] AdminUserComponent: Gestión de Usuarios y Permisos por Acción
+
+--- REGLAS DE NEGOCIO ---
+[x] Lógica de "Sin Roles" (Permisos directos en JWT)
+[x] Validación: Mover ticket solo si es dueño Y tiene "tickets:move"
+[x] Validación: Botón "Agregar" solo si tiene "tickets:add"
+
+--- BACKEND (PRÓXIMAMENTE) ---
+[ ] Microservicio: User (Auth, Login, Register)
+[ ] Microservicio: Tickets (CRUD, Kanban)
+[ ] Microservicio: Groups (Permisos, Workspaces)
+[ ] API Gateway: Rate limiting, Validación de Token, Enrutamiento
