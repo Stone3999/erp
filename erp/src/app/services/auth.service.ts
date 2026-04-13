@@ -120,6 +120,11 @@ export class AuthService {
         return payload ? payload.name : 'Invitado';
     }
 
+    getUserId(): string | null {
+        const payload = this.getPayload();
+        return payload ? payload.id : null;
+    }
+
     hasPermission(permission: string): boolean {
         const payload = this.getPayload();
         if (!payload || !payload.permissions) return false;

@@ -170,7 +170,7 @@ export class RoomComponent implements OnInit {
             descripcion: '',
             estado: this.selectedStatus,
             asignadoA: this.currentUser,
-            creador: this.currentUser,
+            creador: this.authService.getUserId(),
             prioridad: 'Media',
             grupoId: 1 // Default
         };
