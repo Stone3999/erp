@@ -43,7 +43,6 @@ export class DashboardComponent implements OnInit {
     }
 
     gotoroom(groupId: number): void {
-        // Aquí puedes guardar el groupId seleccionado en un store o pasarlo en la URL si lo prefieres
-        this.router.navigate(['/dashboard/room']);
+        this.router.navigate(['/dashboard/room', groupId]);
     }
 }

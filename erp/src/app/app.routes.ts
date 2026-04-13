@@ -51,7 +51,7 @@ export const routes: Routes = [
                     import('./components/perfil/perfil.component').then((m) => m.PerfilComponent),
             },
             {
-                path: 'room',
+                path: 'room/:id',
                 loadComponent: () =>
                     import('./components/room/room.component').then((m) => m.RoomComponent),
             },
