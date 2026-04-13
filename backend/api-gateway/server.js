@@ -131,9 +131,3 @@ const start = async () => {
   }
 };
 start();
-
-    fastify.log.error(err);
-    process.exit(1);
-  }
-};
-start();
