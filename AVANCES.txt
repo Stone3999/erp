@@ -1,6 +1,9 @@
 PROYECTO ERP - SEGURIDAD EN DESARROLLO DE APLICACIONES
 ESTADO DE AVANCES
 
+--- REGLA DE ORO ---
+[!] Commits: "ERP Rooms4ums - Prueba 1: (UNA_PALABRA)"
+
 --- ARQUITECTURA CORE ---
 [x] Implementar Esquema JSON Universal { statusCode, intOpCode, data }
 [x] Cambiar almacenamiento de Token de LocalStorage a Cookies
@@ -21,7 +24,7 @@ ESTADO DE AVANCES
 [x] Validación: Botón "Agregar" solo si tiene "tickets:add"
 
 --- BACKEND (PRÓXIMAMENTE) ---
-[ ] Microservicio: User (Auth, Login, Register)
-[ ] Microservicio: Tickets (CRUD, Kanban)
-[ ] Microservicio: Groups (Permisos, Workspaces)
-[ ] API Gateway: Rate limiting, Validación de Token, Enrutamiento
+[x] Microservicio: User (Auth, Login, Register) - COMPLETADO
+[x] Microservicio: Tickets (CRUD, Kanban) - COMPLETADO
+[x] Microservicio: Groups (Permisos, Workspaces) - COMPLETADO
+[x] API Gateway: Rate limiting, Validación de Token, Enrutamiento - COMPLETADO
