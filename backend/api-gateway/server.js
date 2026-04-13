@@ -83,7 +83,8 @@ fastify.addHook('preHandler', async (request, reply) => {
     } else if (path.startsWith('/groups')) {
       if (method === 'POST' || method === 'DELETE' || method === 'PUT') requiredPerm = 'groups:manage';
     } else if (path.startsWith('/users')) {
-       requiredPerm = 'users:manage';
+       // GET es público para usuarios logueados, otros métodos requieren users:manage
+       if (method !== 'GET') requiredPerm = 'users:manage';
     }
 
     if (requiredPerm && !decoded.permissions.includes(requiredPerm)) {
