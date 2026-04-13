@@ -1,0 +1,129 @@
+<p-toast></p-toast>
+<p-confirmdialog [style]="{ width: '420px' }"></p-confirmdialog>
+
+<div class="page-container p-4" style="background-color: var(--r4u-bg-page); min-height: 100vh;">
+
+    <div class="page-header">
+        <h2 style="color: var(--r4u-text-main);">Rooms</h2>
+        <p style="color: var(--r4u-text-muted);">Gestión y administración de rooms registrados en el sistema.</p>
+    </div>
+
+    <p-toolbar class="grupos-toolbar" styleClass="dark-toolbar">
+        <ng-template pTemplate="start">
+            <!-- REQUERIMIENTO: permiso 'groups:manage' -->
+            <div *appHasPermission="'groups:manage'">
+                <p-button label="Nuevo Room" icon="pi pi-plus" (onClick)="openNew()"></p-button>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="end">
+            <span class="total-label" style="color: var(--r4u-text-muted);">Total: <strong style="color: var(--r4u-text-main);">{{ groups.length }}</strong></span>
+        </ng-template>
+    </p-toolbar>
+
+    <div class="table-card p-3 mt-3">
+        <p-table [value]="groups" [paginator]="true" [rows]="8" [rowsPerPageOptions]="[5, 8, 15]" responsiveLayout="scroll" class="grupos-table">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Nombre</th>
+                    <th>Categoría</th>
+                    <th>Nivel</th>
+                    <th>Autor</th>
+                    <th style="text-align:center">Miembros</th>
+                    <th style="text-align:center">Tickets</th>
+                    <th style="text-align:center">Acciones</th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-group>
+                <tr>
+                    <td><strong style="color: var(--r4u-text-main);">{{ group.name }}</strong></td>
+                    <td style="color: var(--r4u-text-muted);">{{ group.category }}</td>
+                    <td><span [class]="'nivel-badge nivel-' + group.level.toLowerCase()">{{ group.level }}</span></td>
+                    <td style="color: var(--r4u-text-muted);">{{ group.created_by }}</td>
+                    <td style="text-align:center; color: var(--r4u-text-main);">{{ group.miembros || 0 }}</td>
+                    <td style="text-align:center; color: var(--r4u-text-main);">{{ group.tickets || 0 }}</td>
+                    <td style="text-align:center">
+                        <div class="flex justify-content-center gap-2" *appHasPermission="'groups:manage'">
+                            <p-button icon="pi pi-pencil" [text]="true" severity="info" (onClick)="editGroup(group)" pTooltip="Editar" tooltipPosition="top"></p-button>
+                            <p-button icon="pi pi-trash" [text]="true" severity="danger" (onClick)="deleteGroup(group)" pTooltip="Eliminar" tooltipPosition="top"></p-button>
+                        </div>
+                        <span *appHasPermission="'!groups:manage'" style="color: var(--r4u-text-muted); font-size: 0.8rem;">Solo lectura</span>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="7" class="empty-message">
+                        <i class="pi pi-inbox empty-icon"></i>
+                        <span>No hay rooms registrados.</span>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+
+</div>
+
+<p-dialog [(visible)]="dialogVisible" [header]="isEditMode ? 'Editar Room' : 'Nuevo Room'" [modal]="true" [style]="{ width: '800px' }" [closable]="true" (onHide)="closeDialog()">
+    
+    <div class="grid m-0 pt-2">
+        <div class="col-12 md:col-6 flex flex-column gap-3 md:pr-4">
+            <form [formGroup]="groupForm" class="group-form p-0">
+                <div class="field">
+                    <label for="nombre">Nombre <span class="required">*</span></label>
+                    <input id="nombre" type="text" pInputText formControlName="nombre" placeholder="Nombre del room" [class.ng-invalid]="isInvalid('nombre')" />
+                    @if (isInvalid('nombre')) { <small class="p-error">Requerido (mín. 3 letras).</small> }
+                </div>
+
+                <div class="field">
+                    <label for="categoria">Categoría <span class="required">*</span></label>
+                    <p-select id="categoria" formControlName="categoria" [options]="categorias" placeholder="Selecciona..." [class.ng-invalid]="isInvalid('categoria')" styleClass="w-full" appendTo="body"></p-select>
+                </div>
+
+                <div class="field">
+                    <label for="nivel">Nivel <span class="required">*</span></label>
+                    <p-select id="nivel" formControlName="nivel" [options]="niveles" placeholder="Selecciona..." [class.ng-invalid]="isInvalid('nivel')" styleClass="w-full" appendTo="body"></p-select>
+                </div>
+
+                <div class="field">
+                    <label for="autor">Autor (correo) <span class="required">*</span></label>
+                    <input id="autor" type="email" pInputText formControlName="autor" placeholder="correo@ejemplo.com" [class.ng-invalid]="isInvalid('autor')" />
+                </div>
+                <div class="field">
+                    <label for="tickets">Tickets Asignados <span class="required">*</span></label>
+                    <p-inputnumber id="tickets" formControlName="tickets" [min]="0" [showButtons]="true" [class.ng-invalid]="isInvalid('tickets')" class="w-full"></p-inputnumber>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-12 md:col-6 flex flex-column gap-3 md:pl-4 panel-miembros">
+            <label class="field-label m-0" style="color: var(--r4u-text-main); font-size: 1rem;">Miembros del Room ({{currentMembers.length}})</label>
+            
+            <div class="p-inputgroup">
+                <span class="p-inputgroup-addon p-2"><i class="pi pi-envelope"></i></span>
+                <input type="text" pInputText placeholder="Agregar por correo..." [(ngModel)]="newMemberEmail" (keyup.enter)="addMember()">
+                <button type="button" pButton icon="pi pi-plus" severity="success" (click)="addMember()" ></button>
+            </div>
+
+            <div class="members-list flex-1 mt-2">
+                <div class="member-item" *ngFor="let m of currentMembers">
+                    <div class="flex flex-column">
+                        <span class="font-bold text-sm" style="color: var(--r4u-text-main);">{{m.email}}</span>
+                        <span class="text-xs mt-1" [ngStyle]="{'color': m.role === 'Administrador' ? '#ef4444' : 'var(--r4u-text-muted)'}">{{m.role}}</span>
+                    </div>
+                    <p-button icon="pi pi-times" [text]="true" severity="danger" size="small" (onClick)="removeMember(m.email)" [disabled]="m.role === 'Administrador'" pTooltip="Expulsar"></p-button>
+                </div>
+                
+                <div *ngIf="currentMembers.length === 0" class="text-center p-3 text-sm" style="color: var(--r4u-text-muted);">
+                    El room no tiene miembros.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <p-button label="Cancelar" icon="pi pi-times" [text]="true" severity="secondary" (onClick)="closeDialog()"></p-button>
+        <p-button [label]="isEditMode ? 'Actualizar' : 'Guardar'" icon="pi pi-check" (onClick)="saveGroup()"></p-button>
+    </ng-template>
+</p-dialog>

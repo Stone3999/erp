@@ -1,0 +1,102 @@
+<p-toast></p-toast>
+<div class="auth-container" style="background-color: var(--r4u-bg-page); min-height: 100vh;">  
+  <div class="auth-card-wrapper">
+    <!-- LOGO -->
+    <div class="auth-logo" (click)="goToHome()">
+      <span>Rooms4ums</span>
+    </div>
+
+    <!-- CARD LOGIN -->
+    <p-card>
+      <ng-template pTemplate="header">
+        <div class="auth-header">
+          <h2>Bienvenido de vuelta</h2>
+          <p>Ingresa tus credenciales para continuar</p>
+        </div>
+      </ng-template>
+
+      <p-fluid>
+        <!-- CREDENCIALES DE PRUEBA -->
+        <div class="mb-4">
+          <p-button label="Ver credenciales de prueba" icon="pi pi-info-circle" severity="info" [outlined]="true"
+            size="small" (onClick)="toggleCredentials()" [style]="{ width: '100%' }">
+          </p-button>
+          <div *ngIf="showCredentials" class="credentials-box">
+            <p class="text-sm font-semibold" style="margin: 0 0 0.5rem;">
+              <i class="pi pi-key mr-1"></i>Credenciales hardcodeadas:
+            </p>
+            <div *ngFor="let cred of hardcodedCredentials" class="credentials-item"
+              (click)="fillCredentials(cred.email, cred.password)">
+              <div>
+                <div class="text-sm"><strong>Email:</strong> {{ cred.email }}</div>
+                <div class="text-sm"><strong>Pass:</strong> {{ cred.password }}</div>
+              </div>
+              <i class="pi pi-copy text-primary" title="Usar estas credenciales"></i>
+            </div>
+            <p class="text-xs" style="color: #6b7280; margin: 0.5rem 0 0;">
+              <i class="pi pi-info-circle mr-1"></i>Haz clic en una para autocompletar
+            </p>
+          </div>
+        </div>
+
+        <!-- EMAIL -->
+        <div class="field-group">
+          <label for="email">
+            <i class="pi pi-envelope mr-1"></i>Correo electrónico
+          </label>
+          <p-iconfield>
+            <p-inputicon styleClass="pi pi-envelope"></p-inputicon>
+            <input pInputText id="email" type="email" [(ngModel)]="email" placeholder="tu@email.com" />
+          </p-iconfield>
+        </div>
+
+        <!-- PASSWORD -->
+        <div class="field-group">
+          <label for="password">
+            <i class="pi pi-lock mr-1"></i>Contraseña
+          </label>
+          <p-password id="password" [(ngModel)]="password" placeholder="Tu contraseña" [toggleMask]="true"
+            [feedback]="false"></p-password>
+        </div>
+
+        <div class="flex align-items-start gap-2 mb-4">
+          <p-checkbox [(ngModel)]="rememberMe" [binary]="true" inputId="terms"></p-checkbox>
+            <span class="text-color-secondary">Recordarme</span>
+        </div>
+
+
+        <!-- LOGIN BUTTON -->
+        <p-button label="Iniciar Sesión" (onClick)="onLogin()" [loading]="loading" icon="pi pi-sign-in" iconPos="right"
+          class="mb-3"></p-button>
+        
+          
+        <div class="flex align-items-center w-full my-4 pb-4">
+            <div class="flex-1">
+                <p-divider class="m-0"></p-divider>
+            </div>
+            
+            <span class="text-sm ml-4" style="color: var(--r4u-text-muted);">O continúa con</span>
+            
+            <div class="flex-1">
+                <p-divider class="m-0"></p-divider>
+            </div>
+        </div>
+
+        <!-- SOCIAL -->
+        <div class="flex gap-3 pt-4">
+          <p-button icon="pi pi-google" label="Google" severity="secondary" [outlined]="true" class="flex-1"></p-button>
+          <p-button icon="pi pi-apple" label="Apple" severity="secondary" [outlined]="true" class="flex-1"></p-button>
+        </div>
+      </p-fluid>
+
+      <ng-template pTemplate="footer">
+        <div class="auth-footer pt-3">
+          <span class="text-color-secondary">¿No tienes cuenta?</span>
+          <div class="auth-link-btn pt-3">
+            <p-button label="Regístrate aquí" [text]="true" (onClick)="goToRegister()" class="auth-link-btn"></p-button>
+          </div>
+        </div>
+      </ng-template>
+    </p-card>
+  </div>
+</div>

@@ -1,0 +1,57 @@
+<div class="app-wrapper" [class.with-sidebar]="isLoggedIn" style="background-color: var(--r4u-bg-page); min-height: 100vh;">
+
+    <!-- ─── SIDEBAR (only when logged in) ─────────────────────────── -->
+    @if (isLoggedIn) {
+    <aside class="app-sidebar" style="background-color: var(--r4u-bg-page); min-height: 100vh;">
+        <!-- Header -->
+        <div class="sidebar-header">
+            <span class="sidebar-brand">Rooms4ums</span>
+        </div>
+
+        <!-- Navigation menu -->
+        <div class="sidebar-menu">
+            <p-menu [model]="menuItems" class="sidebar-nav-menu"></p-menu>
+        </div>
+
+        <!-- Footer: logout + version -->
+        <div class="sidebar-footer">
+            <span class="version-text">Versión: v1.0.0</span>
+        </div>
+    </aside>
+    }
+
+    <!-- ─── MAIN AREA ──────────────────────────────────────────────── -->
+    <div class="app-main" >
+
+        <!-- Topbar -->
+        <header class="app-topbar" style="background-color: var(--r4u-bg-page);">
+            <div class="topbar-left">
+                @if (isLoggedIn) {
+                <p-breadcrumb
+                    [model]="breadcrumbItems"
+                    [home]="homeItem"
+                    class="topbar-breadcrumb"
+                ></p-breadcrumb>
+                } @else {
+                <div class="topbar-brand">
+                    <i class="pi pi-prime" style="font-size:1.5rem; color:var(--r4u-bg-page);"></i>
+                    <span class="font-bold text-xl ml-2">Rooms4ums</span>
+                </div>
+                }
+            </div>
+
+            <div class="topbar-right">
+                @if (!isLoggedIn) {
+                <p-button label="Iniciar Sesión" [text]="true" (onClick)="navigateLogin()"></p-button>
+                <p-button label="Registrarse" (onClick)="navigateRegister()"></p-button>
+                }
+            </div>
+        </header>
+
+        <!-- Page content (router-outlet) -->
+        <main class="page-content">
+            <router-outlet></router-outlet>
+        </main>
+
+    </div>
+</div>

@@ -1,0 +1,136 @@
+<p-toast></p-toast>
+<p-confirmdialog></p-confirmdialog>
+
+<div class="page-container w-full max-w-full p-4" style="background-color: var(--r4u-bg-page); min-height: 100vh;">
+
+    <div class="page-header">
+        <h2 style="color: var(--r4u-text-main);">Perfil de Usuario</h2>
+        <p style="color: var(--r4u-text-muted);">Información, datos de tu cuenta y carga de trabajo.</p>
+    </div>
+
+    <div class="grid">
+        <div class="col-12 lg:col-4">
+            <div class="card-wrapper w-full max-w-full">
+                <p-card class="perfil-card">
+                    <ng-template pTemplate="header">
+                        <div class="card-header-bar">
+                            <i class="pi pi-user card-header-icon"></i>
+                            <span class="card-header-title" style="color: var(--r4u-text-main);">Datos del Usuario</span>
+                        </div>
+                    </ng-template>
+
+                    <div class="user-avatar-block">
+                        <p-avatar
+                            [label]="isLoggedIn ? (profileName.charAt(0) | uppercase) : '?'"
+                            size="xlarge"
+                            shape="circle"
+                            class="user-avatar"
+                        ></p-avatar>
+                        @if (isLoggedIn) {
+                        <div class="user-meta">
+                            <span class="user-name-label" style="color: var(--r4u-text-main);">{{ profileName }}</span>
+                            <span class="user-role-badge">{{ profileRole }}</span>
+                        </div>
+                        }
+                    </div>
+
+                    <div class="user-fields">
+                        <div class="field-group">
+                            <label class="field-label" style="color: var(--r4u-text-muted);">Nombre Completo</label>
+                            @if (editMode) {
+                                <input type="text" pInputText [(ngModel)]="editName" class="w-full" />
+                            } @else {
+                                <input type="text" pInputText [disabled]="true" [value]="isLoggedIn ? profileName : '—'" class="w-full" />
+                            }
+                        </div>
+
+                        <div class="field-group">
+                            <label class="field-label" style="color: var(--r4u-text-muted);">Rol</label>
+                            @if (editMode) {
+                                <input type="text" pInputText [(ngModel)]="editRole" class="w-full" />
+                            } @else {
+                                <input type="text" pInputText [disabled]="true" [value]="isLoggedIn ? profileRole : '—'" class="w-full" />
+                            }
+                        </div>
+
+                        <div class="field-group">
+                            <label class="field-label" style="color: var(--r4u-text-muted);">Correo Electrónico</label>
+                            <input type="text" pInputText [disabled]="true" [value]="isLoggedIn ? currentUser : '—'" class="w-full" />
+                        </div>
+
+                        <div class="field-group">
+                            <label class="field-label" style="color: var(--r4u-text-muted);">Teléfono</label>
+                            <input type="text" pInputText [disabled]="true" [value]="userData.telefono" class="w-full" />
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label" style="color: var(--r4u-text-muted);">Dirección</label>
+                            <input type="text" pInputText [disabled]="true" [value]="userData.direccion" class="w-full" />
+                        </div>
+                    </div>
+
+                    <div class="user-actions">
+                        @if (editMode) {
+                            <p-button label="Guardar" icon="pi pi-check" size="small" (onClick)="saveProfile()" class="p-2"></p-button>
+                            <p-button label="Cancelar" icon="pi pi-times" size="small" severity="secondary" [text]="true" (onClick)="cancelEdit()" class="p-2"></p-button>
+                        } @else {
+                            <p-button label="Editar Perfil" icon="pi pi-user-edit" size="small" [disabled]="!isLoggedIn" (onClick)="startEdit()"></p-button>
+                            <p-button label="Eliminar Perfil" icon="pi pi-trash" size="small" severity="danger" [outlined]="true" [disabled]="!isLoggedIn" (onClick)="confirmDeleteProfile()" class="ml-2"></p-button>
+                        }
+                    </div>
+                </p-card>
+            </div>
+        </div>
+
+        <div class="page-header pt-4">
+            <h2 style="color: var(--r4u-text-main);">Mis tickets Actuales</h2>
+        </div>
+
+        <div class="col-12 lg:col-8 flex flex-column gap-4">
+            <div class="grid m-0">
+                <div class="col-4 p-1">
+                    <div class="stat-card stat-abiertos">
+                        <div class="stat-number">{{ stats.abiertos }}</div>
+                        <div class="stat-label">Abiertos</div>
+                    </div>
+                </div>
+                <div class="col-4 p-1">
+                    <div class="stat-card stat-progreso">
+                        <div class="stat-number">{{ stats.progreso }}</div>
+                        <div class="stat-label">En Progreso</div>
+                    </div>
+                </div>
+                <div class="col-4 p-1">
+                    <div class="stat-card stat-finalizados">
+                        <div class="stat-number">{{ stats.finalizados }}</div>
+                        <div class="stat-label">Terminados</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-card p-4">
+                <h3 class="m-0 mb-3 text-lg font-bold" style="color: var(--r4u-text-main);">
+                    <i class="pi pi-list mr-2" style="color: var(--p-primary-color, #3b82f6);"></i> Mis Tickets Asignados
+                </h3>
+                
+                <p-table [value]="ticketsAsignados" [paginator]="true" [rows]="5" responsiveLayout="scroll" styleClass="p-datatable-sm">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th pSortableColumn="id" style="color: var(--r4u-text-muted); background: transparent;">ID <p-sortIcon field="id"></p-sortIcon></th>
+                            <th pSortableColumn="titulo" style="color: var(--r4u-text-muted); background: transparent;">Título <p-sortIcon field="titulo"></p-sortIcon></th>
+                            <th pSortableColumn="estado" style="color: var(--r4u-text-muted); background: transparent;">Estado <p-sortIcon field="estado"></p-sortIcon></th>
+                            <th pSortableColumn="prioridad" style="color: var(--r4u-text-muted); background: transparent;">Prioridad <p-sortIcon field="prioridad"></p-sortIcon></th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-ticket>
+                        <tr style="color: var(--r4u-text-main);">
+                            <td class="font-bold" style="color: var(--p-primary-color, #3b82f6);">#{{ticket.id}}</td>
+                            <td class="font-bold">{{ticket.titulo}}</td>
+                            <td><p-tag [value]="ticket.estado" severity="info"></p-tag></td>
+                            <td><p-tag [value]="ticket.prioridad" [severity]="getPrioritySeverity(ticket.prioridad)"></p-tag></td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+        </div>
+    </div>
+</div>

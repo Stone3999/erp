@@ -1,0 +1,102 @@
+<p-toast></p-toast>
+<p-confirmdialog [style]="{ width: '420px' }"></p-confirmdialog>
+
+<div class="page-container p-4" style="background-color: var(--r4u-bg-page); min-height: 100vh;">
+
+    <div class="page-header">
+        <h2 style="color: var(--r4u-text-main);">Usuarios y Permisos</h2>
+        <p style="color: var(--r4u-text-muted);">Gestión y administración de usuarios y sus niveles de acceso.</p>
+    </div>
+
+    <p-toolbar class="usuarios-toolbar" styleClass="dark-toolbar">
+        <ng-template pTemplate="start">
+            <!-- REQUERIMIENTO: permiso 'users:manage' -->
+            <div *appHasPermission="'users:manage'">
+                <p-button label="Nuevo Usuario" icon="pi pi-user-plus" (onClick)="openNew()"></p-button>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="end">
+            <span class="total-label" style="color: var(--r4u-text-muted);">Total: <strong style="color: var(--r4u-text-main);">{{ usuarios.length }}</strong></span>
+        </ng-template>
+    </p-toolbar>
+
+    <div class="table-card p-3 mt-3">
+        <p-table [value]="usuarios" [paginator]="true" [rows]="8" responsiveLayout="scroll" class="usuarios-table dark-table">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Nombre</th>
+                    <th>Correo</th>
+                    <th style="width: 25%;">Permisos</th>
+                    <th style="text-align:center">Estado</th>
+                    <th style="text-align:center">Acciones</th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-usuario>
+                <tr>
+                    <td><strong style="color: var(--r4u-text-main);">{{ usuario.name }}</strong></td>
+                    <td style="color: var(--r4u-text-muted);">{{ usuario.email }}</td>
+                    <td>
+                        <div class="flex flex-wrap gap-1">
+                            <p-tag *ngFor="let p of usuario.permissions" [value]="p" severity="secondary" [rounded]="true" styleClass="text-xs"></p-tag>
+                            <span *ngIf="!usuario.permissions || usuario.permissions.length === 0" style="color: var(--r4u-text-muted); font-size: 0.8rem;">Ninguno</span>
+                        </div>
+                    </td>
+                    <td style="text-align:center">
+                        <span class="estado-badge estado-activo">Activo</span>
+                    </td>
+                    <td style="text-align:center">
+                        <div class="flex justify-content-center gap-2" *appHasPermission="'users:manage'">
+                            <p-button icon="pi pi-pencil" [text]="true" severity="info" (onClick)="editUsuario(usuario)" pTooltip="Editar"></p-button>
+                            <p-button icon="pi pi-trash" [text]="true" severity="danger" (onClick)="deleteUsuario(usuario)" pTooltip="Eliminar"></p-button>
+                        </div>
+                        <span *appHasPermission="'!users:manage'" style="color: var(--r4u-text-muted); font-size: 0.8rem;">Solo lectura</span>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+
+</div>
+
+<p-dialog [(visible)]="dialogVisible" [header]="isEditMode ? 'Editar Usuario' : 'Nuevo Usuario'" [modal]="true" [style]="{ width: '550px' }" [closable]="true" (onHide)="closeDialog()">
+    <form [formGroup]="usuarioForm" class="usuario-form">
+
+        <div class="field-row">
+            <div class="field">
+                <label for="nombre">Nombre <span class="required">*</span></label>
+                <input id="nombre" type="text" pInputText formControlName="nombre" placeholder="Nombre" [class.ng-invalid]="isInvalid('nombre')" />
+            </div>
+            <div class="field">
+                <label for="apellido">Apellido <span class="required">*</span></label>
+                <input id="apellido" type="text" pInputText formControlName="apellido" placeholder="Apellido" [class.ng-invalid]="isInvalid('apellido')" />
+            </div>
+        </div>
+
+        <div class="field">
+            <label for="correo">Correo electrónico <span class="required">*</span></label>
+            <input id="correo" type="email" pInputText formControlName="correo" placeholder="correo@ejemplo.com" [class.ng-invalid]="isInvalid('correo')" />
+        </div>
+
+        <div class="field mt-2">
+            <label>Permisos de Acceso <span class="required">*</span></label>
+            <p-multiSelect formControlName="permisos" [options]="listaPermisos" defaultLabel="Selecciona los permisos" display="chip" styleClass="w-full" appendTo="body" [class.ng-invalid]="isInvalid('permisos')"></p-multiSelect>
+        </div>
+
+        <div class="field field-toggle mt-2">
+            <label>Estado</label>
+            <div class="toggle-row">
+                <p-toggleswitch formControlName="activo"></p-toggleswitch>
+                <span class="toggle-label" style="color: var(--r4u-text-main);">
+                    {{ usuarioForm.get('activo')?.value ? 'Activo (Permite login)' : 'Inactivo (Bloqueado)' }}
+                </span>
+            </div>
+        </div>
+
+    </form>
+
+    <ng-template pTemplate="footer">
+        <p-button label="Cancelar" icon="pi pi-times" [text]="true" severity="secondary" (onClick)="closeDialog()"></p-button>
+        <p-button [label]="isEditMode ? 'Actualizar' : 'Guardar'" icon="pi pi-check" (onClick)="saveUsuario()"></p-button>
+    </ng-template>
+</p-dialog>

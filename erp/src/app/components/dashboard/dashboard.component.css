@@ -1,0 +1,175 @@
+.home-container {
+    max-width: 900px;
+}
+
+/* ─── Welcome banner ─────────────────────────────────── */
+.welcome-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(135deg, var(--r4u-primary) 0%, var(--r4u-primary-banner) 100%);
+    color: #ffffff;
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 1.75rem;
+    box-shadow: 0 4px 20px var(--r4u-primary-hover);
+}
+
+.welcome-banner.guest {
+    background: linear-gradient(135deg, #64748b 0%, #94a3b8 100%);
+    box-shadow: 0 4px 20px rgba(100, 116, 139, 0.25);
+}
+
+.welcome-text h2 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin: 0 0 0.4rem 0;
+}
+
+.welcome-text p {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 0.95rem;
+}
+
+.user-email {
+    opacity: 1;
+    font-weight: 700;
+}
+
+:host ::ng-deep .welcome-avatar {
+    background: rgba(255, 255, 255, 0.25) !important;
+    color: #ffffff !important;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+:host ::ng-deep .welcome-avatar-guest {
+    background: rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+}
+
+/* ─── Quick access grid ──────────────────────────────── */
+.quick-access-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+@media (max-width: 768px) {
+    .quick-access-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+:host ::ng-deep .quick-card {
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+    cursor: pointer;
+    transition: box-shadow 0.2s, transform 0.15s;
+}
+
+:host ::ng-deep .quick-card:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+:host ::ng-deep .quick-card .p-card-body {
+    padding: 1rem 1.25rem;
+}
+
+.quick-card-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Icon boxes */
+.quick-icon-box {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+}
+
+.quick-icon-box.blue {
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+}
+
+.quick-icon-box.green {
+    background: rgba(34, 197, 94, 0.15);
+    color: #4ade80;
+}
+
+.quick-icon-box.orange {
+    background: rgba(249, 115, 22, 0.15);
+    color: #fb923c;
+}
+
+.quick-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.quick-title {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #1e293b;
+}
+
+.quick-desc {
+    font-size: 0.78rem;
+    color: #94a3b8;
+}
+
+.quick-arrow {
+    color: #cbd5e1;
+    font-size: 0.9rem;
+}
+
+/* Efectos perrones para las tarjetas de los grupos */
+:host ::ng-deep .group-card {
+    height: 100%; /* Para que todas las tarjetas midan lo mismo */
+    transition: transform 0.2s ease, border-color 0.2s ease;
+    cursor: pointer;
+}
+
+:host ::ng-deep .group-card:hover {
+    transform: translateY(-3px); /* Se levanta tantito */
+    border-color: var(--r4u-primary) !important; /* Brilla en naranja */
+}
+
+/* Forzamos que el contenido ocupe el espacio para empujar el footer abajo */
+:host ::ng-deep .group-card .p-card-body {
+    height: 80%;
+    display: flex;
+    flex-direction: column;
+}
+
+:host ::ng-deep .group-card .p-card-content {
+    flex-grow: 1;
+    padding: 1rem 0; /* Un poco de respiro al texto */
+}
+
+/* La cajita del icono para que se vea chula */
+.icon-box {
+    background-color: rgba(255, 69, 0, 0.15); /* Fondo naranja transparente */
+    color: var(--r4u-primary);
+    border-radius: 8px;
+    width: 45px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-box i {
+    font-size: 1.5rem;
+}
