@@ -1,11 +1,11 @@
 services:
-  # 1. User Service
   - type: web
-    name: user-service
+    name: erp-all-in-one-backend
     env: node
+    plan: free
     rootDir: backend
     buildCommand: npm install
-    startCommand: npm run start:user
+    startCommand: npm run dev
     envVars:
       - key: SUPABASE_URL
         sync: false
@@ -13,51 +13,12 @@ services:
         sync: false
       - key: JWT_SECRET
         sync: false
-
-  # 2. Tickets Service
-  - type: web
-    name: tickets-service
-    env: node
-    rootDir: backend
-    buildCommand: npm install
-    startCommand: npm run start:tickets
-    envVars:
-      - key: SUPABASE_URL
-        sync: false
-      - key: SUPABASE_KEY
-        sync: false
-
-  # 3. Groups Service
-  - type: web
-    name: groups-service
-    env: node
-    rootDir: backend
-    buildCommand: npm install
-    startCommand: npm run start:groups
-    envVars:
-      - key: SUPABASE_URL
-        sync: false
-      - key: SUPABASE_KEY
-        sync: false
-
-  # 4. API Gateway (El Cadenero principal)
-  - type: web
-    name: api-gateway
-    env: node
-    rootDir: backend
-    buildCommand: npm install
-    startCommand: npm run start:gateway
-    envVars:
-      - key: SUPABASE_URL
-        sync: false
-      - key: SUPABASE_KEY
-        sync: false
-      - key: JWT_SECRET
-        sync: false
-      # En Render, los servicios se pueden comunicar internamente con http://<nombre-servicio>:<puerto-interno>
+      # Internamente se comunican por localhost en los puertos que ya definimos
       - key: USER_SERVICE_URL
-        value: http://user-service:10000
+        value: http://localhost:3001
       - key: TICKETS_SERVICE_URL
-        value: http://tickets-service:10000
+        value: http://localhost:3002
       - key: GROUPS_SERVICE_URL
-        value: http://groups-service:10000
+        value: http://localhost:3003
+      - key: PORT
+        value: 3000 # El puerto que expone Render será el de la Gateway
