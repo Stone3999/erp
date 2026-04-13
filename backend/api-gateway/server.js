@@ -105,7 +105,7 @@ fastify.register(proxy, {
 fastify.register(proxy, {
   upstream: process.env.TICKETS_SERVICE_URL || 'http://localhost:3002',
   prefix: '/tickets',
-  rewritePrefix: '/tickets'
+  rewritePrefix: ''
 });
 
 fastify.register(proxy, {
@@ -126,6 +126,12 @@ const start = async () => {
     await fastify.listen({ port, host: '0.0.0.0' });
     console.log(`[API Gateway] Escuchando en el puerto ${port}`);
   } catch (err) {
+    fastify.log.error(err);
+    process.exit(1);
+  }
+};
+start();
+
     fastify.log.error(err);
     process.exit(1);
   }
