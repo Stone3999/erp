@@ -59,7 +59,7 @@ export interface RoomTicket {
 export class RoomComponent implements OnInit {
     isLoggedIn = false;
     currentUser = '';
-    groupId: string | null = null; // DECLARACIÓN FALTANTE
+    groupId: string | null = null;
     chartData: any;
     chartOptions: any;
     stats = { total: 0, pendiente: 0, enProgreso: 0, revision: 0, finalizado: 0 };
@@ -93,13 +93,13 @@ export class RoomComponent implements OnInit {
     constructor(
         private authService: AuthService,
         private ticketService: TicketService,
-        private route: ActivatedRoute // INYECCIÓN FALTANTE
+        private route: ActivatedRoute
     ) {}
 
     ngOnInit(): void {
         this.isLoggedIn = this.authService.isLoggedIn();
         this.currentUser = this.authService.getCurrentUser();
-        this.groupId = this.route.snapshot.paramMap.get('id'); // OBTENER ID DE LA URL
+        this.groupId = this.route.snapshot.paramMap.get('id');
         this.cargarTickets();
     }
     
@@ -121,8 +121,8 @@ export class RoomComponent implements OnInit {
 
     async cargarTickets() {
         if (!this.groupId) return;
-        // Filtramos por el ID del workspace actual
-        const response = await this.ticketService.getTicketsByGroup(Number(this.groupId));
+        // FIX: Quitamos el Number() porque el ID es un UUID (string)
+        const response = await this.ticketService.getTicketsByGroup(this.groupId as any);
         if (response.statusCode === 200 && response.data) {
             const tickets = response.data.map(t => this.mapToRoomTicket(t));
             this.pendientes = tickets.filter(t => t.estado === 'Pendiente');
@@ -177,7 +177,7 @@ export class RoomComponent implements OnInit {
             asignadoA: this.currentUser,
             creador: this.authService.getUserId(),
             prioridad: 'Media',
-            workspace_id: this.groupId // Usamos el ID del grupo actual
+            workspace_id: this.groupId // Mantenemos el UUID
         };
 
         const res = await this.ticketService.createTicket(nuevoTicket);
