@@ -111,13 +111,13 @@ fastify.register(proxy, {
 fastify.register(proxy, {
   upstream: process.env.GROUPS_SERVICE_URL || 'http://localhost:3003',
   prefix: '/groups',
-  rewritePrefix: '/groups'
+  rewritePrefix: ''
 });
 
 fastify.register(proxy, {
   upstream: process.env.USER_SERVICE_URL || 'http://localhost:3001',
   prefix: '/users',
-  rewritePrefix: '/users'
+  rewritePrefix: ''
 });
 
 const start = async () => {
