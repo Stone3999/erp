@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { RouterModule, ActivatedRoute } from '@angular/router';
 import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -59,6 +59,7 @@ export interface RoomTicket {
 export class RoomComponent implements OnInit {
     isLoggedIn = false;
     currentUser = '';
+    groupId: string | null = null; // DECLARACIÓN FALTANTE
     chartData: any;
     chartOptions: any;
     stats = { total: 0, pendiente: 0, enProgreso: 0, revision: 0, finalizado: 0 };
@@ -92,11 +93,13 @@ export class RoomComponent implements OnInit {
     constructor(
         private authService: AuthService,
         private ticketService: TicketService,
+        private route: ActivatedRoute // INYECCIÓN FALTANTE
     ) {}
 
     ngOnInit(): void {
         this.isLoggedIn = this.authService.isLoggedIn();
         this.currentUser = this.authService.getCurrentUser();
+        this.groupId = this.route.snapshot.paramMap.get('id'); // OBTENER ID DE LA URL
         this.cargarTickets();
     }
     
@@ -117,7 +120,9 @@ export class RoomComponent implements OnInit {
     }
 
     async cargarTickets() {
-        const response = await this.ticketService.getAllTickets();
+        if (!this.groupId) return;
+        // Filtramos por el ID del workspace actual
+        const response = await this.ticketService.getTicketsByGroup(Number(this.groupId));
         if (response.statusCode === 200 && response.data) {
             const tickets = response.data.map(t => this.mapToRoomTicket(t));
             this.pendientes = tickets.filter(t => t.estado === 'Pendiente');
@@ -172,7 +177,7 @@ export class RoomComponent implements OnInit {
             asignadoA: this.currentUser,
             creador: this.authService.getUserId(),
             prioridad: 'Media',
-            grupoId: this.groupId // Mantenemos el UUID como string
+            workspace_id: this.groupId // Usamos el ID del grupo actual
         };
 
         const res = await this.ticketService.createTicket(nuevoTicket);
