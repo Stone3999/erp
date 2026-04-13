@@ -177,7 +177,7 @@ export class RoomComponent implements OnInit {
             asignadoA: this.currentUser,
             creador: this.authService.getUserId(),
             prioridad: 'Media',
-            workspace_id: this.groupId // Mantenemos el UUID
+            grupoId: this.groupId // Cambiado de workspace_id a grupoId
         };
 
         const res = await this.ticketService.createTicket(nuevoTicket);
