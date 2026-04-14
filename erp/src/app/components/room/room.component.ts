@@ -12,10 +12,12 @@ import { SelectModule } from 'primeng/select';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { Divider } from 'primeng/divider';
+import { SelectButtonModule } from 'primeng/selectbutton';
 import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { AuthService } from '../../services/auth.service';
 import { TicketService } from '../../services/ticket.service';
 import { UserService } from '../../services/user.service';
+import { GroupService } from '../../services/group.service';
 import { HasPermissionDirective } from '../../directives/has-permission.directive';
 
 export interface Comentario {
@@ -52,7 +54,7 @@ export interface RoomTicket {
         ButtonModule, CardModule, AvatarModule, 
         TagModule, ChartModule, DialogModule, InputTextModule,
         DragDropModule, TableModule, SelectModule, Divider,
-        HasPermissionDirective
+        SelectButtonModule, HasPermissionDirective
     ],
     templateUrl: './room.component.html',
     styleUrl: './room.component.css',
@@ -86,6 +88,12 @@ export class RoomComponent implements OnInit {
     vistaTabla: boolean = false; 
     filtroActivo: string = 'todos'; 
 
+    // Opciones para el botón tipo switch largo
+    viewOptions = [
+        { label: 'Tablero Kanban', value: false, icon: 'pi pi-th-large' },
+        { label: 'Vista de Lista', value: true, icon: 'pi pi-list' }
+    ];
+
     cumpleFiltro(ticket: any): boolean {
         if (this.filtroActivo === 'mis-tickets') return ticket.asignado === this.currentUser;
         if (this.filtroActivo === 'sin-asignar') return !ticket.asignado || ticket.asignado.trim() === '';
@@ -102,6 +110,7 @@ export class RoomComponent implements OnInit {
         private authService: AuthService,
         private ticketService: TicketService,
         private userService: UserService,
+        private groupService: GroupService, // INYECCIÓN CORREGIDA
         private route: ActivatedRoute
     ) {}
 
@@ -117,7 +126,7 @@ export class RoomComponent implements OnInit {
         if (!this.groupId) return;
         const res = await this.groupService.getGroupMembers(this.groupId);
         if (res.statusCode === 200 && res.data) {
-            this.usuariosDisponibles = res.data.map(u => u.name);
+            this.usuariosDisponibles = res.data.map((u: any) => u.name); // TIPADO 'any' AÑADIDO
         }
     }
     
@@ -196,7 +205,7 @@ export class RoomComponent implements OnInit {
             descripcion: this.nuevaDescripcion,
             estado: this.nuevoEstado,
             asignadoA: this.nuevoAsignado,
-            creador: this.authService.getUserId(), // Enviamos UUID
+            creador: this.authService.getUserId(),
             prioridad: this.nuevaPrioridad,
             grupoId: this.groupId,
             fechaLimite: this.nuevaFechaLimite || undefined
@@ -283,8 +292,6 @@ export class RoomComponent implements OnInit {
 
     get puedeEditarTodo(): boolean {
         if (!this.ticketEditando) return false;
-        // Comparamos nombre o id? El creador en el objeto mapeado es el nombre.
-        // Pero para seguridad real comparamos con el usuario logueado.
         return this.ticketEditando.creador === this.currentUser || this.authService.hasPermission('tickets:edit_all');
     }
 
