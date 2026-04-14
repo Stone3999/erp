@@ -8,70 +8,74 @@ const fastify = Fastify({ logger: true });
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
 fastify.get('/', async (request, reply) => {
-  try {
-    const { data, error } = await supabase.from('workspaces').select('*');
-    if (error) throw error;
-    return { statusCode: 200, data };
-  } catch (err) {
-    console.error('[Groups GET Error]:', err);
-    return reply.code(500).send({ statusCode: 500, message: 'Error al obtener grupos' });
-  }
+  const { data, error } = await supabase.from('workspaces').select('*');
+  return { statusCode: 200, data };
+});
+
+// NUEVA RUTA PARA OBTENER MIEMBROS DE UN GRUPO
+fastify.get('/:id/members', async (request, reply) => {
+  const { id } = request.params;
+  const { data, error } = await supabase
+    .from('workspace_members')
+    .select('user_id, users(name, email)')
+    .eq('workspace_id', id);
+  
+  if (error) return reply.code(500).send({ statusCode: 500, message: error.message });
+  
+  // Mapeamos para que sea más fácil de leer en el front
+  const members = data.map((m: any) => ({
+    id: m.user_id,
+    name: m.users.name,
+    email: m.users.email
+  }));
+  
+  return { statusCode: 200, data: members };
 });
 
 fastify.post('/', async (request, reply) => {
   try {
-    const { name, category, level, created_by } = request.body;
-    console.log('[Groups POST] Recibido:', { name, category, level, created_by });
-
-    if (!name) {
-      return reply.code(400).send({ statusCode: 400, message: 'El nombre es obligatorio' });
-    }
-
-    // Insertamos en la tabla 'workspaces' (que es la que está en tu SQL)
-    const { data, error } = await supabase
+    const { name, category, level, created_by, members } = request.body;
+    
+    // 1. Crear el Workspace
+    const { data: workspace, error: wsError } = await supabase
       .from('workspaces')
-      .insert([{ 
-        name, 
-        category: category || 'General', 
-        level: level || 'Básico',
-        created_by: created_by || null // Si falla, puede ser por el FK del usuario
-      }])
+      .insert([{ name, category, level, created_by }])
       .select()
       .single();
     
-    if (error) {
-      console.error('[Supabase Groups Insert Error]:', error);
-      return reply.code(500).send({ statusCode: 500, message: error.message });
+    if (wsError) throw wsError;
+
+    // 2. Si hay miembros, agregarlos a la tabla intermedia
+    if (members && members.length > 0) {
+      // Necesitamos los IDs de los usuarios por su email si el front mandó emails
+      // Por ahora asumimos que el front manda una lista de IDs/Objetos que ya tienen el ID
+      const membersToInsert = members.map((userId: string) => ({
+        workspace_id: workspace.id,
+        user_id: userId
+      }));
+      
+      // Agregamos también al creador como miembro por defecto
+      membersToInsert.push({ workspace_id: workspace.id, user_id: created_by });
+
+      await supabase.from('workspace_members').insert(membersToInsert);
     }
 
-    console.log('[Groups POST] Éxito:', data);
-    return { statusCode: 201, intOpCode: 'SxGR201', data };
-  } catch (err) {
-    console.error('[Groups POST Catch]:', err);
-    return reply.code(500).send({ statusCode: 500, message: 'Error interno' });
+    return { statusCode: 201, data: workspace };
+  } catch (err: any) {
+    return reply.code(500).send({ statusCode: 500, message: err.message });
   }
-});
-
-fastify.patch('/:id', async (request, reply) => {
-  const { id } = request.params;
-  const { data, error } = await supabase.from('workspaces').update(request.body).eq('id', id).select().single();
-  if (error) return reply.code(500).send({ statusCode: 500, message: error.message });
-  return { statusCode: 200, data };
 });
 
 fastify.delete('/:id', async (request, reply) => {
   const { id } = request.params;
-  const { error } = await supabase.from('workspaces').delete().eq('id', id);
-  if (error) return reply.code(500).send({ statusCode: 500, message: error.message });
-  return { statusCode: 200, data: { message: 'Eliminado' } };
+  await supabase.from('workspaces').delete().eq('id', id);
+  return { statusCode: 200, message: 'Eliminado' };
 });
 
 const start = async () => {
   try {
     const port = 3003;
     await fastify.listen({ port, host: '0.0.0.0' });
-  } catch (err) {
-    process.exit(1);
-  }
+  } catch (err) { process.exit(1); }
 };
 start();
