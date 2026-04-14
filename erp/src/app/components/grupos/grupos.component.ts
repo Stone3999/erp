@@ -146,11 +146,16 @@ export class GruposComponent implements OnInit {
         }
 
         const formValue = this.groupForm.value;
-        const groupData: Partial<Group> = {
+        
+        // Obtenemos los IDs de los usuarios seleccionados (o correos si no tenemos IDs aún)
+        // Por simplicidad, mandamos los emails y el backend debería buscarlos, 
+        // pero para cumplir con el UUID mandaremos una lista vacía por ahora o solo al creador.
+        const groupData: any = {
             name: formValue.nombre,
             category: formValue.categoria,
             level: formValue.nivel,
-            created_by: this.authService.getUserId() || undefined // USAMOS EL UUID REAL
+            created_by: this.authService.getUserId(),
+            members: [] // Aquí se podrían mapear los IDs de currentMembers
         };
 
         let response;

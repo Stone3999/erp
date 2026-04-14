@@ -45,6 +45,21 @@ export class GroupService {
         }
     }
 
+    async getGroupMembers(groupId: number | string): Promise<ApiResponse<any[]>> {
+        try {
+            return await firstValueFrom(
+                this.http.get<ApiResponse<any[]>>(`${this.API_URL}/${groupId}/members`, { headers: this.getHeaders() })
+            );
+        } catch (error: any) {
+            return {
+                statusCode: error.status || 500,
+                intOpCode: 'ExGR500',
+                data: null,
+                message: 'Error al obtener miembros'
+            };
+        }
+    }
+
     async createGroup(group: Partial<Group>): Promise<ApiResponse<Group>> {
         try {
             return await firstValueFrom(

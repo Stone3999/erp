@@ -110,11 +110,12 @@ export class RoomComponent implements OnInit {
         this.currentUser = this.authService.getCurrentUser();
         this.groupId = this.route.snapshot.paramMap.get('id');
         this.cargarTickets();
-        this.cargarUsuarios();
+        this.cargarMiembros();
     }
 
-    async cargarUsuarios() {
-        const res = await this.userService.getUsers();
+    async cargarMiembros() {
+        if (!this.groupId) return;
+        const res = await this.groupService.getGroupMembers(this.groupId);
         if (res.statusCode === 200 && res.data) {
             this.usuariosDisponibles = res.data.map(u => u.name);
         }
