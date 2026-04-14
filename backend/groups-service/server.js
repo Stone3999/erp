@@ -22,8 +22,8 @@ fastify.get('/:id/members', async (request, reply) => {
   
   if (error) return reply.code(500).send({ statusCode: 500, message: error.message });
   
-  // Mapeamos para que sea más fácil de leer en el front
-  const members = data.map((m: any) => ({
+  // Mapeamos para que sea más fácil de leer en el front (Limpiado de TS)
+  const members = data.map((m) => ({
     id: m.user_id,
     name: m.users.name,
     email: m.users.email
@@ -47,9 +47,7 @@ fastify.post('/', async (request, reply) => {
 
     // 2. Si hay miembros, agregarlos a la tabla intermedia
     if (members && members.length > 0) {
-      // Necesitamos los IDs de los usuarios por su email si el front mandó emails
-      // Por ahora asumimos que el front manda una lista de IDs/Objetos que ya tienen el ID
-      const membersToInsert = members.map((userId: string) => ({
+      const membersToInsert = members.map((userId) => ({
         workspace_id: workspace.id,
         user_id: userId
       }));
@@ -61,7 +59,7 @@ fastify.post('/', async (request, reply) => {
     }
 
     return { statusCode: 201, data: workspace };
-  } catch (err: any) {
+  } catch (err) {
     return reply.code(500).send({ statusCode: 500, message: err.message });
   }
 });
