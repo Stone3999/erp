@@ -15,6 +15,7 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { Group, GroupService } from '../../services/group.service';
 import { HasPermissionDirective } from '../../directives/has-permission.directive';
 import { AuthService } from '../../services/auth.service';
+import { UserService } from '../../services/user.service';
 
 @Component({
     selector: 'app-grupos',
@@ -36,8 +37,9 @@ export class GruposComponent implements OnInit {
     isEditMode = false;
     editingId: number | null = null;
 
-    // --- NUEVAS VARIABLES PARA EL MODAL CHONCHO ---
-    currentMembers: { email: string, role: string }[] = [];
+    // Lista de todos los usuarios para buscar IDs por email
+    allSystemUsers: any[] = [];
+    currentMembers: { id: string, email: string, role: string }[] = [];
     newMemberEmail: string = '';
 
     categorias = [
@@ -58,20 +60,27 @@ export class GruposComponent implements OnInit {
         private messageService: MessageService,
         private confirmationService: ConfirmationService,
         private groupService: GroupService,
-        private authService: AuthService
+        private authService: AuthService,
+        private userService: UserService
     ) {}
 
     ngOnInit(): void {
         this.loadGroups();
+        this.loadSystemUsers();
         this.buildForm();
+    }
+
+    async loadSystemUsers() {
+        const res = await this.userService.getUsers();
+        if (res.statusCode === 200) {
+            this.allSystemUsers = res.data;
+        }
     }
 
     async loadGroups() {
         const response = await this.groupService.getGroups();
         if (response.statusCode === 200 && response.data) {
             this.groups = response.data;
-        } else {
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: response.message || 'No se pudieron cargar los grupos' });
         }
     }
 
@@ -81,7 +90,7 @@ export class GruposComponent implements OnInit {
             categoria: ['', Validators.required],
             nivel: ['', Validators.required],
             autor: [this.authService.getCurrentUser(), [Validators.required]],
-            tickets: [0],
+            tickets: [0, [Validators.min(0)]],
         });
     }
 
@@ -93,69 +102,50 @@ export class GruposComponent implements OnInit {
             tickets: 0
         });
         this.newMemberEmail = '';
-        this.currentMembers = [{ email: this.authService.getCurrentUser(), role: 'Administrador' }];
+        this.currentMembers = [];
+        // Agregar al creador por defecto
+        const userId = this.authService.getUserId();
+        const userEmail = this.allSystemUsers.find(u => u.id === userId)?.email || '';
+        if (userId) {
+            this.currentMembers.push({ id: userId, email: userEmail, role: 'Administrador' });
+        }
         this.dialogVisible = true;
     }
 
-    editGroup(group: Group): void {
-        this.isEditMode = true;
-        this.editingId = group.id;
-        this.groupForm.patchValue({
-            nombre: group.name,
-            categoria: group.category,
-            nivel: group.level,
-            autor: group.created_by,
-            tickets: group.tickets || 0,
-        });
-
-        this.newMemberEmail = '';
-        this.currentMembers = [{ email: group.created_by, role: 'Administrador' }];
-        this.dialogVisible = true;
-    }
-
-    // --- NUEVAS FUNCIONES PARA GESTIONAR MIEMBROS ---
     addMember(): void {
-        if (!this.newMemberEmail.trim()) {
-            this.messageService.add({ severity: 'warn', summary: 'Vacío', detail: 'Ingresa un correo válido.' });
+        const email = this.newMemberEmail.trim().toLowerCase();
+        if (!email) return;
+
+        const user = this.allSystemUsers.find(u => u.email.toLowerCase() === email);
+        if (!user) {
+            this.messageService.add({ severity: 'error', summary: 'No encontrado', detail: 'El usuario con ese correo no existe en el sistema.' });
             return;
         }
 
-        if (this.currentMembers.some(m => m.email === this.newMemberEmail)) {
-            this.messageService.add({ severity: 'warn', summary: 'Aviso', detail: 'Este usuario ya está en el Room.' });
+        if (this.currentMembers.some(m => m.id === user.id)) {
+            this.messageService.add({ severity: 'warn', summary: 'Aviso', detail: 'El usuario ya está en la lista.' });
             return;
         }
 
-        this.currentMembers.push({ email: this.newMemberEmail, role: 'Miembro' });
+        this.currentMembers.push({ id: user.id, email: user.email, role: 'Miembro' });
         this.newMemberEmail = '';
     }
 
-    removeMember(email: string): void {
-        this.currentMembers = this.currentMembers.filter(m => m.email !== email);
+    removeMember(id: string): void {
+        this.currentMembers = this.currentMembers.filter(m => m.id !== id);
     }
-    // ------------------------------------------------
 
     async saveGroup() {
-        if (this.groupForm.invalid) {
-            this.groupForm.markAllAsTouched();
-            this.messageService.add({
-                severity: 'warn',
-                summary: 'Formulario inválido',
-                detail: 'Completa todos los campos requeridos correctamente.',
-            });
-            return;
-        }
+        if (this.groupForm.invalid) return;
 
         const formValue = this.groupForm.value;
-        
-        // Obtenemos los IDs de los usuarios seleccionados (o correos si no tenemos IDs aún)
-        // Por simplicidad, mandamos los emails y el backend debería buscarlos, 
-        // pero para cumplir con el UUID mandaremos una lista vacía por ahora o solo al creador.
         const groupData: any = {
             name: formValue.nombre,
             category: formValue.categoria,
             level: formValue.nivel,
+            tickets: formValue.tickets, // AHORA SÍ ENVIAMOS TICKETS
             created_by: this.authService.getUserId(),
-            members: [] // Aquí se podrían mapear los IDs de currentMembers
+            members: this.currentMembers.map(m => m.id) // ENVIAMOS IDS REALES
         };
 
         let response;
@@ -166,48 +156,24 @@ export class GruposComponent implements OnInit {
         }
 
         if (response.statusCode === 200 || response.statusCode === 201) {
-            this.messageService.add({ 
-                severity: 'success', 
-                summary: this.isEditMode ? 'Room actualizado' : 'Room creado', 
-                detail: `"${formValue.nombre}" se guardó correctamente.` 
-            });
+            this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Room guardado correctamente.' });
             this.loadGroups();
             this.dialogVisible = false;
         } else {
-            this.messageService.add({ 
-                severity: 'error', 
-                summary: 'Error', 
-                detail: response.message || 'No se pudo guardar el Room.' 
-            });
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: response.message });
         }
     }
 
     deleteGroup(group: Group): void {
         this.confirmationService.confirm({
-            message: `¿Estás seguro de eliminar el Room "<b>${group.name}</b>"?`,
-            header: 'Confirmar eliminación',
-            icon: 'pi pi-exclamation-triangle',
-            acceptLabel: 'Sí, eliminar',
-            rejectLabel: 'Cancelar',
-            acceptButtonStyleClass: 'p-button-danger',
+            message: `¿Borrar "${group.name}"?`,
             accept: async () => {
-                const response = await this.groupService.deleteGroup(group.id);
-                if (response.statusCode === 200) {
-                    this.messageService.add({ severity: 'success', summary: 'Room eliminado', detail: `"${group.name}" fue eliminado correctamente.` });
+                const res = await this.groupService.deleteGroup(group.id);
+                if (res.statusCode === 200) {
+                    this.messageService.add({ severity: 'success', summary: 'Borrado' });
                     this.loadGroups();
-                } else {
-                    this.messageService.add({ severity: 'error', summary: 'Error', detail: response.message || 'No se pudo eliminar el grupo' });
                 }
-            },
+            }
         });
-    }
-
-    closeDialog(): void {
-        this.dialogVisible = false;
-    }
-
-    isInvalid(field: string): boolean {
-        const ctrl = this.groupForm.get(field);
-        return !!(ctrl && ctrl.invalid && ctrl.touched);
     }
 }
