@@ -83,7 +83,7 @@ export class RoomComponent implements OnInit {
     revision: RoomTicket[] = [];
     finalizados: RoomTicket[] = [];
     
-    usuariosDisponibles: string[] = [];
+    usuariosDisponibles: any[] = [];
 
     vistaTabla: boolean = false; 
     filtroActivo: string = 'todos'; 

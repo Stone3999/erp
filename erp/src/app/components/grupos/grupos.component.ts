@@ -119,9 +119,18 @@ export class GruposComponent implements OnInit {
         this.dialogVisible = true;
     }
 
+    isInvalid(field: string): boolean {
+        const control = this.groupForm.get(field);
+        return !!(control && control.invalid && (control.dirty || control.touched));
+    }
+
+    closeDialog(): void {
+        this.dialogVisible = false;
+    }
+
     async loadGroupMembers(groupId: string) {
         const res = await this.groupService.getGroupMembers(groupId);
-        if (res.statusCode === 200) {
+        if (res.statusCode === 200 && res.data) {
             this.currentMembers = res.data.map((m: any) => ({
                 id: m.id,
                 name: m.name,
