@@ -37,9 +37,8 @@ export class GruposComponent implements OnInit {
     isEditMode = false;
     editingId: number | null = null;
 
-    // Lista de todos los usuarios para buscar IDs por nombre
     allSystemUsers: any[] = [];
-    currentMembers: { id: string, name: string, email: string, role: string }[] = [];
+    currentMembers: any[] = [];
     selectedUserToAdd: any = null;
 
     categorias = [
@@ -72,7 +71,7 @@ export class GruposComponent implements OnInit {
 
     async loadSystemUsers() {
         const res = await this.userService.getUsers();
-        if (res.statusCode === 200) {
+        if (res.statusCode === 200 && res.data) {
             this.allSystemUsers = res.data;
         }
     }
@@ -92,17 +91,27 @@ export class GruposComponent implements OnInit {
         });
     }
 
+    isInvalid(field: string): boolean {
+        const control = this.groupForm.get(field);
+        return !!(control && control.invalid && (control.dirty || control.touched));
+    }
+
     openNew(): void {
         this.isEditMode = false;
         this.editingId = null;
         this.groupForm.reset();
         this.selectedUserToAdd = null;
         this.currentMembers = [];
-        // Agregar al creador por defecto
+        
         const userId = this.authService.getUserId();
         const user = this.allSystemUsers.find(u => u.id === userId);
         if (user) {
-            this.currentMembers.push({ id: user.id, name: user.name, email: user.email, role: 'Administrador' });
+            this.currentMembers.push({ 
+                id: user.id, 
+                name: user.name, 
+                email: user.email, 
+                role: 'Administrador' 
+            });
         }
         this.dialogVisible = true;
     }
@@ -117,15 +126,6 @@ export class GruposComponent implements OnInit {
         });
         this.loadGroupMembers(group.id);
         this.dialogVisible = true;
-    }
-
-    isInvalid(field: string): boolean {
-        const control = this.groupForm.get(field);
-        return !!(control && control.invalid && (control.dirty || control.touched));
-    }
-
-    closeDialog(): void {
-        this.dialogVisible = false;
     }
 
     async loadGroupMembers(groupId: string) {
@@ -159,6 +159,10 @@ export class GruposComponent implements OnInit {
         this.currentMembers = this.currentMembers.filter(m => m.id !== id);
     }
 
+    closeDialog(): void {
+        this.dialogVisible = false;
+    }
+
     async saveGroup() {
         if (this.groupForm.invalid) return;
 
@@ -173,7 +177,6 @@ export class GruposComponent implements OnInit {
 
         let response;
         if (this.isEditMode && this.editingId !== null) {
-            // Para editar, solo enviamos los campos que el backend permite
             const updateData = {
                 name: formValue.nombre,
                 category: formValue.categoria,
