@@ -126,7 +126,12 @@ export class RoomComponent implements OnInit {
         if (!this.groupId) return;
         const res = await this.groupService.getGroupMembers(this.groupId);
         if (res.statusCode === 200 && res.data) {
-            this.usuariosDisponibles = res.data.map((u: any) => u.name); // TIPADO 'any' AÑADIDO
+            // Guardamos el objeto completo para poder filtrar/buscar mejor
+            this.usuariosDisponibles = res.data.map((u: any) => ({
+                id: u.id,
+                name: u.name,
+                email: u.email
+            }));
         }
     }
     

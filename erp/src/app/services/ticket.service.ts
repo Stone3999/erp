@@ -25,6 +25,7 @@ export interface Ticket {
     estado: EstadoTicket;
     asignadoA: string;
     creador: string;
+    creadorNombre?: string;
     prioridad: PrioridadTicket;
     fechaCreacion: Date;
     fechaLimite?: Date;
@@ -42,7 +43,7 @@ export class TicketService {
     private readonly API_URL = `${environment.apiUrl}/tickets`;
 
     private getHeaders() {
-        const token = this.authService.getCookie('session_token');
+        const token = this.authService.getToken();
         return new HttpHeaders({
             'Authorization': `Bearer ${token}`
         });
@@ -56,6 +57,7 @@ export class TicketService {
             estado: t.status,
             asignadoA: t.assigned_to,
             creador: t.created_by,
+            creadorNombre: t.creator_name || 'Sistema',
             prioridad: t.priority,
             fechaCreacion: new Date(t.created_at || new Date()),
             fechaLimite: t.due_date ? new Date(t.due_date) : undefined,

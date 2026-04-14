@@ -37,10 +37,10 @@ export class GruposComponent implements OnInit {
     isEditMode = false;
     editingId: number | null = null;
 
-    // Lista de todos los usuarios para buscar IDs por email
+    // Lista de todos los usuarios para buscar IDs por nombre
     allSystemUsers: any[] = [];
-    currentMembers: { id: string, email: string, role: string }[] = [];
-    newMemberEmail: string = '';
+    currentMembers: { id: string, name: string, email: string, role: string }[] = [];
+    selectedUserToAdd: any = null;
 
     categorias = [
         { label: 'Tecnología', value: 'Tecnología' },
@@ -88,47 +88,62 @@ export class GruposComponent implements OnInit {
         this.groupForm = this.fb.group({
             nombre: ['', [Validators.required, Validators.minLength(3)]],
             categoria: ['', Validators.required],
-            nivel: ['', Validators.required],
-            autor: [this.authService.getCurrentUser(), [Validators.required]],
-            tickets: [0, [Validators.min(0)]],
+            nivel: ['', Validators.required]
         });
     }
 
     openNew(): void {
         this.isEditMode = false;
         this.editingId = null;
-        this.groupForm.reset({
-            autor: this.authService.getCurrentUser(),
-            tickets: 0
-        });
-        this.newMemberEmail = '';
+        this.groupForm.reset();
+        this.selectedUserToAdd = null;
         this.currentMembers = [];
         // Agregar al creador por defecto
         const userId = this.authService.getUserId();
-        const userEmail = this.allSystemUsers.find(u => u.id === userId)?.email || '';
-        if (userId) {
-            this.currentMembers.push({ id: userId, email: userEmail, role: 'Administrador' });
+        const user = this.allSystemUsers.find(u => u.id === userId);
+        if (user) {
+            this.currentMembers.push({ id: user.id, name: user.name, email: user.email, role: 'Administrador' });
         }
         this.dialogVisible = true;
     }
 
-    addMember(): void {
-        const email = this.newMemberEmail.trim().toLowerCase();
-        if (!email) return;
+    editGroup(group: any): void {
+        this.isEditMode = true;
+        this.editingId = group.id;
+        this.groupForm.patchValue({
+            nombre: group.name,
+            categoria: group.category,
+            nivel: group.level
+        });
+        this.loadGroupMembers(group.id);
+        this.dialogVisible = true;
+    }
 
-        const user = this.allSystemUsers.find(u => u.email.toLowerCase() === email);
-        if (!user) {
-            this.messageService.add({ severity: 'error', summary: 'No encontrado', detail: 'El usuario con ese correo no existe en el sistema.' });
-            return;
+    async loadGroupMembers(groupId: string) {
+        const res = await this.groupService.getGroupMembers(groupId);
+        if (res.statusCode === 200) {
+            this.currentMembers = res.data.map((m: any) => ({
+                id: m.id,
+                name: m.name,
+                email: m.email,
+                role: 'Miembro'
+            }));
         }
+    }
 
-        if (this.currentMembers.some(m => m.id === user.id)) {
+    addMemberFromSelect(): void {
+        if (!this.selectedUserToAdd) return;
+        if (this.currentMembers.some(m => m.id === this.selectedUserToAdd.id)) {
             this.messageService.add({ severity: 'warn', summary: 'Aviso', detail: 'El usuario ya está en la lista.' });
             return;
         }
-
-        this.currentMembers.push({ id: user.id, email: user.email, role: 'Miembro' });
-        this.newMemberEmail = '';
+        this.currentMembers.push({ 
+            id: this.selectedUserToAdd.id, 
+            name: this.selectedUserToAdd.name, 
+            email: this.selectedUserToAdd.email, 
+            role: 'Miembro' 
+        });
+        this.selectedUserToAdd = null;
     }
 
     removeMember(id: string): void {
@@ -143,14 +158,19 @@ export class GruposComponent implements OnInit {
             name: formValue.nombre,
             category: formValue.categoria,
             level: formValue.nivel,
-            tickets: formValue.tickets, // AHORA SÍ ENVIAMOS TICKETS
             created_by: this.authService.getUserId(),
-            members: this.currentMembers.map(m => m.id) // ENVIAMOS IDS REALES
+            members: this.currentMembers.map(m => m.id)
         };
 
         let response;
         if (this.isEditMode && this.editingId !== null) {
-            response = await this.groupService.updateGroup(this.editingId, groupData);
+            // Para editar, solo enviamos los campos que el backend permite
+            const updateData = {
+                name: formValue.nombre,
+                category: formValue.categoria,
+                level: formValue.nivel
+            };
+            response = await this.groupService.updateGroup(this.editingId, updateData);
         } else {
             response = await this.groupService.createGroup(groupData);
         }

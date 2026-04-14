@@ -39,7 +39,7 @@
                     <td><strong style="color: var(--r4u-text-main);">{{ group.name }}</strong></td>
                     <td style="color: var(--r4u-text-muted);">{{ group.category }}</td>
                     <td><span [class]="'nivel-badge nivel-' + group.level.toLowerCase()">{{ group.level }}</span></td>
-                    <td style="color: var(--r4u-text-muted);">{{ group.created_by }}</td>
+                    <td style="color: var(--r4u-text-muted);">{{ group.creator_name }}</td>
                     <td style="text-align:center; color: var(--r4u-text-main);">{{ group.miembros || 0 }}</td>
                     <td style="text-align:center; color: var(--r4u-text-main);">{{ group.tickets || 0 }}</td>
                     <td style="text-align:center">

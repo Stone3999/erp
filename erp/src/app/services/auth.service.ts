@@ -31,25 +31,16 @@ export class AuthService {
 
     constructor() {}
 
-    private setCookie(name: string, value: string, days: number = 1) {
-        const d = new Date();
-        d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
-        document.cookie = `${name}=${value};expires=${d.toUTCString()};path=/;SameSite=Strict`;
+    private setToken(value: string) {
+        sessionStorage.setItem('session_token', value);
     }
 
-    public getCookie(name: string): string | null {
-        const nameEQ = name + "=";
-        const ca = document.cookie.split(';');
-        for (let i = 0; i < ca.length; i++) {
-            let c = ca[i];
-            while (c.charAt(0) == ' ') c = c.substring(1, c.length);
-            if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
-        }
-        return null;
+    public getToken(): string | null {
+        return sessionStorage.getItem('session_token');
     }
 
-    private deleteCookie(name: string) {
-        document.cookie = name + '=; Max-Age=-99999999;path=/;';
+    private deleteToken() {
+        sessionStorage.removeItem('session_token');
     }
 
     // --- LOGIN REAL AL API GATEWAY ---
@@ -61,7 +52,7 @@ export class AuthService {
 
             if (response.statusCode === 200 && response.data) {
                 const { token } = response.data as any;
-                this.setCookie('session_token', token);
+                this.setToken(token);
             }
             return response;
         } catch (error: any) {
@@ -97,15 +88,15 @@ export class AuthService {
     }
 
     logout(): void {
-        this.deleteCookie('session_token');
+        this.deleteToken();
     }
 
     isLoggedIn(): boolean {
-        return !!this.getCookie('session_token');
+        return !!this.getToken();
     }
 
     private getPayload(): any {
-        const token = this.getCookie('session_token');
+        const token = this.getToken();
         if (!token) return null;
         try {
             const payloadEncodificado = token.split('.')[1]; 

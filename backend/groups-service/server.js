@@ -8,8 +8,58 @@ const fastify = Fastify({ logger: true });
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
 fastify.get('/', async (request, reply) => {
-  const { data, error } = await supabase.from('workspaces').select('*');
-  return { statusCode: 200, data };
+  try {
+    // Traemos el workspace y el nombre del creador (join con users)
+    const { data: workspaces, error } = await supabase
+      .from('workspaces')
+      .select('*, users!created_by(name)');
+
+    if (error) throw error;
+
+    // Para cada workspace, contamos tickets y miembros de forma eficiente
+    const enrichedWorkspaces = await Promise.all(workspaces.map(async (ws) => {
+      const { count: ticketsCount } = await supabase
+        .from('tickets')
+        .select('*', { count: 'exact', head: true })
+        .eq('workspace_id', ws.id);
+
+      const { count: membersCount } = await supabase
+        .from('workspace_members')
+        .select('*', { count: 'exact', head: true })
+        .eq('workspace_id', ws.id);
+
+      return {
+        ...ws,
+        creator_name: ws.users?.name || 'Sistema',
+        tickets: ticketsCount || 0,
+        miembros: membersCount || 0
+      };
+    }));
+
+    return { statusCode: 200, data: enrichedWorkspaces };
+  } catch (err) {
+    return reply.code(500).send({ statusCode: 500, message: err.message });
+  }
+});
+
+// NUEVA RUTA: PATCH para actualizar grupos
+fastify.patch('/:id', async (request, reply) => {
+  try {
+    const { id } = request.params;
+    const { name, category, level } = request.body;
+    
+    const { data, error } = await supabase
+      .from('workspaces')
+      .update({ name, category, level })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return { statusCode: 200, data };
+  } catch (err) {
+    return reply.code(500).send({ statusCode: 500, message: err.message });
+  }
 });
 
 // NUEVA RUTA PARA OBTENER MIEMBROS DE UN GRUPO

@@ -10,13 +10,19 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY
 fastify.get('/', async (request, reply) => {
   try {
     const { workspace_id } = request.query;
-    let query = supabase.from('tickets').select('*');
+    let query = supabase.from('tickets').select('*, users!created_by(name)');
     if (workspace_id) {
        query = query.eq('workspace_id', workspace_id);
     }
     const { data, error } = await query;
     if (error) throw error;
-    return { statusCode: 200, data };
+    
+    const enrichedTickets = data.map(t => ({
+      ...t,
+      creator_name: t.users?.name || 'Sistema'
+    }));
+
+    return { statusCode: 200, data: enrichedTickets };
   } catch (err) {
     console.error('[Tickets GET Error]:', err);
     return reply.code(500).send({ statusCode: 500, message: 'Error al obtener tickets' });

@@ -24,7 +24,7 @@ export class GroupService {
     private readonly API_URL = `${environment.apiUrl}/groups`;
 
     private getHeaders() {
-        const token = this.authService.getCookie('session_token');
+        const token = this.authService.getToken();
         return new HttpHeaders({
             'Authorization': `Bearer ${token}`
         });

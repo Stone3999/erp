@@ -125,7 +125,7 @@
             <div class="grid m-0">
                 <div class="col-6 p-1">
                     <label class="font-bold text-sm block mb-1" style="color: var(--r4u-text-muted);">Asignar a</label>
-                    <p-select [options]="usuariosDisponibles" [(ngModel)]="nuevoAsignado" placeholder="Selecciona..." class="w-full" appendTo="body"></p-select>
+                    <p-select [options]="usuariosDisponibles" [(ngModel)]="nuevoAsignado" optionLabel="name" optionValue="name" [filter]="true" filterBy="name" placeholder="Selecciona..." class="w-full" appendTo="body"></p-select>
                 </div>
                 <div class="col-6 p-1">
                     <label class="font-bold text-sm block mb-1" style="color: var(--r4u-text-muted);">Fecha Límite</label>
@@ -146,7 +146,7 @@
                     <div class="flex flex-column gap-1"><label class="font-bold text-sm">Título</label><input pInputText [(ngModel)]="ticketEditando.titulo" class="w-full" [disabled]="!puedeEditarTodo" /></div>
                     <div class="flex flex-column gap-1"><label class="font-bold text-sm">Descripción</label><textarea pInputText [(ngModel)]="ticketEditando.descripcion" rows="4" class="w-full" [disabled]="!puedeEditarTodo"></textarea></div>
                     <div class="grid m-0">
-                        <div class="col-6 p-1"><label class="font-bold text-sm">Asignado</label><p-select [options]="usuariosDisponibles" [(ngModel)]="ticketEditando.asignado" class="w-full" [disabled]="!puedeEditarTodo" appendTo="body"></p-select></div>
+                        <div class="col-6 p-1"><label class="font-bold text-sm">Asignado</label><p-select [options]="usuariosDisponibles" [(ngModel)]="ticketEditando.asignado" optionLabel="name" optionValue="name" [filter]="true" filterBy="name" class="w-full" [disabled]="!puedeEditarTodo" appendTo="body"></p-select></div>
                         <div class="col-6 p-1"><label class="font-bold text-sm">Prioridad</label><p-select [options]="['Baja', 'Media', 'Alta']" [(ngModel)]="ticketEditando.prioridad" class="w-full" [disabled]="!puedeEditarTodo" appendTo="body"></p-select></div>
                     </div>
                 </div>
