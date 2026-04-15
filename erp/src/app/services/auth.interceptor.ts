@@ -7,6 +7,10 @@ import { AuthService } from './auth.service';
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const router = inject(Router);
+  
+  // LOG SIEMPRE ACTIVO: Anuncio de la petición en la consola
+  console.log(`[HTTP Interceptor] Request -> ${req.method} ${req.url}`);
+
   const token = authService.getToken();
   const isPublicRoute = req.url.includes('/auth/login') || req.url.includes('/auth/register');
 

@@ -4,42 +4,41 @@
     <div class="p-4">
         
         <!-- FILA SUPERIOR: RESUMEN Y GRÁFICA (MISMA LÍNEA) -->
-        <div class="grid mb-5 align-items-stretch">
-            <div class="col-12 lg:col-8">
-                <div class="card p-4 border-round h-full" style="background: var(--r4u-bg-card); border: 1px solid var(--r4u-border);">
-                    <h2 class="text-xl font-bold mb-4" style="color: var(--r4u-text-main);">Resumen de Trabajo</h2>
-                    <div class="grid m-0">
-                        <div class="col-3 p-1">
-                            <div class="stat-box stat-activos">
-                                <span class="stat-val" style="color: #3b82f6;">{{ globalStats.activos }}</span>
-                                <span class="stat-tit">Activos</span>
-                            </div>
+        <div class="flex flex-row gap-3 mb-5" style="height: 220px;">
+            <!-- RESUMEN -->
+            <div class="flex-grow-1 card p-4 border-round" style="background: var(--r4u-bg-card); border: 1px solid var(--r4u-border); min-width: 0;">
+                <h2 class="text-xl font-bold mb-4" style="color: var(--r4u-text-main);">Resumen de Trabajo</h2>
+                <div class="grid m-0">
+                    <div class="col-3 p-1">
+                        <div class="stat-box stat-activos">
+                            <span class="stat-val" style="color: #3b82f6;">{{ globalStats.activos }}</span>
+                            <span class="stat-tit">Activos</span>
                         </div>
-                        <div class="col-3 p-1">
-                            <div class="stat-box stat-pendientes">
-                                <span class="stat-val" style="color: #fbbf24;">{{ globalStats.pendientes }}</span>
-                                <span class="stat-tit">Pendientes</span>
-                            </div>
+                    </div>
+                    <div class="col-3 p-1">
+                        <div class="stat-box stat-pendientes">
+                            <span class="stat-val" style="color: #fbbf24;">{{ globalStats.pendientes }}</span>
+                            <span class="stat-tit">Pendientes</span>
                         </div>
-                        <div class="col-3 p-1">
-                            <div class="stat-box stat-terminados">
-                                <span class="stat-val" style="color: #22c55e;">{{ globalStats.terminados }}</span>
-                                <span class="stat-tit">Listos</span>
-                            </div>
+                    </div>
+                    <div class="col-3 p-1">
+                        <div class="stat-box stat-terminados">
+                            <span class="stat-val" style="color: #22c55e;">{{ globalStats.terminados }}</span>
+                            <span class="stat-tit">Listos</span>
                         </div>
-                        <div class="col-3 p-1">
-                            <div class="stat-box stat-asignados">
-                                <span class="stat-val" style="color: var(--r4u-primary);">{{ globalStats.asignadosMi }}</span>
-                                <span class="stat-tit">Para ti</span>
-                            </div>
+                    </div>
+                    <div class="col-3 p-1">
+                        <div class="stat-box stat-asignados">
+                            <span class="stat-val" style="color: var(--r4u-primary);">{{ globalStats.asignadosMi }}</span>
+                            <span class="stat-tit">Para ti</span>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-12 lg:col-4">
-                <div class="card p-4 border-round h-full flex flex-column align-items-center justify-content-center" style="background: var(--r4u-bg-card); border: 1px solid var(--r4u-border);">
-                    <p-chart type="doughnut" [data]="chartData" [options]="chartOptions" height="160px"></p-chart>
-                </div>
+            
+            <!-- GRÁFICA -->
+            <div class="card p-3 border-round flex align-items-center justify-content-center" style="background: var(--r4u-bg-card); border: 1px solid var(--r4u-border); width: 280px; flex-shrink: 0;">
+                <p-chart type="doughnut" [data]="chartData" [options]="chartOptions" height="150px" width="150px"></p-chart>
             </div>
         </div>
 
