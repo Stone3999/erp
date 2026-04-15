@@ -49,33 +49,11 @@ export class TicketService {
         });
     }
 
-    private mapBackendToTicket(t: any): Ticket {
-        return {
-            id: t.id,
-            titulo: t.title,
-            descripcion: t.description,
-            estado: t.status,
-            asignadoA: t.assigned_to,
-            creador: t.created_by,
-            creadorNombre: t.creator_name || 'Sistema',
-            prioridad: t.priority,
-            fechaCreacion: new Date(t.created_at || new Date()),
-            fechaLimite: t.due_date ? new Date(t.due_date) : undefined,
-            comentarios: t.comments || [],
-            historial: t.history || [],
-            grupoId: t.workspace_id
-        };
-    }
-
-    async getTicketsByGroup(grupoId: number): Promise<ApiResponse<Ticket[]>> {
+    async getTicketsByGroup(grupoId: number): Promise<ApiResponse<any[]>> {
         try {
-            const res = await firstValueFrom(
+            return await firstValueFrom(
                 this.http.get<ApiResponse<any[]>>(`${this.API_URL}?workspace_id=${grupoId}`, { headers: this.getHeaders() })
             );
-            if (res.data) {
-                res.data = res.data.map(t => this.mapBackendToTicket(t));
-            }
-            return res as ApiResponse<Ticket[]>;
         } catch (error: any) {
             return {
                 statusCode: error.status || 500,
@@ -86,15 +64,11 @@ export class TicketService {
         }
     }
 
-    async getAllTickets(): Promise<ApiResponse<Ticket[]>> {
+    async getAllTickets(): Promise<ApiResponse<any[]>> {
         try {
-            const res = await firstValueFrom(
+            return await firstValueFrom(
                 this.http.get<ApiResponse<any[]>>(this.API_URL, { headers: this.getHeaders() })
             );
-            if (res.data) {
-                res.data = res.data.map(t => this.mapBackendToTicket(t));
-            }
-            return res as ApiResponse<Ticket[]>;
         } catch (error: any) {
             return {
                 statusCode: error.status || 500,
@@ -105,15 +79,11 @@ export class TicketService {
         }
     }
 
-    async getTicketById(id: number): Promise<ApiResponse<Ticket>> {
+    async getTicketById(id: number): Promise<ApiResponse<any>> {
         try {
-            const res = await firstValueFrom(
+            return await firstValueFrom(
                 this.http.get<ApiResponse<any>>(`${this.API_URL}/${id}`, { headers: this.getHeaders() })
             );
-            if (res.data) {
-                res.data = this.mapBackendToTicket(res.data);
-            }
-            return res as ApiResponse<Ticket>;
         } catch (error: any) {
             return {
                 statusCode: error.status || 500,
@@ -124,7 +94,7 @@ export class TicketService {
         }
     }
 
-    async createTicket(ticket: Partial<Ticket>): Promise<ApiResponse<Ticket>> {
+    async createTicket(ticket: Partial<Ticket>): Promise<ApiResponse<any>> {
         try {
             const payload = {
                 title: ticket.titulo,
@@ -135,13 +105,9 @@ export class TicketService {
                 workspace_id: ticket.grupoId,
                 created_by: ticket.creador
             };
-            const res = await firstValueFrom(
+            return await firstValueFrom(
                 this.http.post<ApiResponse<any>>(this.API_URL, payload, { headers: this.getHeaders() })
             );
-            if (res.data) {
-                res.data = this.mapBackendToTicket(res.data);
-            }
-            return res as ApiResponse<Ticket>;
         } catch (error: any) {
             return {
                 statusCode: error.status || 500,
@@ -152,23 +118,11 @@ export class TicketService {
         }
     }
 
-    async updateTicket(id: number, changes: Partial<Ticket>): Promise<ApiResponse<Ticket>> {
+    async updateTicket(id: number, payload: any): Promise<ApiResponse<any>> {
         try {
-            const payload: any = {};
-            if (changes.titulo) payload.title = changes.titulo;
-            if (changes.descripcion) payload.description = changes.descripcion;
-            if (changes.prioridad) payload.priority = changes.prioridad;
-            if (changes.estado) payload.status = changes.estado;
-            if (changes.asignadoA) payload.assigned_to = changes.asignadoA;
-            if (changes.grupoId) payload.workspace_id = changes.grupoId;
-
-            const res = await firstValueFrom(
+            return await firstValueFrom(
                 this.http.patch<ApiResponse<any>>(`${this.API_URL}/${id}`, payload, { headers: this.getHeaders() })
             );
-            if (res.data) {
-                res.data = this.mapBackendToTicket(res.data);
-            }
-            return res as ApiResponse<Ticket>;
         } catch (error: any) {
             return {
                 statusCode: error.status || 500,

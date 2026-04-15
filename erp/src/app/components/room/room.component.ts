@@ -33,7 +33,7 @@ export interface Historial {
 }
 
 export interface RoomTicket {
-    id: number;
+    id: string; // UUID de Supabase
     titulo: string;
     descripcion?: string;
     estado: string;
@@ -119,7 +119,9 @@ export class RoomComponent implements OnInit, AfterViewChecked {
 
     scrollToBottom(): void {
         try {
-            this.myScrollContainer.nativeElement.scrollTop = this.myScrollContainer.nativeElement.scrollHeight;
+            if (this.myScrollContainer) {
+                this.myScrollContainer.nativeElement.scrollTop = this.myScrollContainer.nativeElement.scrollHeight;
+            }
         } catch(err) { }
     }
 
@@ -138,20 +140,20 @@ export class RoomComponent implements OnInit, AfterViewChecked {
     private mapToRoomTicket(t: any): RoomTicket {
         return {
             id: t.id,
-            titulo: t.titulo,
-            descripcion: t.description,
-            estado: t.status,
-            asignado: t.assigned_to,
-            creador: t.creator_name || t.created_by,
-            prioridad: t.priority,
-            fecha: t.created_at,
-            fechaLimite: t.fechaLimite ? new Date(t.fechaLimite).toISOString().split('T')[0] : undefined,
+            titulo: t.title || 'Sin Título',
+            descripcion: t.description || '',
+            estado: t.status || 'Pendiente',
+            asignado: t.assigned_to || 'Sin asignar',
+            creador: t.creator_name || t.created_by || 'Sistema',
+            prioridad: t.priority || 'Media',
+            fecha: t.created_at ? new Date(t.created_at) : new Date(),
+            fechaLimite: t.due_date ? t.due_date : undefined,
             comentarios: (t.comments || []).map((c: any) => ({ 
                 usuario: c.user_name, 
                 texto: c.comment, 
-                fecha: c.created_at 
+                fecha: new Date(c.created_at) 
             })),
-            historial: (t.historial || []).map((h: any) => ({ accion: h.cambio, usuario: h.autor, fecha: h.fecha }))
+            historial: (t.history || []).map((h: any) => ({ accion: h.cambio, usuario: h.autor, fecha: h.fecha }))
         };
     }
 
@@ -159,11 +161,11 @@ export class RoomComponent implements OnInit, AfterViewChecked {
         if (!this.groupId) return;
         const response = await this.ticketService.getTicketsByGroup(this.groupId as any);
         if (response.statusCode === 200 && response.data) {
-            const tickets = response.data.map(t => this.mapToRoomTicket(t));
-            this.pendientes = tickets.filter(t => t.estado === 'Pendiente');
-            this.enProgreso = tickets.filter(t => t.estado === 'En Progreso');
-            this.revision = tickets.filter(t => t.estado === 'Revisión');
-            this.finalizados = tickets.filter(t => t.estado === 'Finalizado');
+            const tickets = response.data.map((t: any) => this.mapToRoomTicket(t));
+            this.pendientes = tickets.filter((t: any) => t.estado === 'Pendiente');
+            this.enProgreso = tickets.filter((t: any) => t.estado === 'En Progreso');
+            this.revision = tickets.filter((t: any) => t.estado === 'Revisión');
+            this.finalizados = tickets.filter((t: any) => t.estado === 'Finalizado');
             this.updateStatsFromLists();
         }
     }
@@ -181,7 +183,7 @@ export class RoomComponent implements OnInit, AfterViewChecked {
             const ticketMovido = event.container.data[event.currentIndex];
             ticketMovido.estado = nuevoEstado;
             this.updateStatsFromLists();
-            await this.ticketService.updateTicket(ticketMovido.id, { estado: nuevoEstado as any });
+            await this.ticketService.updateTicket(ticketMovido.id as any, { status: nuevoEstado });
         }
     }
 
@@ -259,7 +261,7 @@ export class RoomComponent implements OnInit, AfterViewChecked {
     async abrirDetalles(ticket: RoomTicket) {
         if (!this.puedeMoverTicket(ticket)) return; 
         
-        const res = await this.ticketService.getTicketById(ticket.id);
+        const res = await this.ticketService.getTicketById(ticket.id as any);
         if (res.statusCode === 200 && res.data) {
             this.ticketEditando = this.mapToRoomTicket(res.data);
             this.nuevoComentario = '';
@@ -271,15 +273,15 @@ export class RoomComponent implements OnInit, AfterViewChecked {
         if (!this.ticketEditando) return;
 
         const payload: any = {
-            titulo: this.ticketEditando.titulo,
-            descripcion: this.ticketEditando.descripcion,
+            title: this.ticketEditando.titulo,
+            description: this.ticketEditando.descripcion,
             assigned_to: this.ticketEditando.asignado,
             status: this.ticketEditando.estado,
             priority: this.ticketEditando.prioridad,
-            fechaLimite: this.ticketEditando.fechaLimite
+            due_date: this.ticketEditando.fechaLimite
         };
 
-        const res = await this.ticketService.updateTicket(this.ticketEditando.id, payload);
+        const res = await this.ticketService.updateTicket(this.ticketEditando.id as any, payload);
         if (res.statusCode === 200) {
              await this.cargarTickets();
              this.showEditModal = false;
@@ -290,7 +292,7 @@ export class RoomComponent implements OnInit, AfterViewChecked {
     async agregarComentario() {
         if (!this.nuevoComentario.trim() || !this.ticketEditando) return;
         
-        const res = await this.ticketService.addComment(this.ticketEditando.id, this.nuevoComentario, this.currentUser);
+        const res = await this.ticketService.addComment(this.ticketEditando.id as any, this.nuevoComentario, this.currentUser);
         if (res.statusCode === 201) {
             this.ticketEditando.comentarios.push({
                 usuario: this.currentUser,
@@ -303,7 +305,7 @@ export class RoomComponent implements OnInit, AfterViewChecked {
 
     cumpleFiltro(ticket: any): boolean {
         if (this.filtroActivo === 'mis-tickets') return ticket.asignado === this.currentUser;
-        if (this.filtroActivo === 'sin-asignar') return !ticket.asignado || ticket.asignado.trim() === '';
+        if (this.filtroActivo === 'sin-asignar') return !ticket.asignado || ticket.asignado.trim() === 'Sin asignar';
         if (this.filtroActivo === 'prioridad-alta') return ticket.prioridad === 'Alta';
         return true; 
     }
