@@ -12,26 +12,39 @@
     margin-bottom: 1rem;
 }
 
-/* --- TABLERO KANBAN SIN SCROLL HORIZONTAL --- */
+/* --- TABLERO KANBAN DE 4 COLUMNAS AJUSTABLES --- */
 .kanban-board {
-    display: flex;
-    flex-wrap: wrap; /* Permitir que bajen en pantallas pequeñas */
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4 Columnas iguales */
     gap: 1rem;
     padding: 0.5rem;
-    justify-content: flex-start;
     align-items: flex-start;
+    width: 100%;
 }
 
 .kanban-column {
-    flex: 1;
-    min-width: 280px;
     background-color: rgba(255, 255, 255, 0.03);
     border-radius: 12px;
     border: 1px solid var(--r4u-border);
     display: flex;
     flex-direction: column;
     height: fit-content;
+    min-height: 500px;
     max-height: 85vh;
+}
+
+/* Responsividad para pantallas medianas (Tablets) */
+@media (max-width: 1100px) {
+    .kanban-board {
+        grid-template-columns: repeat(2, 1fr); /* 2x2 en tablets */
+    }
+}
+
+/* Responsividad para móviles */
+@media (max-width: 650px) {
+    .kanban-board {
+        grid-template-columns: 1fr; /* 1 columna en móvil */
+    }
 }
 
 .kanban-header {
