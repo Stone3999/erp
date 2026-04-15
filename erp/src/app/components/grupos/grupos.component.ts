@@ -162,30 +162,25 @@ export class GruposComponent implements OnInit {
     closeDialog(): void {
         this.dialogVisible = false;
     }
+async saveGroup() {
+    if (this.groupForm.invalid) return;
 
-    async saveGroup() {
-        if (this.groupForm.invalid) return;
+    const formValue = this.groupForm.value;
+    const groupData: any = {
+        name: formValue.nombre,
+        category: formValue.categoria,
+        level: formValue.nivel,
+        created_by: this.authService.getUserId(),
+        members: this.currentMembers.map(m => m.id)
+    };
 
-        const formValue = this.groupForm.value;
-        const groupData: any = {
-            name: formValue.nombre,
-            category: formValue.categoria,
-            level: formValue.nivel,
-            created_by: this.authService.getUserId(),
-            members: this.currentMembers.map(m => m.id)
-        };
-
-        let response;
-        if (this.isEditMode && this.editingId !== null) {
-            const updateData = {
-                name: formValue.nombre,
-                category: formValue.categoria,
-                level: formValue.nivel
-            };
-            response = await this.groupService.updateGroup(this.editingId, updateData);
-        } else {
-            response = await this.groupService.createGroup(groupData);
-        }
+    let response;
+    if (this.isEditMode && this.editingId !== null) {
+        // Enviamos todo el objeto para que el backend pueda sincronizar miembros
+        response = await this.groupService.updateGroup(this.editingId, groupData);
+    } else {
+        response = await this.groupService.createGroup(groupData);
+    }
 
         if (response.statusCode === 200 || response.statusCode === 201) {
             this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Room guardado correctamente.' });

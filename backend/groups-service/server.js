@@ -42,12 +42,13 @@ fastify.get('/', async (request, reply) => {
   }
 });
 
-// NUEVA RUTA: PATCH para actualizar grupos
+// NUEVA RUTA: PATCH para actualizar grupos y miembros
 fastify.patch('/:id', async (request, reply) => {
   try {
     const { id } = request.params;
-    const { name, category, level } = request.body;
+    const { name, category, level, members, created_by } = request.body;
     
+    // 1. Actualizar datos básicos del Workspace
     const { data, error } = await supabase
       .from('workspaces')
       .update({ name, category, level })
@@ -56,6 +57,26 @@ fastify.patch('/:id', async (request, reply) => {
       .single();
 
     if (error) throw error;
+
+    // 2. Si se envían miembros, sincronizar la tabla workspace_members
+    if (members && members.length > 0) {
+      // Borramos miembros actuales
+      await supabase.from('workspace_members').delete().eq('workspace_id', id);
+
+      // Insertamos la nueva lista
+      const membersToInsert = members.map((userId) => ({
+        workspace_id: id,
+        user_id: userId
+      }));
+
+      // Nos aseguramos de que el creador (o quien edita) siga siendo miembro/admin
+      if (created_by && !members.includes(created_by)) {
+          membersToInsert.push({ workspace_id: id, user_id: created_by });
+      }
+
+      await supabase.from('workspace_members').insert(membersToInsert);
+    }
+
     return { statusCode: 200, data };
   } catch (err) {
     return reply.code(500).send({ statusCode: 500, message: err.message });
