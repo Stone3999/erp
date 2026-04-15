@@ -6,20 +6,21 @@ ESTADO DE AVANCES
 
 --- ARQUITECTURA CORE ---
 [x] Implementar Esquema JSON Universal { statusCode, intOpCode, data }
-[x] Cambiar almacenamiento de Token de LocalStorage a Cookies
+[x] Almacenamiento de Token en SessionStorage (Seguridad y Volatilidad)
 [x] Crear PermissionService centralizado
 [x] Crear Directiva appHasPermission (Eliminar del DOM, no solo ocultar)
+[ ] Implementar Interceptor de HTTP para tokens y errores globales - PENDIENTE
 
 --- COMPONENTES Y VISTAS (FRONTEND 100%) ---
-[x] Login: Ajustado a esquema de respuesta y cookies
+[x] Login: Ajustado a esquema de respuesta
 [x] Register: Ajustado a esquema de respuesta
-[x] Dashboard: Implementación final
-[x] GroupTicketsComponent (Room): Vista Kanban con Drag & Drop y reglas de movimiento
+[x] Dashboard: Rediseño Pro con Estadísticas y Gráficas
+[x] Room (Kanban): Vista Pro, 3 columnas, comentarios y alertas de fecha
 [x] AdminGroupComponent: Gestión de Workspaces y Miembros
 [x] AdminUserComponent: Gestión de Usuarios y Permisos por Acción
 
 --- REGLAS DE NEGOCIO ---
-[x] Lógica de "Sin Roles" (Permisos directos en JWT)
+[x] Lógica de "Sin Roles" (Permisos directos en JWT y locales por Room)
 [x] Validación: Mover ticket solo si es dueño Y tiene "tickets:move"
 [x] Validación: Botón "Agregar" solo si tiene "tickets:add"
 

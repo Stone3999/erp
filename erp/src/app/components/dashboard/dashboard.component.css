@@ -15,15 +15,15 @@
 }
 
 .icon-box {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     background: rgba(var(--r4u-primary-rgb), 0.1);
     color: var(--r4u-primary);
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
 }
 
 /* --- RECUADROS DE ESTADÍSTICAS DASHBOARD --- */
@@ -32,25 +32,25 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 1.5rem;
-    border-radius: 12px;
-    background: rgba(255,255,255,0.03);
+    padding: 1rem;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.02);
     border: 1px solid var(--r4u-border);
     height: 100%;
 }
 
 .stat-val {
-    font-size: 2rem;
+    font-size: 1.6rem;
     font-weight: 800;
     color: var(--r4u-text-main);
 }
 
 .stat-tit {
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     font-weight: 600;
     text-transform: uppercase;
     color: var(--r4u-text-muted);
-    margin-top: 0.5rem;
+    margin-top: 0.25rem;
 }
 
 .stat-activos { border-left: 4px solid #3b82f6; }
@@ -60,9 +60,10 @@
 
 /* --- MINI STATS DENTRO DE LA TARJETA --- */
 .mini-stats {
-    background: rgba(0,0,0,0.2);
+    background: rgba(0,0,0,0.15);
     border-radius: 8px;
-    padding: 0.5rem;
+    padding: 0.4rem;
+    margin-bottom: 0.5rem;
 }
 
 .m-stat {
@@ -73,11 +74,11 @@
 
 .m-stat-v {
     font-weight: 800;
-    font-size: 1.1rem;
+    font-size: 1rem;
 }
 
 .m-stat-t {
-    font-size: 0.6rem;
+    font-size: 0.55rem;
     font-weight: 700;
     color: var(--r4u-text-muted);
 }

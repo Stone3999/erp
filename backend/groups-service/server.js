@@ -20,12 +20,14 @@ fastify.get('/', async (request, reply) => {
       // Conteos detallados
       const { data: tkStats } = await supabase.from('tickets').select('status, assigned_to').eq('workspace_id', ws.id);
       
+      const userName = request.headers['x-user-name'] || '';
+      
       const stats = {
         total: tkStats?.length || 0,
         pendientes: tkStats?.filter(t => t.status === 'Pendiente').length || 0,
         activos: tkStats?.filter(t => t.status === 'En Progreso' || t.status === 'Revisión').length || 0,
         terminados: tkStats?.filter(t => t.status === 'Finalizado').length || 0,
-        asignadosMi: tkStats?.filter(t => t.assigned_to === user_id || t.assigned_to === request.headers['x-user-name']).length || 0
+        asignadosMi: tkStats?.filter(t => t.assigned_to === userName).length || 0
       };
 
       const { count: membersCount } = await supabase
