@@ -111,6 +111,11 @@ export class AuthService {
         return payload ? payload.name : 'Invitado';
     }
 
+    getCurrentUserEmail(): string | null {
+        const payload = this.getPayload();
+        return payload ? payload.email : null;
+    }
+
     getUserId(): string | null {
         const payload = this.getPayload();
         return payload ? payload.id : null;
