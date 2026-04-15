@@ -11,7 +11,6 @@ import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
-import { Divider } from 'primeng/divider';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { AuthService } from '../../services/auth.service';
@@ -33,7 +32,7 @@ export interface Historial {
 }
 
 export interface RoomTicket {
-    id: string; // UUID de Supabase
+    id: string;
     titulo: string;
     descripcion?: string;
     estado: string;
@@ -53,7 +52,7 @@ export interface RoomTicket {
         CommonModule, RouterModule, FormsModule, 
         ButtonModule, CardModule, AvatarModule, 
         TagModule, ChartModule, DialogModule, InputTextModule,
-        DragDropModule, TableModule, SelectModule, Divider,
+        DragDropModule, TableModule, SelectModule,
         SelectButtonModule, HasPermissionDirective
     ],
     templateUrl: './room.component.html',
@@ -322,7 +321,7 @@ export class RoomComponent implements OnInit, AfterViewChecked {
         return tienePermisoMover && esSuTicket;
     }
 
-    getpuedeEditarTodo(): boolean {
+    get puedeEditarTodo(): boolean {
         if (!this.ticketEditando) return false;
         return this.ticketEditando.creador === this.currentUser || this.authService.hasPermission('tickets:edit_all');
     }

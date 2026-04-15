@@ -10,7 +10,7 @@
         </div>
     </div>
 
-    <!-- VIEW SWITCHER (Switch largo tipo rectángulo) -->
+    <!-- VIEW SWITCHER -->
     <div class="flex justify-content-center mb-4">
         <p-selectButton 
             [options]="viewOptions" 
@@ -26,7 +26,6 @@
         </p-selectButton>
     </div>
 
-    <!-- MAIN CONTENT AREA (Con altura fija mínima para evitar saltos) -->
     <div class="main-workspace-area">
         
         <!-- FILTROS -->
@@ -49,14 +48,26 @@
                     <h3>{{col.label}} ({{col.list.length}})</h3>
                 </div>
                 <div class="kanban-list" cdkDropList [cdkDropListData]="col.list" (cdkDropListDropped)="drop($event, col.label)">
-                    <div class="ticket-card" *ngFor="let item of col.list" cdkDrag [cdkDragDisabled]="!puedeMoverTicket(item)" (click)="abrirDetalles(item)" [style.display]="cumpleFiltro(item) ? 'block' : 'none'">
+                    <div class="ticket-card" 
+                         *ngFor="let item of col.list" 
+                         cdkDrag 
+                         [cdkDragDisabled]="!puedeMoverTicket(item)" 
+                         (click)="abrirDetalles(item)" 
+                         [style.display]="cumpleFiltro(item) ? 'block' : 'none'"
+                         [ngClass]="{'ticket-vencido': estaVencido(item)}">
+                        
                         <div class="font-bold mb-2">{{item.titulo}}</div>
                         <div class="flex justify-content-between align-items-center text-sm mb-2">
                             <span style="color: var(--r4u-text-muted);"><i class="pi pi-user mr-1"></i>{{item.asignado}}</span>
                             <p-tag [value]="item.prioridad" [severity]="getPrioritySeverity(item.prioridad)"></p-tag>
                         </div>
                         <div class="text-xs text-right mt-2 pt-2" style="color: var(--r4u-text-muted); border-top: 1px solid rgba(255,255,255,0.05);">
-                            <i class="pi pi-calendar mr-1"></i>{{item.fecha | date:'dd MMM yyyy'}}
+                            <span *ngIf="item.fechaLimite">
+                                <i class="pi pi-calendar-times mr-1"></i>Vence: {{item.fechaLimite | date:'dd MMM'}}
+                            </span>
+                            <span *ngIf="!item.fechaLimite">
+                                <i class="pi pi-calendar mr-1"></i>{{item.fecha | date:'dd MMM'}}
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -68,11 +79,11 @@
             <p-table [value]="todosLosTickets" [paginator]="true" [rows]="8" responsiveLayout="scroll" [rowHover]="true">
                 <ng-template pTemplate="header">
                     <tr>
-                        <th pSortableColumn="id">ID <p-sortIcon field="id"></p-sortIcon></th>
-                        <th pSortableColumn="titulo">Título <p-sortIcon field="titulo"></p-sortIcon></th>
-                        <th pSortableColumn="estado">Estado <p-sortIcon field="estado"></p-sortIcon></th>
-                        <th pSortableColumn="asignado">Asignado <p-sortIcon field="asignado"></p-sortIcon></th>
-                        <th pSortableColumn="prioridad">Prioridad <p-sortIcon field="prioridad"></p-sortIcon></th>
+                        <th pSortableColumn="id">ID</th>
+                        <th pSortableColumn="titulo">Título</th>
+                        <th pSortableColumn="estado">Estado</th>
+                        <th pSortableColumn="asignado">Asignado</th>
+                        <th pSortableColumn="prioridad">Prioridad</th>
                         <th>Acciones</th>
                     </tr>
                 </ng-template>
@@ -83,14 +94,14 @@
                         <td><p-tag [value]="ticket.estado" severity="info"></p-tag></td>
                         <td>{{ticket.asignado}}</td>
                         <td><p-tag [value]="ticket.prioridad" [severity]="getPrioritySeverity(ticket.prioridad)"></p-tag></td>
-                        <td><p-button icon="pi pi-eye" (onClick)="abrirDetalles(ticket)" styleClass="p-button-rounded p-button-text"></p-button></td>
+                        <td><p-button icon="pi pi-eye" (onClick)="abrirDetalles(ticket)" [text]="true" [rounded]="true"></p-button></td>
                     </tr>
                 </ng-template>
             </p-table>
         </div>
     </div>
 
-    <!-- CHART AREA (Ahora al final) -->
+    <!-- CHART AREA -->
     <div class="flex flex-column align-items-center mb-5 mt-4">
         <h3 class="text-lg font-bold mb-3" style="color: var(--r4u-text-main);">Análisis de Estados</h3>
         <p-card class="chart-card w-full md:w-6">
@@ -142,28 +153,24 @@
     <p-dialog *ngIf="ticketEditando" [header]="ticketEditando.titulo" [(visible)]="showEditModal" [modal]="true" [style]="{width: '1100px'}" appendTo="body">
         
         <div class="detail-grid pt-4">
-            <!-- COLUMNA 1: INFO ASIGNACIÓN Y PRIORIDAD -->
+            <!-- COLUMNA 1 -->
             <div class="col-side">
                 <div class="flex flex-column gap-2">
                     <label class="font-bold text-xs uppercase" style="color: var(--r4u-text-muted);">Persona Asignada</label>
                     <p-select [options]="usuariosDisponibles" [(ngModel)]="ticketEditando.asignado" optionLabel="name" optionValue="name" [filter]="true" filterBy="name" class="w-full" [disabled]="!puedeEditarTodo" appendTo="body"></p-select>
                 </div>
-                
                 <div class="flex flex-column gap-2">
                     <label class="font-bold text-xs uppercase" style="color: var(--r4u-text-muted);">Prioridad</label>
                     <p-select [options]="['Baja', 'Media', 'Alta']" [(ngModel)]="ticketEditando.prioridad" class="w-full" [disabled]="!puedeEditarTodo" appendTo="body"></p-select>
                 </div>
-
                 <div class="flex flex-column gap-2">
                     <label class="font-bold text-xs uppercase" style="color: var(--r4u-text-muted);">Estado</label>
                     <p-select [options]="['Pendiente', 'En Progreso', 'Revisión', 'Finalizado']" [(ngModel)]="ticketEditando.estado" class="w-full" [disabled]="!puedeEditarTodo" appendTo="body"></p-select>
                 </div>
-
                 <div class="flex flex-column gap-2">
                     <label class="font-bold text-xs uppercase" style="color: var(--r4u-text-muted);">Fecha Límite</label>
                     <input type="date" [(ngModel)]="ticketEditando.fechaLimite" class="p-inputtext w-full" [disabled]="!puedeEditarTodo" style="color: var(--r4u-text-main); background: var(--r4u-bg-page); border: 1px solid var(--r4u-border); border-radius: 6px; padding: 0.5rem;" />
                 </div>
-
                 <div class="mt-auto p-3 border-round" style="background: rgba(0,0,0,0.1); border: 1px dashed var(--r4u-border);">
                     <div class="text-xs font-bold uppercase mb-1" style="color: var(--r4u-text-muted);">Creado por</div>
                     <div class="text-sm">{{ticketEditando.creador}}</div>
@@ -171,23 +178,21 @@
                 </div>
             </div>
 
-            <!-- COLUMNA 2: TÍTULO Y DESCRIPCIÓN -->
+            <!-- COLUMNA 2 -->
             <div class="col-main">
                 <div class="flex flex-column gap-2">
                     <label class="font-bold text-xs uppercase" style="color: var(--r4u-text-muted);">Título del Ticket</label>
                     <input pInputText [(ngModel)]="ticketEditando.titulo" class="w-full text-lg font-bold" [disabled]="!puedeEditarTodo" />
                 </div>
-
                 <div class="flex flex-column gap-2 flex-1">
                     <label class="font-bold text-xs uppercase" style="color: var(--r4u-text-muted);">Descripción Detallada</label>
                     <textarea pInputText [(ngModel)]="ticketEditando.descripcion" class="w-full flex-1" style="resize: none;" [disabled]="!puedeEditarTodo" placeholder="Escribe aquí los detalles del ticket..."></textarea>
                 </div>
             </div>
 
-            <!-- COLUMNA 3: COMENTARIOS PERSISTENTES -->
+            <!-- COLUMNA 3 -->
             <div class="col-comments">
                 <label class="font-bold text-xs uppercase mb-3" style="color: var(--r4u-text-muted);">Conversación ({{ticketEditando.comentarios.length}})</label>
-                
                 <div class="comments-container" #scrollMe>
                     <div *ngFor="let c of ticketEditando.comentarios" class="comment-item">
                         <div class="flex justify-content-between align-items-center mb-1">
@@ -196,26 +201,12 @@
                         </div>
                         <div class="text-sm" style="color: var(--r4u-text-main);">{{c.texto}}</div>
                     </div>
-                    
                     <div *ngIf="ticketEditando.comentarios.length === 0" class="text-center p-4 text-xs" style="color: var(--r4u-text-muted);">
-                        No hay comentarios aún. ¡Inicia la conversación!
+                        No hay comentarios aún.
                     </div>
                 </div>
-
                 <div class="p-inputgroup mt-2">
                     <input pInputText [(ngModel)]="nuevoComentario" placeholder="Escribir mensaje..." (keyup.enter)="agregarComentario()" />
-                    <button pButton icon="pi pi-send" (click)="agregarComentario()" severity="primary"></button>
-                </div>
-            </div>
-        </div>
-
-        <ng-template pTemplate="footer">
-            <p-button label="Cerrar" (onClick)="showEditModal = false" severity="secondary" [text]="true"></p-button>
-            <p-button label="Guardar Cambios" icon="pi pi-save" (onClick)="guardarDetalles()" severity="primary"></p-button>
-        </ng-template>
-    </p-dialog>
-
-</div>holder="Escribir mensaje..." (keyup.enter)="agregarComentario()" />
                     <button pButton icon="pi pi-send" (click)="agregarComentario()" severity="primary"></button>
                 </div>
             </div>
