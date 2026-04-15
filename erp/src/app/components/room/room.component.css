@@ -74,6 +74,15 @@
     transform: translateY(-1px);
 }
 
+.ticket-vencido {
+    border-color: #ef4444 !important;
+    background: rgba(239, 68, 68, 0.05) !important;
+}
+
+.ticket-vencido i {
+    color: #ef4444;
+}
+
 /* --- GRÁFICA PEGADA AL TABLERO --- */
 .my-5 {
     margin-top: 0.5rem !important;

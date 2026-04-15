@@ -322,8 +322,16 @@ export class RoomComponent implements OnInit, AfterViewChecked {
         return tienePermisoMover && esSuTicket;
     }
 
-    get puedeEditarTodo(): boolean {
+    getpuedeEditarTodo(): boolean {
         if (!this.ticketEditando) return false;
         return this.ticketEditando.creador === this.currentUser || this.authService.hasPermission('tickets:edit_all');
+    }
+
+    estaVencido(ticket: RoomTicket): boolean {
+        if (!ticket.fechaLimite || ticket.estado === 'Finalizado') return false;
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
+        const limite = new Date(ticket.fechaLimite);
+        return limite < hoy;
     }
 }

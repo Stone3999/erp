@@ -139,7 +139,7 @@
     </p-dialog>
 
     <!-- MODAL DETALLES (3 COLUMNAS) -->
-    <p-dialog *ngIf="ticketEditando" [header]="'# ' + ticketEditando.id + ' - Detalles del Ticket'" [(visible)]="showEditModal" [modal]="true" [style]="{width: '1100px'}" appendTo="body">
+    <p-dialog *ngIf="ticketEditando" [header]="ticketEditando.titulo" [(visible)]="showEditModal" [modal]="true" [style]="{width: '1100px'}" appendTo="body">
         
         <div class="detail-grid pt-4">
             <!-- COLUMNA 1: INFO ASIGNACIÓN Y PRIORIDAD -->
@@ -204,6 +204,18 @@
 
                 <div class="p-inputgroup mt-2">
                     <input pInputText [(ngModel)]="nuevoComentario" placeholder="Escribir mensaje..." (keyup.enter)="agregarComentario()" />
+                    <button pButton icon="pi pi-send" (click)="agregarComentario()" severity="primary"></button>
+                </div>
+            </div>
+        </div>
+
+        <ng-template pTemplate="footer">
+            <p-button label="Cerrar" (onClick)="showEditModal = false" severity="secondary" [text]="true"></p-button>
+            <p-button label="Guardar Cambios" icon="pi pi-save" (onClick)="guardarDetalles()" severity="primary"></p-button>
+        </ng-template>
+    </p-dialog>
+
+</div>holder="Escribir mensaje..." (keyup.enter)="agregarComentario()" />
                     <button pButton icon="pi pi-send" (click)="agregarComentario()" severity="primary"></button>
                 </div>
             </div>
