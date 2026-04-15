@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import { AuthService, ApiResponse } from './auth.service';
+import { ApiResponse } from './auth.service';
 
 export interface Comentario {
     autor: string;
@@ -39,20 +39,12 @@ import { environment } from '../../environments/environment';
 @Injectable({ providedIn: 'root' })
 export class TicketService {
     private http = inject(HttpClient);
-    private authService = inject(AuthService);
     private readonly API_URL = `${environment.apiUrl}/tickets`;
-
-    private getHeaders() {
-        const token = this.authService.getToken();
-        return new HttpHeaders({
-            'Authorization': `Bearer ${token}`
-        });
-    }
 
     async getTicketsByGroup(grupoId: number): Promise<ApiResponse<any[]>> {
         try {
             return await firstValueFrom(
-                this.http.get<ApiResponse<any[]>>(`${this.API_URL}?workspace_id=${grupoId}`, { headers: this.getHeaders() })
+                this.http.get<ApiResponse<any[]>>(`${this.API_URL}?workspace_id=${grupoId}`)
             );
         } catch (error: any) {
             return {
@@ -67,7 +59,7 @@ export class TicketService {
     async getAllTickets(): Promise<ApiResponse<any[]>> {
         try {
             return await firstValueFrom(
-                this.http.get<ApiResponse<any[]>>(this.API_URL, { headers: this.getHeaders() })
+                this.http.get<ApiResponse<any[]>>(this.API_URL)
             );
         } catch (error: any) {
             return {
@@ -82,7 +74,7 @@ export class TicketService {
     async getTicketById(id: number): Promise<ApiResponse<any>> {
         try {
             return await firstValueFrom(
-                this.http.get<ApiResponse<any>>(`${this.API_URL}/${id}`, { headers: this.getHeaders() })
+                this.http.get<ApiResponse<any>>(`${this.API_URL}/${id}`)
             );
         } catch (error: any) {
             return {
@@ -106,7 +98,7 @@ export class TicketService {
                 created_by: ticket.creador
             };
             return await firstValueFrom(
-                this.http.post<ApiResponse<any>>(this.API_URL, payload, { headers: this.getHeaders() })
+                this.http.post<ApiResponse<any>>(this.API_URL, payload)
             );
         } catch (error: any) {
             return {
@@ -121,7 +113,7 @@ export class TicketService {
     async updateTicket(id: number, payload: any): Promise<ApiResponse<any>> {
         try {
             return await firstValueFrom(
-                this.http.patch<ApiResponse<any>>(`${this.API_URL}/${id}`, payload, { headers: this.getHeaders() })
+                this.http.patch<ApiResponse<any>>(`${this.API_URL}/${id}`, payload)
             );
         } catch (error: any) {
             return {
@@ -136,7 +128,7 @@ export class TicketService {
     async deleteTicket(id: number): Promise<ApiResponse> {
         try {
             return await firstValueFrom(
-                this.http.delete<ApiResponse>(`${this.API_URL}/${id}`, { headers: this.getHeaders() })
+                this.http.delete<ApiResponse>(`${this.API_URL}/${id}`)
             );
         } catch (error: any) {
             return {
@@ -151,7 +143,7 @@ export class TicketService {
     async addComment(ticketId: number, comment: string, user_name: string): Promise<ApiResponse<any>> {
         try {
             return await firstValueFrom(
-                this.http.post<ApiResponse<any>>(`${this.API_URL}/${ticketId}/comments`, { comment, user_name }, { headers: this.getHeaders() })
+                this.http.post<ApiResponse<any>>(`${this.API_URL}/${ticketId}/comments`, { comment, user_name })
             );
         } catch (error: any) {
             return {

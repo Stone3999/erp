@@ -9,7 +9,7 @@ ESTADO DE AVANCES
 [x] Almacenamiento de Token en SessionStorage (Seguridad y Volatilidad)
 [x] Crear PermissionService centralizado
 [x] Crear Directiva appHasPermission (Eliminar del DOM, no solo ocultar)
-[ ] Implementar Interceptor de HTTP para tokens y errores globales - PENDIENTE
+[x] Implementar Interceptor de HTTP para tokens y errores globales - COMPLETADO
 
 --- COMPONENTES Y VISTAS (FRONTEND 100%) ---
 [x] Login: Ajustado a esquema de respuesta

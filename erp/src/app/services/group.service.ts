@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import { AuthService, ApiResponse } from './auth.service';
+import { ApiResponse } from './auth.service';
 
 export interface Group {
     id: number;
@@ -20,20 +20,12 @@ import { environment } from '../../environments/environment';
 })
 export class GroupService {
     private http = inject(HttpClient);
-    private authService = inject(AuthService);
     private readonly API_URL = `${environment.apiUrl}/groups`;
-
-    private getHeaders() {
-        const token = this.authService.getToken();
-        return new HttpHeaders({
-            'Authorization': `Bearer ${token}`
-        });
-    }
 
     async getGroups(): Promise<ApiResponse<Group[]>> {
         try {
             return await firstValueFrom(
-                this.http.get<ApiResponse<Group[]>>(this.API_URL, { headers: this.getHeaders() })
+                this.http.get<ApiResponse<Group[]>>(this.API_URL)
             );
         } catch (error: any) {
             return {
@@ -48,7 +40,7 @@ export class GroupService {
     async getGroupMembers(groupId: number | string): Promise<ApiResponse<any[]>> {
         try {
             return await firstValueFrom(
-                this.http.get<ApiResponse<any[]>>(`${this.API_URL}/${groupId}/members`, { headers: this.getHeaders() })
+                this.http.get<ApiResponse<any[]>>(`${this.API_URL}/${groupId}/members`)
             );
         } catch (error: any) {
             return {
@@ -63,7 +55,7 @@ export class GroupService {
     async createGroup(group: Partial<Group>): Promise<ApiResponse<Group>> {
         try {
             return await firstValueFrom(
-                this.http.post<ApiResponse<Group>>(this.API_URL, group, { headers: this.getHeaders() })
+                this.http.post<ApiResponse<Group>>(this.API_URL, group)
             );
         } catch (error: any) {
             return {
@@ -78,7 +70,7 @@ export class GroupService {
     async updateGroup(id: number, group: Partial<Group>): Promise<ApiResponse<Group>> {
         try {
             return await firstValueFrom(
-                this.http.patch<ApiResponse<Group>>(`${this.API_URL}/${id}`, group, { headers: this.getHeaders() })
+                this.http.patch<ApiResponse<Group>>(`${this.API_URL}/${id}`, group)
             );
         } catch (error: any) {
             return {
@@ -93,7 +85,7 @@ export class GroupService {
     async deleteGroup(id: number): Promise<ApiResponse> {
         try {
             return await firstValueFrom(
-                this.http.delete<ApiResponse>(`${this.API_URL}/${id}`, { headers: this.getHeaders() })
+                this.http.delete<ApiResponse>(`${this.API_URL}/${id}`)
             );
         } catch (error: any) {
             return {
