@@ -194,18 +194,18 @@ export class TicketService {
         }
     }
 
-    async addComment(ticketId: number, texto: string, autor: string): Promise<ApiResponse<Ticket>> {
-        // En un sistema real, los comentarios podrían estar en su propia tabla.
-        // Aquí, como el backend usa una columna JSONB o similar para simplificar (o no la tiene), 
-        // podríamos actualizar el ticket completo con el nuevo comentario.
-        // Pero el backend actual no parece tener un endpoint específico para comentarios.
-        // Supongamos que actualizamos el campo 'comments' del ticket.
-        
-        const ticketRes = await this.getTicketById(ticketId);
-        if (!ticketRes.data) return ticketRes;
-
-        const updatedComments = [...(ticketRes.data.comentarios || []), { autor, texto, fecha: new Date() }];
-        
-        return await this.updateTicket(ticketId, { comentarios: updatedComments } as any);
+    async addComment(ticketId: number, comment: string, user_name: string): Promise<ApiResponse<any>> {
+        try {
+            return await firstValueFrom(
+                this.http.post<ApiResponse<any>>(`${this.API_URL}/${ticketId}/comments`, { comment, user_name }, { headers: this.getHeaders() })
+            );
+        } catch (error: any) {
+            return {
+                statusCode: error.status || 500,
+                intOpCode: 'ExTK500',
+                data: null,
+                message: 'Error al añadir comentario'
+            };
+        }
     }
 }

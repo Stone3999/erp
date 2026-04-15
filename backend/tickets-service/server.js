@@ -64,6 +64,57 @@ fastify.post('/', async (request, reply) => {
   }
 });
 
+fastify.get('/:id', async (request, reply) => {
+  try {
+    const { id } = request.params;
+    
+    // Traer el ticket
+    const { data: ticket, error } = await supabase
+      .from('tickets')
+      .select('*, users!created_by(name)')
+      .eq('id', id)
+      .maybeSingle();
+
+    if (error || !ticket) throw error || new Error('No encontrado');
+
+    // Traer comentarios del ticket
+    const { data: comments } = await supabase
+      .from('ticket_comments')
+      .select('*')
+      .eq('ticket_id', id)
+      .order('created_at', { ascending: true });
+
+    return { 
+      statusCode: 200, 
+      data: { 
+        ...ticket, 
+        creator_name: ticket.users?.name || 'Sistema',
+        comments: comments || [] 
+      } 
+    };
+  } catch (err) {
+    return reply.code(500).send({ statusCode: 500, message: err.message });
+  }
+});
+
+fastify.post('/:id/comments', async (request, reply) => {
+  try {
+    const { id: ticket_id } = request.params;
+    const { user_name, comment } = request.body;
+
+    const { data, error } = await supabase
+      .from('ticket_comments')
+      .insert([{ ticket_id, user_name, comment }])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return { statusCode: 201, data };
+  } catch (err) {
+    return reply.code(500).send({ statusCode: 500, message: err.message });
+  }
+});
+
 fastify.patch('/:id', async (request, reply) => {
   try {
     const { id } = request.params;

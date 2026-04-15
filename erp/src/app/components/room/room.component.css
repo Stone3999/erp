@@ -8,16 +8,17 @@
 
 /* Área principal con altura fija para evitar saltos de layout */
 .main-workspace-area {
-    min-height: 650px; /* Altura mínima para que la página no se encoja al cambiar vista */
-    margin-bottom: 2rem;
+    min-height: 600px;
+    margin-bottom: 1rem;
 }
 
-/* Kanban Board Styles */
+/* --- TABLERO KANBAN SIN SCROLL HORIZONTAL --- */
 .kanban-board {
     display: flex;
-    gap: 1.25rem;
-    overflow-x: auto;
-    padding-bottom: 1rem;
+    flex-wrap: wrap; /* Permitir que bajen en pantallas pequeñas */
+    gap: 1rem;
+    padding: 0.5rem;
+    justify-content: flex-start;
     align-items: flex-start;
 }
 
@@ -29,7 +30,8 @@
     border: 1px solid var(--r4u-border);
     display: flex;
     flex-direction: column;
-    max-height: 80vh;
+    height: fit-content;
+    max-height: 85vh;
 }
 
 .kanban-header {
@@ -41,10 +43,9 @@
 
 .kanban-header h3 {
     margin: 0;
-    font-size: 1rem;
+    font-size: 0.9rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
 }
 
 .warning-header { border-top: 4px solid #fbbf24; }
@@ -53,7 +54,7 @@
 .success-header { border-top: 4px solid #22c55e; }
 
 .kanban-list {
-    min-height: 200px;
+    min-height: 150px;
     padding: 0.75rem;
     flex-grow: 1;
     overflow-y: auto;
@@ -67,78 +68,85 @@
     margin-bottom: 0.75rem;
     cursor: grab;
     transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .ticket-card:hover {
     border-color: var(--r4u-primary);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
-.ticket-card:active {
-    cursor: grabbing;
+/* --- GRÁFICA PEGADA AL TABLERO --- */
+.my-5 {
+    margin-top: 1rem !important;
+    margin-bottom: 1rem !important;
 }
 
-/* Estilos para el drag and drop */
-.cdk-drag-preview {
-    box-sizing: border-box;
+/* --- ESTILOS MODAL 3 COLUMNAS --- */
+.detail-grid {
+    display: grid;
+    grid-template-columns: 280px 1fr 320px;
+    gap: 1.5rem;
+    height: 70vh;
+}
+
+.col-side {
+    border-right: 1px solid var(--r4u-border);
+    padding-right: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.col-main {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.col-comments {
+    border-left: 1px solid var(--r4u-border);
+    padding-left: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.comments-container {
+    flex: 1;
+    overflow-y: auto;
+    background: rgba(0,0,0,0.2);
     border-radius: 8px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+    padding: 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 
-.cdk-drag-placeholder {
-    opacity: 0.3;
-}
-
-.cdk-drag-animating {
-    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
-}
-
-.kanban-list.cdk-drop-list-dragging .ticket-card:not(.cdk-drag-placeholder) {
-    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
-}
-
-/* Gráfica */
-.chart-card {
+.comment-item {
     background: var(--r4u-bg-card);
     border: 1px solid var(--r4u-border);
-    border-radius: 16px;
-    overflow: hidden;
+    border-radius: 8px;
+    padding: 0.75rem;
 }
 
-.chart-wrapper {
-    padding: 1.5rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+/* Animaciones */
+.view-animation {
+    animation: slideIn 0.3s ease-out;
 }
 
-/* Tabla */
-.table-container {
-    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-    animation: fadeIn 0.3s ease-in-out;
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* View Switcher Customization (PrimeNG Overrides) */
+/* PrimeNG Overrides */
 :host ::ng-deep .p-selectbutton .p-button {
     background: var(--r4u-bg-card);
     border: 1px solid var(--r4u-border);
-    color: var(--r4u-text-muted);
 }
 
 :host ::ng-deep .p-selectbutton .p-button.p-highlight {
     background: var(--r4u-primary);
     border-color: var(--r4u-primary);
-    color: white;
-}
-
-:host ::ng-deep .p-selectbutton .p-button:not(.p-highlight):hover {
-    background: rgba(255,255,255,0.05);
-    color: var(--r4u-text-main);
 }

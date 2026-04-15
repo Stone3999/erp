@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 import { AvatarModule } from 'primeng/avatar';
@@ -59,7 +59,9 @@ export interface RoomTicket {
     templateUrl: './room.component.html',
     styleUrl: './room.component.css',
 })
-export class RoomComponent implements OnInit {
+export class RoomComponent implements OnInit, AfterViewChecked {
+    @ViewChild('scrollMe') private myScrollContainer!: ElementRef;
+
     isLoggedIn = false;
     currentUser = '';
     groupId: string | null = null;
@@ -67,7 +69,6 @@ export class RoomComponent implements OnInit {
     chartOptions: any;
     stats = { total: 0, pendiente: 0, enProgreso: 0, revision: 0, finalizado: 0 };
 
-    // --- VARIABLES MODAL CREAR ---
     showTicketModal = false;
     nuevoTitulo: string = '';
     nuevaDescripcion: string = '';
@@ -88,29 +89,19 @@ export class RoomComponent implements OnInit {
     vistaTabla: boolean = false; 
     filtroActivo: string = 'todos'; 
 
-    // Opciones para el botón tipo switch largo
     viewOptions = [
         { label: 'Tablero Kanban', value: false, icon: 'pi pi-th-large' },
         { label: 'Vista de Lista', value: true, icon: 'pi pi-list' }
     ];
 
-    cumpleFiltro(ticket: any): boolean {
-        if (this.filtroActivo === 'mis-tickets') return ticket.asignado === this.currentUser;
-        if (this.filtroActivo === 'sin-asignar') return !ticket.asignado || ticket.asignado.trim() === '';
-        if (this.filtroActivo === 'prioridad-alta') return ticket.prioridad === 'Alta';
-        return true; 
-    }
-
-    get todosLosTickets(): any[] {
-        return [...this.pendientes, ...this.enProgreso, ...this.revision, ...this.finalizados]
-            .filter(t => this.cumpleFiltro(t));
-    }
+    showEditModal = false;
+    ticketEditando: RoomTicket | null = null;
 
     constructor(
         private authService: AuthService,
         private ticketService: TicketService,
         private userService: UserService,
-        private groupService: GroupService, // INYECCIÓN CORREGIDA
+        private groupService: GroupService,
         private route: ActivatedRoute
     ) {}
 
@@ -122,11 +113,20 @@ export class RoomComponent implements OnInit {
         this.cargarMiembros();
     }
 
+    ngAfterViewChecked() {
+        this.scrollToBottom();
+    }
+
+    scrollToBottom(): void {
+        try {
+            this.myScrollContainer.nativeElement.scrollTop = this.myScrollContainer.nativeElement.scrollHeight;
+        } catch(err) { }
+    }
+
     async cargarMiembros() {
         if (!this.groupId) return;
         const res = await this.groupService.getGroupMembers(this.groupId);
         if (res.statusCode === 200 && res.data) {
-            // Guardamos el objeto completo para poder filtrar/buscar mejor
             this.usuariosDisponibles = res.data.map((u: any) => ({
                 id: u.id,
                 name: u.name,
@@ -139,14 +139,18 @@ export class RoomComponent implements OnInit {
         return {
             id: t.id,
             titulo: t.titulo,
-            descripcion: t.descripcion,
-            estado: t.estado,
-            asignado: t.asignadoA,
-            creador: t.creador,
-            prioridad: t.prioridad,
-            fecha: t.fechaCreacion,
+            descripcion: t.description,
+            estado: t.status,
+            asignado: t.assigned_to,
+            creador: t.creator_name || t.created_by,
+            prioridad: t.priority,
+            fecha: t.created_at,
             fechaLimite: t.fechaLimite ? new Date(t.fechaLimite).toISOString().split('T')[0] : undefined,
-            comentarios: (t.comentarios || []).map((c: any) => ({ usuario: c.autor, texto: c.texto, fecha: c.fecha })),
+            comentarios: (t.comments || []).map((c: any) => ({ 
+                usuario: c.user_name, 
+                texto: c.comment, 
+                fecha: c.created_at 
+            })),
             historial: (t.historial || []).map((h: any) => ({ accion: h.cambio, usuario: h.autor, fecha: h.fecha }))
         };
     }
@@ -177,8 +181,6 @@ export class RoomComponent implements OnInit {
             const ticketMovido = event.container.data[event.currentIndex];
             ticketMovido.estado = nuevoEstado;
             this.updateStatsFromLists();
-            
-            // Guardar en backend
             await this.ticketService.updateTicket(ticketMovido.id, { estado: nuevoEstado as any });
         }
     }
@@ -223,9 +225,6 @@ export class RoomComponent implements OnInit {
         }
     }
 
-    showEditModal = false;
-    ticketEditando: RoomTicket | null = null;
-
     updateChart() {
         this.chartData = {
             labels: ['Pendiente', 'En Progreso', 'Revisión', 'Finalizado'],
@@ -248,7 +247,7 @@ export class RoomComponent implements OnInit {
         };
     }
 
-    getPrioritySeverity(prioridad: string): "success" | "info" | "warn" | "danger" | "secondary" | "contrast" | undefined {
+    getPrioritySeverity(prioridad: string): any {
         switch(prioridad) {
             case 'Alta': return 'danger';
             case 'Media': return 'warn';
@@ -257,11 +256,15 @@ export class RoomComponent implements OnInit {
         }
     }
 
-    abrirDetalles(ticket: RoomTicket) {
+    async abrirDetalles(ticket: RoomTicket) {
         if (!this.puedeMoverTicket(ticket)) return; 
-        this.ticketEditando = JSON.parse(JSON.stringify(ticket));
-        this.nuevoComentario = '';
-        this.showEditModal = true;
+        
+        const res = await this.ticketService.getTicketById(ticket.id);
+        if (res.statusCode === 200 && res.data) {
+            this.ticketEditando = this.mapToRoomTicket(res.data);
+            this.nuevoComentario = '';
+            this.showEditModal = true;
+        }
     }
 
     async guardarDetalles() {
@@ -270,53 +273,55 @@ export class RoomComponent implements OnInit {
         const payload: any = {
             titulo: this.ticketEditando.titulo,
             descripcion: this.ticketEditando.descripcion,
-            asignadoA: this.ticketEditando.asignado,
-            estado: this.ticketEditando.estado,
-            prioridad: this.ticketEditando.prioridad,
+            assigned_to: this.ticketEditando.asignado,
+            status: this.ticketEditando.estado,
+            priority: this.ticketEditando.prioridad,
             fechaLimite: this.ticketEditando.fechaLimite
         };
 
         const res = await this.ticketService.updateTicket(this.ticketEditando.id, payload);
-        if (res.statusCode === 200 && res.data) {
+        if (res.statusCode === 200) {
              await this.cargarTickets();
+             this.showEditModal = false;
+             this.ticketEditando = null;
         }
-
-        this.showEditModal = false;
-        this.ticketEditando = null;
-    }
-
-    get puedeCrearTicket(): boolean {
-        return this.authService.hasPermission('tickets:add');
-    }
-
-    puedeMoverTicket(ticket: RoomTicket): boolean {
-        // REGLA DE ORO:
-        // 1. Si tiene 'tickets:edit_all', puede mover cualquiera.
-        if (this.authService.hasPermission('tickets:edit_all')) return true;
-
-        // 2. Si tiene 'tickets:move' Y el ticket está asignado a él, puede moverlo.
-        const tienePermisoMover = this.authService.hasPermission('tickets:move');
-        const esSuTicket = ticket.asignado === this.currentUser;
-        
-        return tienePermisoMover && esSuTicket;
-    }
-
-    get puedeEditarTodo(): boolean {
-        if (!this.ticketEditando) return false;
-        // Puede editar detalles si es el creador o tiene el permiso global
-        return this.ticketEditando.creador === this.currentUser || this.authService.hasPermission('tickets:edit_all');
     }
 
     async agregarComentario() {
         if (!this.nuevoComentario.trim() || !this.ticketEditando) return;
         
-        await this.ticketService.addComment(this.ticketEditando.id, this.nuevoComentario, this.currentUser);
-        this.ticketEditando.comentarios = this.ticketEditando.comentarios || [];
-        this.ticketEditando.comentarios.push({
-            usuario: this.currentUser,
-            texto: this.nuevoComentario,
-            fecha: new Date()
-        });
-        this.nuevoComentario = '';
+        const res = await this.ticketService.addComment(this.ticketEditando.id, this.nuevoComentario, this.currentUser);
+        if (res.statusCode === 201) {
+            this.ticketEditando.comentarios.push({
+                usuario: this.currentUser,
+                texto: this.nuevoComentario,
+                fecha: new Date()
+            });
+            this.nuevoComentario = '';
+        }
+    }
+
+    cumpleFiltro(ticket: any): boolean {
+        if (this.filtroActivo === 'mis-tickets') return ticket.asignado === this.currentUser;
+        if (this.filtroActivo === 'sin-asignar') return !ticket.asignado || ticket.asignado.trim() === '';
+        if (this.filtroActivo === 'prioridad-alta') return ticket.prioridad === 'Alta';
+        return true; 
+    }
+
+    get todosLosTickets(): any[] {
+        return [...this.pendientes, ...this.enProgreso, ...this.revision, ...this.finalizados]
+            .filter(t => this.cumpleFiltro(t));
+    }
+
+    puedeMoverTicket(ticket: RoomTicket): boolean {
+        if (this.authService.hasPermission('tickets:edit_all')) return true;
+        const tienePermisoMover = this.authService.hasPermission('tickets:move');
+        const esSuTicket = ticket.asignado === this.currentUser;
+        return tienePermisoMover && esSuTicket;
+    }
+
+    get puedeEditarTodo(): boolean {
+        if (!this.ticketEditando) return false;
+        return this.ticketEditando.creador === this.currentUser || this.authService.hasPermission('tickets:edit_all');
     }
 }
