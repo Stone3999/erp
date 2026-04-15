@@ -4,31 +4,31 @@
     <div class="p-4">
         
         <!-- FILA SUPERIOR: RESUMEN Y GRÁFICA (MISMA LÍNEA) -->
-        <div class="flex flex-row gap-3 mb-5" style="height: 220px;">
-            <!-- RESUMEN -->
-            <div class="flex-grow-1 card p-4 border-round" style="background: var(--r4u-bg-card); border: 1px solid var(--r4u-border); min-width: 0;">
-                <h2 class="text-xl font-bold mb-4" style="color: var(--r4u-text-main);">Resumen de Trabajo</h2>
-                <div class="grid m-0">
-                    <div class="col-3 p-1">
-                        <div class="stat-box stat-activos">
+        <div class="flex flex-row gap-4 mb-5" style="min-height: 200px;">
+            <!-- RESUMEN EN GRID (OCUPA EL RESTO) -->
+            <div class="flex-grow-1 card p-4 border-round flex flex-column justify-content-center" style="background: var(--r4u-bg-card); border: 1px solid var(--r4u-border); min-width: 0;">
+                <h2 class="text-xl font-bold mb-4" style="color: var(--r4u-text-main); margin-top: 0;">Resumen de Trabajo</h2>
+                <div class="grid m-0 w-full">
+                    <div class="col-3 p-2">
+                        <div class="stat-box stat-activos w-full h-full">
                             <span class="stat-val" style="color: #3b82f6;">{{ globalStats.activos }}</span>
                             <span class="stat-tit">Activos</span>
                         </div>
                     </div>
-                    <div class="col-3 p-1">
-                        <div class="stat-box stat-pendientes">
+                    <div class="col-3 p-2">
+                        <div class="stat-box stat-pendientes w-full h-full">
                             <span class="stat-val" style="color: #fbbf24;">{{ globalStats.pendientes }}</span>
                             <span class="stat-tit">Pendientes</span>
                         </div>
                     </div>
-                    <div class="col-3 p-1">
-                        <div class="stat-box stat-terminados">
+                    <div class="col-3 p-2">
+                        <div class="stat-box stat-terminados w-full h-full">
                             <span class="stat-val" style="color: #22c55e;">{{ globalStats.terminados }}</span>
                             <span class="stat-tit">Listos</span>
                         </div>
                     </div>
-                    <div class="col-3 p-1">
-                        <div class="stat-box stat-asignados">
+                    <div class="col-3 p-2">
+                        <div class="stat-box stat-asignados w-full h-full">
                             <span class="stat-val" style="color: var(--r4u-primary);">{{ globalStats.asignadosMi }}</span>
                             <span class="stat-tit">Para ti</span>
                         </div>
@@ -36,9 +36,11 @@
                 </div>
             </div>
             
-            <!-- GRÁFICA -->
-            <div class="card p-3 border-round flex align-items-center justify-content-center" style="background: var(--r4u-bg-card); border: 1px solid var(--r4u-border); width: 280px; flex-shrink: 0;">
-                <p-chart type="doughnut" [data]="chartData" [options]="chartOptions" height="150px" width="150px"></p-chart>
+            <!-- GRÁFICA (ANCHO FIJO) -->
+            <div class="card p-4 border-round flex align-items-center justify-content-center" style="background: var(--r4u-bg-card); border: 1px solid var(--r4u-border); width: 320px; flex-shrink: 0;">
+                <div class="w-full flex justify-content-center">
+                    <p-chart type="doughnut" [data]="chartData" [options]="chartOptions" height="160px" width="160px"></p-chart>
+                </div>
             </div>
         </div>
 
