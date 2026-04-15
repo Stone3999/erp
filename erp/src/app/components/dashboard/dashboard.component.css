@@ -6,7 +6,6 @@
     background: var(--r4u-bg-card);
     border: 1px solid var(--r4u-border);
     transition: all 0.3s ease;
-    height: 100%;
 }
 
 .group-card:hover {
@@ -15,62 +14,71 @@
 }
 
 .icon-box {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     background: rgba(var(--r4u-primary-rgb), 0.1);
     color: var(--r4u-primary);
-    border-radius: 8px;
+    border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.1rem;
+    font-size: 1rem;
 }
 
-/* --- RECUADROS DE ESTADÍSTICAS DASHBOARD (FORCE STYLES) --- */
+/* --- FILA PRINCIPAL ESTADÍSTICAS --- */
 .stat-box {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    padding: 1.25rem !important;
-    border-radius: 12px !important;
-    background: rgba(255,255,255,0.05) !important; /* Más visible */
-    border: 1px solid var(--r4u-border) !important;
-    height: 100% !important;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-}
-
-.stat-val {
-    font-size: 1.8rem !important;
-    font-weight: 800 !important;
-    color: var(--r4u-text-main) !important;
-}
-
-.stat-tit {
-    font-size: 0.75rem !important;
-    font-weight: 700 !important;
-    text-transform: uppercase !important;
-    color: var(--r4u-text-muted) !important;
-    margin-top: 0.4rem !important;
-}
-
-.stat-activos { border-left: 5px solid #3b82f6 !important; }
-.stat-pendientes { border-left: 5px solid #fbbf24 !important; }
-.stat-terminados { border-left: 5px solid #22c55e !important; }
-.stat-asignados { border-left: 5px solid var(--r4u-primary) !important; background: rgba(var(--r4u-primary-rgb), 0.08) !important; }
-
-/* --- MINI STATS DENTRO DE LA TARJETA --- */
-.mini-stats {
-    background: rgba(0,0,0,0.25) !important;
-    border-radius: 8px !important;
-    padding: 0.6rem !important;
-    margin-bottom: 0.5rem !important;
-}
-
-.m-stat {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
+    padding: 1.5rem 0.5rem;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--r4u-border);
+    height: 100%;
+}
+
+.stat-val {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--r4u-text-main);
+}
+
+.stat-tit {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--r4u-text-muted);
+    margin-top: 0.5rem;
+    letter-spacing: 1px;
+}
+
+.stat-activos { border-bottom: 4px solid #3b82f6; }
+.stat-pendientes { border-bottom: 4px solid #fbbf24; }
+.stat-terminados { border-bottom: 4px solid #22c55e; }
+.stat-asignados { border-bottom: 4px solid var(--r4u-primary); background: rgba(var(--r4u-primary-rgb), 0.05); }
+
+/* --- MINI RECUADROS EN LAS TARJETAS --- */
+.mini-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+    margin: 1rem 0;
+}
+
+.m-stat-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.5rem;
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.m-stat-box.highlight {
+    background: rgba(var(--r4u-primary-rgb), 0.1);
+    border-color: rgba(var(--r4u-primary-rgb), 0.2);
 }
 
 .m-stat-v {
@@ -79,13 +87,8 @@
 }
 
 .m-stat-t {
-    font-size: 0.6rem;
+    font-size: 0.55rem;
     font-weight: 700;
     color: var(--r4u-text-muted);
-}
-
-.m-stat.highlight {
-    background: rgba(var(--r4u-primary-rgb), 0.15);
-    border-radius: 4px;
-    padding: 2px;
+    margin-top: 2px;
 }
