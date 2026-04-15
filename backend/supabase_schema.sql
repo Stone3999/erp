@@ -17,6 +17,7 @@ ALTER TABLE tickets ADD COLUMN IF NOT EXISTS due_date DATE;
 -- Mantenemos tu llave primaria compuesta actual
 ALTER TABLE workspace_members ADD COLUMN IF NOT EXISTS role TEXT DEFAULT 'Miembro';
 ALTER TABLE workspace_members ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+ALTER TABLE workspace_members ADD COLUMN IF NOT EXISTS permissions JSONB DEFAULT '["tickets:add", "tickets:move", "tickets:comment"]';
 
 -- 4. Sincronizar creadores como administradores
 -- Si el creador ya existe, le ponemos rol de Administrador

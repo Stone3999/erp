@@ -9,19 +9,24 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY
 
 fastify.get('/', async (request, reply) => {
   try {
-    // Traemos el workspace y el nombre del creador (join con users)
+    const user_id = request.headers['x-user-id']; // Asumimos que el Gateway pasa el ID
     const { data: workspaces, error } = await supabase
       .from('workspaces')
       .select('*, users!created_by(name)');
 
     if (error) throw error;
 
-    // Para cada workspace, contamos tickets y miembros de forma eficiente
     const enrichedWorkspaces = await Promise.all(workspaces.map(async (ws) => {
-      const { count: ticketsCount } = await supabase
-        .from('tickets')
-        .select('*', { count: 'exact', head: true })
-        .eq('workspace_id', ws.id);
+      // Conteos detallados
+      const { data: tkStats } = await supabase.from('tickets').select('status, assigned_to').eq('workspace_id', ws.id);
+      
+      const stats = {
+        total: tkStats?.length || 0,
+        pendientes: tkStats?.filter(t => t.status === 'Pendiente').length || 0,
+        activos: tkStats?.filter(t => t.status === 'En Progreso' || t.status === 'Revisión').length || 0,
+        terminados: tkStats?.filter(t => t.status === 'Finalizado').length || 0,
+        asignadosMi: tkStats?.filter(t => t.assigned_to === user_id || t.assigned_to === request.headers['x-user-name']).length || 0
+      };
 
       const { count: membersCount } = await supabase
         .from('workspace_members')
@@ -31,7 +36,7 @@ fastify.get('/', async (request, reply) => {
       return {
         ...ws,
         creator_name: ws.users?.name || 'Sistema',
-        tickets: ticketsCount || 0,
+        stats,
         miembros: membersCount || 0
       };
     }));

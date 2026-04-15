@@ -83,6 +83,50 @@
     color: #ef4444;
 }
 
+/* --- RECUADROS ESTADÍSTICAS ROOM --- */
+.room-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-top: 2rem;
+    width: 100%;
+}
+
+.room-stat-card {
+    background: var(--r4u-bg-card);
+    border: 1px solid var(--r4u-border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+}
+
+.room-stat-card:hover {
+    transform: translateY(-3px);
+}
+
+.rs-val {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--r4u-text-main);
+}
+
+.rs-lbl {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--r4u-text-muted);
+    margin-top: 0.25rem;
+}
+
+.rs-activos { border-top: 4px solid #3b82f6; }
+.rs-pendientes { border-top: 4px solid #fbbf24; }
+.rs-terminados { border-top: 4px solid #22c55e; }
+.rs-mios { border-top: 4px solid var(--r4u-primary); background: rgba(var(--r4u-primary-rgb), 0.03); }
+
 /* --- GRÁFICA PEGADA AL TABLERO --- */
 .my-5 {
     margin-top: 0.5rem !important;

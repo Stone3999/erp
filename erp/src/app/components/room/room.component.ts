@@ -66,7 +66,7 @@ export class RoomComponent implements OnInit, AfterViewChecked {
     groupId: string | null = null;
     chartData: any;
     chartOptions: any;
-    stats = { total: 0, pendiente: 0, enProgreso: 0, revision: 0, finalizado: 0 };
+    stats = { total: 0, pendiente: 0, enProgreso: 0, revision: 0, finalizado: 0, activos: 0, asignadosMi: 0, vencidos: 0 };
 
     showTicketModal = false;
     nuevoTitulo: string = '';
@@ -191,7 +191,13 @@ export class RoomComponent implements OnInit, AfterViewChecked {
         this.stats.enProgreso = this.enProgreso.length;
         this.stats.revision = this.revision.length;
         this.stats.finalizado = this.finalizados.length;
-        this.stats.total = this.stats.pendiente + this.stats.enProgreso + this.stats.revision + this.stats.finalizado;
+        this.stats.activos = this.stats.enProgreso + this.stats.revision;
+        
+        const todos = [...this.pendientes, ...this.enProgreso, ...this.revision, ...this.finalizados];
+        this.stats.total = todos.length;
+        this.stats.asignadosMi = todos.filter(t => t.asignado === this.currentUser).length;
+        this.stats.vencidos = todos.filter(t => this.estaVencido(t)).length;
+
         this.updateChart();
     }
 
@@ -228,12 +234,12 @@ export class RoomComponent implements OnInit, AfterViewChecked {
 
     updateChart() {
         this.chartData = {
-            labels: ['Pendiente', 'En Progreso', 'Revisión', 'Finalizado'],
+            labels: ['Pendiente', 'Activos', 'Finalizado', 'Vencidos'],
             datasets: [
                 {
-                    data: [this.stats.pendiente, this.stats.enProgreso, this.stats.revision, this.stats.finalizado],
-                    backgroundColor: ['#fbbf24', '#3b82f6', '#a78bfa', '#22c55e'],
-                    hoverBackgroundColor: ['#f59e0b', '#2563eb', '#8b5cf6', '#16a34a'],
+                    data: [this.stats.pendiente, this.stats.activos, this.stats.finalizado, this.stats.vencidos],
+                    backgroundColor: ['#fbbf24', '#3b82f6', '#22c55e', '#ef4444'],
+                    hoverBackgroundColor: ['#f59e0b', '#2563eb', '#16a34a', '#dc2626'],
                     borderWidth: 2,
                     borderColor: '#1A1A1B', 
                 },

@@ -101,9 +101,29 @@
         </div>
     </div>
 
+    <!-- STATS RECUADROS (Encima de la gráfica) -->
+    <div class="room-stats-grid view-animation">
+        <div class="room-stat-card rs-activos">
+            <span class="rs-val">{{ stats.activos }}</span>
+            <span class="rs-lbl">Activos</span>
+        </div>
+        <div class="room-stat-card rs-pendientes">
+            <span class="rs-val">{{ stats.pendiente }}</span>
+            <span class="rs-lbl">Pendientes</span>
+        </div>
+        <div class="room-stat-card rs-terminados">
+            <span class="rs-val">{{ stats.finalizado }}</span>
+            <span class="rs-lbl">Terminados</span>
+        </div>
+        <div class="room-stat-card rs-mios">
+            <span class="rs-val text-primary">{{ stats.asignadosMi }}</span>
+            <span class="rs-lbl">Asignados a ti</span>
+        </div>
+    </div>
+
     <!-- CHART AREA -->
     <div class="flex flex-column align-items-center mb-5 mt-4">
-        <h3 class="text-lg font-bold mb-3" style="color: var(--r4u-text-main);">Análisis de Estados</h3>
+        <h3 class="text-lg font-bold mb-3" style="color: var(--r4u-text-main);">Distribución de Tickets</h3>
         <p-card class="chart-card w-full md:w-6">
             <div class="chart-wrapper">
                 <p-chart type="pie" [data]="chartData" [options]="chartOptions" height="200px"></p-chart>
