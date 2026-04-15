@@ -290,13 +290,20 @@ export class RoomComponent implements OnInit {
     }
 
     puedeMoverTicket(ticket: RoomTicket): boolean {
-        const tienePermiso = this.authService.hasPermission('tickets:move');
-        const esAsignado = ticket.asignado === this.currentUser;
-        return (esAsignado && tienePermiso) || this.authService.hasPermission('tickets:edit_all');
+        // REGLA DE ORO:
+        // 1. Si tiene 'tickets:edit_all', puede mover cualquiera.
+        if (this.authService.hasPermission('tickets:edit_all')) return true;
+
+        // 2. Si tiene 'tickets:move' Y el ticket está asignado a él, puede moverlo.
+        const tienePermisoMover = this.authService.hasPermission('tickets:move');
+        const esSuTicket = ticket.asignado === this.currentUser;
+        
+        return tienePermisoMover && esSuTicket;
     }
 
     get puedeEditarTodo(): boolean {
         if (!this.ticketEditando) return false;
+        // Puede editar detalles si es el creador o tiene el permiso global
         return this.ticketEditando.creador === this.currentUser || this.authService.hasPermission('tickets:edit_all');
     }
 
