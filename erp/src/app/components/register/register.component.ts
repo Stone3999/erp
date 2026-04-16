@@ -185,7 +185,7 @@ export class RegisterComponent {
         });
         setTimeout(() => {
           this.loading = false;
-          this.loadingService.setLoading(false);
+          // No quitamos el loading global para que se mantenga bloqueado hasta que cargue el Login
           this.router.navigate(['/login']);
         }, 2000);
       } else if (response.statusCode === 409) {

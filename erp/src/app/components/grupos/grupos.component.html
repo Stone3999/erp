@@ -64,10 +64,10 @@
 
 </div>
 
-<p-dialog [(visible)]="dialogVisible" [header]="isEditMode ? 'Editar Room' : 'Nuevo Room'" [modal]="true" [style]="{ width: '800px' }" 
+<p-dialog [(visible)]="dialogVisible" [header]="isEditMode ? 'Editar Room' : 'Nuevo Room'" [modal]="true" [style]="{ width: '950px' }" 
           [styleClass]="loading ? 'p-dialog-loading' : ''" [closable]="!loading" (onHide)="closeDialog()">
     
-    <div class="grid m-0 pt-2">
+    <div class="grid m-0 pt-3 px-2">
         <div class="col-12 md:col-6 flex flex-column gap-3 md:pr-4">
             <form [formGroup]="groupForm" class="group-form p-0">
                 <div class="field">

@@ -10,6 +10,8 @@ import { GroupService } from '../../services/group.service';
 import { HasPermissionDirective } from '../../directives/has-permission.directive';
 import { ChartModule } from 'primeng/chart';
 
+import { LoadingService } from '../../services/loading.service';
+
 @Component({
     selector: 'app-dashboard',
     standalone: true,
@@ -29,10 +31,12 @@ export class DashboardComponent implements OnInit {
     constructor(
         private authService: AuthService,
         private groupService: GroupService,
-        private router: Router
+        private router: Router,
+        private loadingService: LoadingService
     ) {}
 
     ngOnInit(): void {
+        this.loadingService.setLoading(false); // Aseguramos que se desbloquee al entrar
         this.isLoggedIn = this.authService.isLoggedIn();
         this.currentUser = this.authService.getCurrentUser();
         if (this.isLoggedIn) {

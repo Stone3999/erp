@@ -50,7 +50,9 @@ export class LoginComponent {
     private authService: AuthService,
     private messageService: MessageService,
     private loadingService: LoadingService
-  ) { }
+  ) { 
+    this.loadingService.setLoading(false);
+  }
 
   get hardcodedCredentials() {
     return this.authService.getHardcodedCredentials();
@@ -121,4 +123,6 @@ export class LoginComponent {
   goToHome(): void {
     this.router.navigate(['/']);
   }
+}
+ }
 }
