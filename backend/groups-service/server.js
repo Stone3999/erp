@@ -63,7 +63,7 @@ fastify.get('/', async (request, reply) => {
     const globalPermissions = permissionsRaw ? JSON.parse(permissionsRaw) : [];
     if (!user_id) return reply.code(400).send({ statusCode: 400, intOpCode: 'ExGR400', message: 'User ID missing' });
 
-    const isSuperAdmin = globalPermissions.includes('admin:all');
+    const isSuperAdmin = globalPermissions.includes('admin:all') || globalPermissions.includes('groups:manage');
     let workspaces;
 
     if (isSuperAdmin) {
