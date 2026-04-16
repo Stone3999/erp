@@ -72,6 +72,11 @@ fastify.addHook('preHandler', async (request, reply) => {
     const decoded = jwt.verify(token, JWT_SECRET);
     request.user = decoded; // { id, email, permissions }
     
+    // Inyectamos headers para los microservicios
+    request.headers['x-user-id'] = decoded.id;
+    request.headers['x-user-name'] = decoded.name;
+    request.headers['x-user-email'] = decoded.email;
+
     const method = request.method;
     let requiredPerm = null;
 

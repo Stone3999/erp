@@ -2,50 +2,52 @@
     padding: 1.5rem;
 }
 
-.group-card {
+.card {
     background: var(--r4u-bg-card);
     border: 1px solid var(--r4u-border);
-    transition: all 0.3s ease;
+    border-radius: 12px;
 }
 
-.group-card:hover {
-    border-color: var(--r4u-primary);
-    transform: translateY(-5px);
-}
-
-.icon-box {
-    width: 32px;
-    height: 32px;
-    background: rgba(var(--r4u-primary-rgb), 0.1);
-    color: var(--r4u-primary);
-    border-radius: 6px;
+/* --- FILA SUPERIOR DASHBOARD --- */
+.dashboard-top-row {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1rem;
+    gap: 1rem;
+    align-items: stretch;
 }
 
-/* --- FILA PRINCIPAL ESTADÍSTICAS --- */
-.stat-box {
+.summary-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 1.25rem;
+}
+
+.summary-header {
+    margin-bottom: 1rem;
+}
+
+.stats-horizontal {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex: 1;
+}
+
+.stat-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 1.5rem 0.5rem;
-    border-radius: 12px;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid var(--r4u-border);
-    height: 100%;
+    padding: 0.5rem 2rem;
 }
 
 .stat-val {
-    font-size: 2.2rem;
+    font-size: 2.5rem;
     font-weight: 800;
-    color: var(--r4u-text-main);
+    line-height: 1;
 }
 
 .stat-tit {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 700;
     text-transform: uppercase;
     color: var(--r4u-text-muted);
@@ -53,24 +55,57 @@
     letter-spacing: 1px;
 }
 
-.stat-activos { border-bottom: 4px solid #3b82f6; }
-.stat-pendientes { border-bottom: 4px solid #fbbf24; }
-.stat-terminados { border-bottom: 4px solid #22c55e; }
-.stat-asignados { border-bottom: 4px solid var(--r4u-primary); background: rgba(var(--r4u-primary-rgb), 0.05); }
+/* Bordes decorativos abajo de cada stat */
+.stat-item.border-activos { border-bottom: 3px solid #3b82f6; }
+.stat-item.border-pendientes { border-bottom: 3px solid #fbbf24; }
+.stat-item.border-terminados { border-bottom: 3px solid #22c55e; }
+.stat-item.border-para-ti { border-bottom: 3px solid var(--r4u-primary); background: rgba(var(--r4u-primary-rgb), 0.03); border-radius: 8px 8px 0 0; }
 
-/* --- MINI RECUADROS EN LAS TARJETAS --- */
+.chart-container {
+    width: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+/* --- CARDS DE ROOMS --- */
+.group-card {
+    background: var(--r4u-bg-card);
+    border: 1px solid var(--r4u-border);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.group-card:hover {
+    border-color: var(--r4u-primary);
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.icon-box {
+    width: 36px;
+    height: 36px;
+    background: rgba(var(--r4u-primary-rgb), 0.1);
+    color: var(--r4u-primary);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+}
+
 .mini-stats-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 0.5rem;
-    margin: 1rem 0;
+    margin: 1.5rem 0;
 }
 
 .m-stat-box {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 0.5rem;
+    padding: 0.6rem 0.2rem;
     background: rgba(0,0,0,0.2);
     border-radius: 8px;
     border: 1px solid rgba(255,255,255,0.05);
@@ -83,12 +118,31 @@
 
 .m-stat-v {
     font-weight: 800;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
 }
 
 .m-stat-t {
-    font-size: 0.55rem;
+    font-size: 0.5rem;
     font-weight: 700;
     color: var(--r4u-text-muted);
     margin-top: 2px;
+}
+
+/* Responsivo para la fila del dashboard */
+@media (max-width: 991px) {
+    .dashboard-top-row {
+        flex-direction: column;
+    }
+    .chart-container {
+        width: 100%;
+        height: 200px;
+    }
+    .stats-horizontal {
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    .stat-item {
+        padding: 1rem;
+        flex: 1 1 40%;
+    }
 }

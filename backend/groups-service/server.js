@@ -9,18 +9,35 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY
 
 fastify.get('/', async (request, reply) => {
   try {
-    const user_id = request.headers['x-user-id']; // Asumimos que el Gateway pasa el ID
+    const user_id = request.headers['x-user-id']; 
+    const userName = request.headers['x-user-name'] || '';
+
+    if (!user_id) return reply.code(400).send({ statusCode: 400, message: 'User ID missing' });
+
+    // 1. Obtener los IDs de los workspaces donde el usuario es miembro
+    const { data: memberships, error: memError } = await supabase
+      .from('workspace_members')
+      .select('workspace_id')
+      .eq('user_id', user_id);
+
+    if (memError) throw memError;
+    const workspaceIds = memberships.map(m => m.workspace_id);
+
+    if (workspaceIds.length === 0) {
+        return { statusCode: 200, data: [] };
+    }
+
+    // 2. Obtener los detalles de esos workspaces
     const { data: workspaces, error } = await supabase
       .from('workspaces')
-      .select('*, users!created_by(name)');
+      .select('*, users!created_by(name)')
+      .in('id', workspaceIds);
 
     if (error) throw error;
 
     const enrichedWorkspaces = await Promise.all(workspaces.map(async (ws) => {
       // Conteos detallados
       const { data: tkStats } = await supabase.from('tickets').select('status, assigned_to').eq('workspace_id', ws.id);
-      
-      const userName = request.headers['x-user-name'] || '';
       
       const stats = {
         total: tkStats?.length || 0,
