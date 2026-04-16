@@ -11,7 +11,7 @@
     <p-toolbar class="usuarios-toolbar" styleClass="dark-toolbar">
         <ng-template pTemplate="start">
             <div class="flex gap-3 align-items-center">
-                <!-- REQUERIMIENTO: permiso 'users:manage' -->
+                
                 <div *appHasPermission="'users:manage'">
                     <p-button label="Nuevo Usuario" icon="pi pi-user-plus" (onClick)="openNew()"></p-button>
                 </div>

@@ -2,12 +2,12 @@
 <div class="auth-container" style="background-color: var(--r4u-bg-page); min-height: 100vh;">
   <div class="auth-card-wrapper register" >
 
-    <!-- LOGO -->
+    
     <div class="auth-logo" (click)="goToHome()">
       <span>Rooms4ums</span>
     </div>
 
-    <!-- CARD REGISTER -->
+    
     <p-card>
       <ng-template pTemplate="header">
         <div class="auth-header">
@@ -16,7 +16,7 @@
       </ng-template>
 
       <p-fluid>
-        <!-- USUARIO -->
+        
         <div class="field-group">
           <label for="usuario">
             <i class="pi pi-user mr-1"></i>Usuario <span class="required">*</span>
@@ -30,7 +30,7 @@
           </small>
         </div>
 
-        <!-- EMAIL -->
+        
         <div class="field-group">
           <label for="regEmail">
             <i class="pi pi-envelope mr-1"></i>Correo electrónico <span class="required">*</span>
@@ -44,7 +44,7 @@
           </small>
         </div>
 
-        <!-- NOMBRE COMPLETO -->
+        
         <div class="field-group">
           <label for="fullName">
             <i class="pi pi-id-card mr-1"></i>Nombre completo <span class="required">*</span>
@@ -58,7 +58,7 @@
           </small>
         </div>
 
-        <!-- TELÉFONO -->
+        
         <div class="field-group">
           <label for="phone">
             <i class="pi pi-phone mr-1"></i>Teléfono <span class="required">*</span>
@@ -74,7 +74,7 @@
           </small>
         </div>
 
-        <!-- FECHA DE NACIMIENTO -->
+        
         <div class="field-group">
           <label for="birthDate">
             <i class="pi pi-calendar mr-1"></i>Fecha de nacimiento <span class="required">*</span>
@@ -88,7 +88,7 @@
           </small>
         </div>
 
-        <!-- DIRECCIÓN -->
+        
         <div class="field-group">
           <label for="address">
             <i class="pi pi-map-marker mr-1"></i>Dirección <span class="required">*</span>
@@ -100,7 +100,7 @@
           </small>
         </div>
 
-        <!-- CONTRASEÑA -->
+        
         <div class="field-group">
           <label for="regPassword">
             <i class="pi pi-lock mr-1"></i>Contraseña <span class="required">*</span>
@@ -113,7 +113,7 @@
             <i class="pi pi-exclamation-circle"></i>{{ fieldErrors['password'] }}
           </small>
 
-          <!-- Requisitos de contraseña -->
+          
           <div *ngIf="showPasswordReqs || password.length > 0" class="password-reqs-box">
             <p class="text-sm font-semibold" style="color: #ffffff">Requisitos de contraseña:</p>
             <div class="flex flex-column gap-1">
@@ -141,7 +141,7 @@
           </div>
         </div>
 
-        <!-- CONFIRMAR CONTRASEÑA -->
+        
         <div class="field-group">
           <label for="confirmPassword">
             <i class="pi pi-lock mr-1"></i>Confirmar contraseña <span class="required">*</span>
@@ -158,7 +158,7 @@
           </small>
         </div>
 
-        <!-- TERMS -->
+        
         <div class="flex align-items-start gap-2 mb-4">
           <p-checkbox [(ngModel)]="acceptTerms" [binary]="true" inputId="terms"></p-checkbox>
           <div class="text-sm line-height-3" style="margin-top: 2px;">
@@ -173,7 +173,7 @@
           <i class="pi pi-exclamation-circle"></i>{{ fieldErrors['terms'] }}
         </small>
 
-        <!-- REGISTER BUTTON -->
+        
         <p-button label="Crear cuenta" (onClick)="onRegister()" [loading]="loading" icon="pi pi-user-plus"
           iconPos="right" class="mb-3" [disabled]="!isFormValid">
         </p-button>
@@ -182,7 +182,7 @@
           <span class="text-sm" style="color: #6b7280;">O regístrate con</span>
         </p-divider>
 
-        <!-- SOCIAL -->
+        
         <div class="flex gap-3">
           <p-button icon="pi pi-google" label="Google" severity="secondary" [outlined]="true" class="flex-1"></p-button>
           <p-button icon="pi pi-apple" label="Apple" severity="secondary" [outlined]="true" class="flex-1"></p-button>

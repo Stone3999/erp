@@ -15,7 +15,7 @@
     margin: 0 0 0.5rem 0;
 }
 
-/* Fila de términos inline */
+
 .terms-row {
     display: flex;
     flex-wrap: wrap;
@@ -24,7 +24,7 @@
     color: #6b7280;
 }
 
-/* Botón con aspecto de link inline */
+
 :host ::ng-deep .auth-link-btn.p-button {
     padding: 0;
     height: auto;

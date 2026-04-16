@@ -26,7 +26,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     retry({
         count: 2,
         delay: (error, retryCount) => {
-            // Solo reintentamos si es error de red (status 0)
+            
             if (error.status === 0) {
                 connectivityService.setOffline(true, `Sin conexión. Reintento ${retryCount}/2 en 5 segundos...`);
                 return timer(5000);
@@ -35,7 +35,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         }
     }),
     tap(() => {
-        // Si la petición tiene éxito, nos aseguramos de quitar el modal si estaba puesto
+        
         if (connectivityService.isOffline()) {
             connectivityService.setOffline(false);
         }

@@ -124,7 +124,7 @@ export class RoomComponent implements OnInit, AfterViewChecked, OnDestroy {
     }
 
     ngOnDestroy(): void {
-        // Al salir del room, dejamos de preguntar por permisos
+        
         this.permissionService.stopPolling();
     }
 

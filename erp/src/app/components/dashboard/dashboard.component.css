@@ -8,7 +8,7 @@
     border-radius: 12px;
 }
 
-/* --- FILA SUPERIOR DASHBOARD --- */
+
 .dashboard-top-row {
     display: flex;
     gap: 1rem;
@@ -55,7 +55,7 @@
     letter-spacing: 1px;
 }
 
-/* Bordes decorativos abajo de cada stat */
+
 .stat-item.border-activos { border-bottom: 3px solid #3b82f6; }
 .stat-item.border-pendientes { border-bottom: 3px solid #fbbf24; }
 .stat-item.border-terminados { border-bottom: 3px solid #22c55e; }
@@ -69,7 +69,7 @@
     padding: 1rem;
 }
 
-/* --- CARDS DE ROOMS --- */
+
 .group-card {
     background: var(--r4u-bg-card);
     border: 1px solid var(--r4u-border);
@@ -128,7 +128,7 @@
     margin-top: 2px;
 }
 
-/* Responsivo para la fila del dashboard */
+
 @media (max-width: 991px) {
     .dashboard-top-row {
         flex-direction: column;

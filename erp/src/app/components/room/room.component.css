@@ -6,13 +6,13 @@
     min-height: 100vh;
 }
 
-/* Área principal ajustada para visibilidad */
+
 .main-workspace-area {
     min-height: 450px;
     margin-bottom: 0.5rem;
 }
 
-/* --- TABLERO KANBAN DE 4 COLUMNAS COMPACTO --- */
+
 .kanban-board {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -27,7 +27,7 @@
     border: 1px solid var(--r4u-border);
     display: flex;
     flex-direction: column;
-    max-height: 55vh; /* Altura controlada para ver la gráfica */
+    max-height: 55vh; 
 }
 
 .kanban-header {
@@ -54,7 +54,7 @@
     min-height: 100px;
     padding: 0.5rem;
     flex-grow: 1;
-    overflow-y: auto; /* Scroll interno por columna */
+    overflow-y: auto; 
     scrollbar-width: thin;
 }
 
@@ -83,7 +83,7 @@
     color: #ef4444;
 }
 
-/* --- RECUADROS ESTADÍSTICAS ROOM --- */
+
 .room-stats-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -127,13 +127,13 @@
 .rs-terminados { border-top: 4px solid #22c55e; }
 .rs-mios { border-top: 4px solid var(--r4u-primary); background: rgba(var(--r4u-primary-rgb), 0.03); }
 
-/* --- GRÁFICA PEGADA AL TABLERO --- */
+
 .my-5 {
     margin-top: 0.5rem !important;
     margin-bottom: 1rem !important;
 }
 
-/* --- ESTILOS MODAL 3 COLUMNAS --- */
+
 .detail-grid {
     display: grid;
     grid-template-columns: 280px 1fr 320px;
@@ -182,7 +182,7 @@
     padding: 0.75rem;
 }
 
-/* Animaciones */
+
 .view-animation {
     animation: slideIn 0.3s ease-out;
 }
@@ -192,21 +192,21 @@
     to { opacity: 1; transform: translateX(0); }
 }
 
-/* Responsividad para pantallas medianas (Tablets) */
+
 @media (max-width: 1100px) {
     .kanban-board {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
-/* Responsividad para móviles */
+
 @media (max-width: 650px) {
     .kanban-board {
         grid-template-columns: 1fr;
     }
 }
 
-/* PrimeNG Overrides */
+
 :host ::ng-deep .p-selectbutton .p-button {
     background: var(--r4u-bg-card);
     border: 1px solid var(--r4u-border);

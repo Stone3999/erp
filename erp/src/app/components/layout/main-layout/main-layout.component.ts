@@ -61,7 +61,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
             },
         ];
 
-        // REQUERIMIENTO TXT: permiso 'groups:manage'
+        
         if (this.authService.hasPermission('groups:manage')) {
             this.menuItems.push({
                 label: 'Gestión de Rooms',
@@ -71,7 +71,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
             });
         }
 
-        // REQUERIMIENTO TXT: permiso 'users:manage'
+        
         if (this.authService.hasPermission('users:manage')) {
             this.menuItems.push({
                 label: 'Usuarios',

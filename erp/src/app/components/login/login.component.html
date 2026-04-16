@@ -1,12 +1,12 @@
 <p-toast></p-toast>
 <div class="auth-container" style="background-color: var(--r4u-bg-page); min-height: 100vh;">  
   <div class="auth-card-wrapper">
-    <!-- LOGO -->
+    
     <div class="auth-logo" (click)="goToHome()">
       <span>Rooms4ums</span>
     </div>
 
-    <!-- CARD LOGIN -->
+    
     <p-card>
       <ng-template pTemplate="header">
         <div class="auth-header">
@@ -16,7 +16,7 @@
       </ng-template>
 
       <p-fluid>
-        <!-- EMAIL -->
+        
         <div class="field-group">
           <label for="email">
             <i class="pi pi-envelope mr-1"></i>Correo electrónico
@@ -27,7 +27,7 @@
           </p-iconfield>
         </div>
 
-        <!-- PASSWORD -->
+        
         <div class="field-group">
           <label for="password">
             <i class="pi pi-lock mr-1"></i>Contraseña
@@ -42,7 +42,7 @@
         </div>
 
 
-        <!-- LOGIN BUTTON -->
+        
         <p-button label="Iniciar Sesión" (onClick)="onLogin()" [loading]="loading" icon="pi pi-sign-in" iconPos="right"
           class="mb-3"></p-button>
         
@@ -59,7 +59,7 @@
             </div>
         </div>
 
-        <!-- SOCIAL -->
+        
         <div class="flex gap-3 pt-4">
           <p-button icon="pi pi-google" label="Google" severity="secondary" [outlined]="true" class="flex-1"></p-button>
           <p-button icon="pi pi-apple" label="Apple" severity="secondary" [outlined]="true" class="flex-1"></p-button>

@@ -1,29 +1,29 @@
 <div class="app-wrapper" [class.with-sidebar]="isLoggedIn" style="background-color: var(--r4u-bg-page); min-height: 100vh;">
 
-    <!-- ─── SIDEBAR (only when logged in) ─────────────────────────── -->
+    
     @if (isLoggedIn) {
     <aside class="app-sidebar" style="background-color: var(--r4u-bg-page); min-height: 100vh;">
-        <!-- Header -->
+        
         <div class="sidebar-header">
             <span class="sidebar-brand">Rooms4ums</span>
         </div>
 
-        <!-- Navigation menu -->
+        
         <div class="sidebar-menu">
             <p-menu [model]="menuItems" class="sidebar-nav-menu"></p-menu>
         </div>
 
-        <!-- Footer: logout + version -->
+        
         <div class="sidebar-footer">
             <span class="version-text">Versión: v1.0.0</span>
         </div>
     </aside>
     }
 
-    <!-- ─── MAIN AREA ──────────────────────────────────────────────── -->
+    
     <div class="app-main" >
 
-        <!-- Topbar -->
+        
         <header class="app-topbar" style="background-color: var(--r4u-bg-page);">
             <div class="topbar-left">
                 @if (isLoggedIn) {
@@ -48,7 +48,7 @@
             </div>
         </header>
 
-        <!-- Page content (router-outlet) -->
+        
         <main class="page-content">
             <router-outlet></router-outlet>
         </main>

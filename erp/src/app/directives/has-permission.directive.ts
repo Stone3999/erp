@@ -13,7 +13,7 @@ export class HasPermissionDirective {
   @Input() set appHasPermission(permission: string) {
     this.viewContainer.clear();
     
-    // Soporte para negar el permiso con "!"
+    
     if (permission.startsWith('!')) {
         const realPermission = permission.substring(1);
         if (!this.permissionService.hasPermission(realPermission)) {

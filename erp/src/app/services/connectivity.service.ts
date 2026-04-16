@@ -16,7 +16,7 @@ export class ConnectivityService {
   onRetryManual = new Subject<void>();
 
   constructor(private ngZone: NgZone) {
-    // Escuchar eventos globales del navegador para detectar desconexión al instante
+    
     window.addEventListener('online', () => {
       this.ngZone.run(() => {
         this.setOffline(false);
@@ -26,7 +26,7 @@ export class ConnectivityService {
     window.addEventListener('offline', () => {
       this.ngZone.run(() => {
         this.setOffline(true, 'Se ha perdido la conexión a internet.');
-        this.setShowReconnect(true); // En desconexión total mostramos el botón directo
+        this.setShowReconnect(true); 
       });
     });
   }

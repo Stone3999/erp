@@ -26,15 +26,15 @@ import { environment } from '../../environments/environment';
 })
 export class AuthService {
     private http = inject(HttpClient);
-    // URL DEL API GATEWAY (Dinámico por ambiente)
+    
     private readonly API_GATEWAY = environment.apiUrl;
 
     constructor() {}
 
     private setToken(value: string) {
-        // --- REQUERIMIENTO: Guardar token en Cookies ---
+        
         const d = new Date();
-        d.setTime(d.getTime() + (24 * 60 * 60 * 1000)); // 24h
+        d.setTime(d.getTime() + (24 * 60 * 60 * 1000)); 
         const expires = "expires=" + d.toUTCString();
         document.cookie = `session_token=${value};${expires};path=/;SameSite=Lax`;
     }
@@ -59,7 +59,7 @@ export class AuthService {
         document.cookie = "session_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     }
 
-    // --- LOGIN REAL AL API GATEWAY ---
+    
     async login(email: string, password: string): Promise<ApiResponse> {
         try {
             const response = await firstValueFrom(
@@ -81,7 +81,7 @@ export class AuthService {
         }
     }
 
-    // --- REGISTER REAL AL API GATEWAY ---
+    
     async register(user: RegisteredUser): Promise<ApiResponse> {
         try {
             const payload = {

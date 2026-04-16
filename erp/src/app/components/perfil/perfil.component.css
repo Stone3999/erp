@@ -112,7 +112,7 @@
     justify-content: flex-end;
 }
 
-/* Tarjetitas de Resumen */
+
 .stat-card {
     background-color: var(--r4u-bg-card);
     display: block;
@@ -153,17 +153,15 @@
     border-bottom: 2px solid var(--r4u-border);
 }
 
-/* ==============================================
-   AJUSTE DE FONDO OSCURO PARA EL PERFIL
-   ============================================== */
 
-/* 1. Obligamos al contenedor de la página a tener fondo oscuro */
+
+
 .page-container {
     background-color: var(--r4u-bg-page, #18191a) !important;
     color: var(--r4u-text-main, #e4e6eb) !important;
 }
 
-/* 2. Hacemos que cualquier div o card genérica también sea oscura */
+
 :host ::ng-deep .perfil-card,
 .card-wrapper div {
     background-color: var(--r4u-bg-card, #242526) !important;
@@ -171,7 +169,7 @@
     border-color: var(--r4u-border, #3e4042) !important;
 }
 
-/* 3. Ajuste de color para los inputs deshabilitados */
+
 :host ::ng-deep .p-inputtext:disabled {
     color: var(--r4u-text-muted, #b0b3b8) !important;
     background-color: rgba(255, 255, 255, 0.03) !important;

@@ -9,8 +9,8 @@ export interface Group {
     category: string;
     level: string;
     created_by: string;
-    miembros?: number; // Calculado o de otra tabla
-    tickets?: number;  // Calculado o de otra tabla
+    miembros?: number; 
+    tickets?: number;  
 }
 
 import { environment } from '../../environments/environment';

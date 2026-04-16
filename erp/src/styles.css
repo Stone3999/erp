@@ -1,20 +1,18 @@
 
 
 :root {
-  --r4u-primary: #FF4500;       /* Naranja tipo Reddit para acentos */
-  --r4u-primary-hover: #e03d00; /* Naranja más oscuro para cuando pases el mouse */
+  --r4u-primary: #FF4500;       
+  --r4u-primary-hover: #e03d00; 
   --r4u-primary-banner: #ffae91;
-  --r4u-bg-page: #030303;       /* Fondo principal de la página (casi negro mate) */
-  --r4u-bg-card: #1A1A1B;       /* Fondo para el Hero, Footer y tarjetas (gris oscuro) */
-  --r4u-text-main: #D7DADC;     /* Texto principal (gris muy clarito, casi blanco) */
-  --r4u-text-muted: #818384;    /* Texto secundario para descripciones */
-  --r4u-border: #343536;        /* Color para líneas separadoras o bordes */
+  --r4u-bg-page: #030303;       
+  --r4u-bg-card: #1A1A1B;       
+  --r4u-text-main: #D7DADC;     
+  --r4u-text-muted: #818384;    
+  --r4u-border: #343536;        
 }
 
 
-/* ===========================
-    GLOBAL STYLES & UTILITY CLASSES
-   =========================== */
+
 
 *,
 *::before,
@@ -29,7 +27,7 @@ body {
   color: var(--r4u-text-main);
 }
 
-/* === FLEXBOX === */
+
 .flex {
   display: flex !important;
 }
@@ -78,7 +76,7 @@ body {
   justify-content: flex-end !important;
 }
 
-/* === GAP === */
+
 .gap-1 {
   gap: 0.25rem !important;
 }
@@ -99,7 +97,7 @@ body {
   gap: 2rem !important;
 }
 
-/* === MARGIN === */
+
 .m-0 {
   margin: 0 !important;
 }
@@ -156,7 +154,7 @@ body {
   margin-right: 0.5rem !important;
 }
 
-/* === PADDING === */
+
 .p-0 {
   padding: 0 !important;
 }
@@ -197,7 +195,7 @@ body {
 .pt-3 {
   padding-top: 0.5rem !important;
 }
-/* === TEXT === */
+
 .text-center {
   text-align: center !important;
 }
@@ -250,7 +248,7 @@ body {
   line-height: 1.75 !important;
 }
 
-/* === COLORS === */
+
 .text-primary {
   color: var(--r4u-primary) !important;
 }
@@ -279,12 +277,12 @@ body {
   color: #f97316 !important;
 }
 
-/* === SIZING === */
+
 .w-full {
   width: 100% !important;
 }
 
-/* === GRID === */
+
 .grid {
   display: flex !important;
   flex-wrap: wrap !important;
@@ -308,7 +306,7 @@ body {
   }
 }
 
-/* Base Auth Layout Shell */
+
 .auth-container {
   display: flex;
   align-items: center;
@@ -400,7 +398,7 @@ body {
   gap: 0.25rem;
 }
 
-/* PrimeNG Fixes */
+
 p-fluid .p-button,
 p-fluid p-button {
   width: 100%;
@@ -414,7 +412,7 @@ p-password {
   border-radius: 0.375rem !important;
 }
 
-/* Tarjetas (Cards) */
+
 .p-card {
     background-color: var(--r4u-bg-card) !important;
     color: var(--r4u-text-main) !important;
@@ -427,7 +425,7 @@ p-password {
     color: var(--r4u-text-main) !important;
 }
 
-/* Botones principales (Registrarse, Comenzar gratis) */
+
 .p-button {
     background-color: var(--r4u-primary) !important;
     border-color: var(--r4u-primary) !important;
@@ -439,7 +437,7 @@ p-password {
     border-color: var(--r4u-primary-hover) !important;
 }
 
-/* Botones secundarios (Iniciar Sesión, Ver demo) */
+
 .p-button.p-button-secondary.p-button-outlined,
 .p-button.p-button-outlined {
     background-color: transparent !important;
@@ -453,14 +451,14 @@ p-password {
     border-color: var(--r4u-text-main) !important;
 }
 
-/* Etiquetas (Tags como "Nueva versión disponible") */
+
 .p-tag.p-tag-info {
-    background-color: rgba(255, 69, 0, 0.15) !important; /* Naranja transparente */
+    background-color: rgba(255, 69, 0, 0.15) !important; 
     color: var(--r4u-primary) !important;
 }
 
 
-/* Asegurar que el fondo general aplique bien */
+
 .flex.flex-column.align-items-center {
     background-color: var(--r4u-bg-page);
 }
@@ -476,7 +474,7 @@ p-divider {
 p-divider .p-divider {
     background: transparent !important;
     background-color: transparent !important;
-    padding: 2rem 0 !important; /* Espaciado arriba y abajo de la línea */
+    padding: 2rem 0 !important; 
 }
 
 p-divider .p-divider.p-divider-horizontal::before,
@@ -484,9 +482,7 @@ p-divider .p-divider.p-divider-horizontal::before,
     border-top: 1px solid var(--r4u-border) !important;
 }
 
-/* ===========================
-   FORMULARIOS Y LABELS (DARK MODE)
-   =========================== */
+
 .field-group label {
     color: var(--r4u-text-main) !important;
 }
@@ -495,7 +491,7 @@ p-divider .p-divider.p-divider-horizontal::before,
     color: var(--r4u-text-muted) !important;
 }
 
-/* Inputs de PrimeNG */
+
 .p-inputtext, .p-password input {
     background-color: var(--r4u-bg-page) !important;
     color: var(--r4u-text-main) !important;
@@ -507,7 +503,7 @@ p-divider .p-divider.p-divider-horizontal::before,
     box-shadow: 0 0 0 0.2rem rgba(255, 69, 0, 0.2) !important;
 }
 
-/* Checkbox de PrimeNG */
+
 .p-checkbox .p-checkbox-box {
     background-color: #ffffff !important;
     border-color: var(--r4u-border) !important;
@@ -534,19 +530,19 @@ p-button.mb-3 {
     margin-top: 1rem !important;
 }
 
-/* Despegar el Divisor de los botones */
+
 p-divider {
     margin-top: 1rem !important;
     margin-bottom: 1rem !important;
 }
 
-/* Espaciado interno de la tarjeta para que respire más */
+
 :host ::ng-deep .p-card .p-card-body {
     padding: 2rem !important;
 }
 
 :host ::ng-deep .p-card .p-card-content {
-    padding: 0 !important; /* Quitamos padding extra interno de PrimeNG */
+    padding: 0 !important; 
 }
 
 .terms-link {
@@ -560,7 +556,7 @@ p-divider {
 .terms-link:hover {
     opacity: 0.8;
 }
-/* --- ESTADOS DE CARGA GLOBALES --- */
+
 .p-dialog-loading { opacity: 0.6 !important; pointer-events: none !important; transition: opacity 0.3s ease; }
 .p-dialog-loading .p-dialog-header-icons { display: none !important; }
 

@@ -22,7 +22,7 @@
 }
 
 .credentials-item:hover {
-    background-color: rgba(255, 69, 0, 0.1); /* Toquecito naranja al pasar el mouse */
+    background-color: rgba(255, 69, 0, 0.1); 
     border-color: var(--r4u-primary);
 }
 
@@ -30,7 +30,7 @@
     margin-bottom: 0;
 }
 
-/* Botón con aspecto de link inline */
+
 :host ::ng-deep .auth-link-btn.p-button {
     padding: 0;
     height: auto;
@@ -38,7 +38,7 @@
     font-size: inherit;
     vertical-align: baseline;
     color: var(--r4u-primary) !important;
-    background: transparent !important; /* FORZAR QUE NO TENGA FONDO NARANJA */
+    background: transparent !important; 
     border: none !important;
 }
 
@@ -48,6 +48,6 @@
 }
 
 :host ::ng-deep .p-divider .p-divider-content {
-    background-color: var(--r4u-bg-card) !important; /* Si tu login no está en una card, cámbialo a var(--r4u-bg-page) */
-    padding: 0 1rem !important; /* Le da un respirito a las letras para que la línea no las muerda */
+    background-color: var(--r4u-bg-card) !important; 
+    padding: 0 1rem !important; 
 }

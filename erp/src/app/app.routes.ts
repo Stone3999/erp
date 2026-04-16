@@ -30,6 +30,8 @@ export const routes: Routes = [
                     import('./components/dashboard/dashboard.component').then(
                         (m) => m.DashboardComponent
                     ),
+                canActivate: [permissionGuard],
+                data: { permission: 'view:dashboard' }
             },
             {
                 path: 'grupos',

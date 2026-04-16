@@ -1,4 +1,4 @@
-/* ─── App Shell ─────────────────────────────────────────── */
+
 .app-wrapper {
     display: flex;
     height: 100vh;
@@ -7,16 +7,16 @@
     overflow: hidden;
 }
 
-/* ─── Sidebar ───────────────────────────────────────────── */
+
 .app-sidebar {
     width: 260px;
     min-width: 260px;
     height: 100vh;
-    background-color: var(--r4u-bg-page); /* Fondo dark */
-    border-right: 1px solid var(--r4u-border); /* Borde oscuro y elegante */
+    background-color: var(--r4u-bg-page); 
+    border-right: 1px solid var(--r4u-border); 
     display: flex;
     flex-direction: column;
-    box-shadow: none; /* Quitamos la sombra blanca fea */
+    box-shadow: none; 
     position: sticky;
     top: 0;
 }
@@ -37,7 +37,7 @@
 
 .sidebar-menu {
     flex: 1;
-    padding: 1rem 0; /* Un poco de aire arriba y abajo del menú */
+    padding: 1rem 0; 
     overflow-y: auto;
 }
 
@@ -55,7 +55,7 @@
     color: var(--r4u-text-muted);
 }
 
-/* ─── Sidebar nav menu overrides (AQUÍ ESTÁ LA MAGIA) ───── */
+
 :host ::ng-deep .sidebar-nav-menu {
     border: none;
     background: transparent;
@@ -66,11 +66,11 @@
     padding: 0;
 }
 
-/* El margencito y borde redondeado de los items */
+
 :host ::ng-deep .sidebar-nav-menu .p-menuitem-link {
     padding: 0.75rem 1rem;
-    border-radius: 12px; /* Borde bien redondeadito */
-    margin: 4px 16px; /* 16px de margen a los lados para que no abarque todo */
+    border-radius: 12px; 
+    margin: 4px 16px; 
     transition: all 0.2s ease;
     color: var(--r4u-text-muted);
 }
@@ -79,9 +79,9 @@
     color: var(--r4u-text-muted);
 }
 
-/* Efecto al pasar el mouse (Hover) */
+
 :host ::ng-deep .sidebar-nav-menu .p-menuitem-link:hover {
-    background: rgba(255, 69, 0, 0.08); /* Fondecito naranja ultra ligero */
+    background: rgba(255, 69, 0, 0.08); 
     color: var(--r4u-text-main);
 }
 :host ::ng-deep .sidebar-nav-menu .p-menuitem-link:hover .p-menuitem-icon,
@@ -89,10 +89,10 @@
     color: var(--r4u-primary);
 }
 
-/* Cuando le das clic y está activo */
+
 :host ::ng-deep .menu-active-item .p-menuitem-link {
-    background: rgba(255, 69, 0, 0.15); /* Naranja transparente */
-    border: 1px solid rgba(255, 69, 0, 0.3); /* Un bordecito naranja sutil */
+    background: rgba(255, 69, 0, 0.15); 
+    border: 1px solid rgba(255, 69, 0, 0.3); 
 }
 
 :host ::ng-deep .menu-active-item .p-menuitem-icon,
@@ -101,12 +101,12 @@
     font-weight: 600;
 }
 
-/* Quitamos el borde azul feo de PrimeNG al hacer clic */
+
 :host ::ng-deep .sidebar-nav-menu .p-menuitem-link:focus {
     box-shadow: none !important;
 }
 
-/* ─── Main Area ─────────────────────────────────────────── */
+
 .app-main {
     flex: 1;
     display: flex;
@@ -114,7 +114,7 @@
     overflow: hidden;
 }
 
-/* ─── Topbar ─────────────────────────────────────────────── */
+
 .app-topbar {
     display: flex;
     align-items: center;
@@ -123,7 +123,7 @@
     height: 65px;
     min-height: 60px;
     background-color: var(--r4u-bg-page);
-    border-bottom: 1px solid var(--r4u-border); /* Borde divisor de arriba */
+    border-bottom: 1px solid var(--r4u-border); 
     box-shadow: none;
 }
 
@@ -138,37 +138,35 @@
     gap: 0.5rem;
 }
 
-/* Remove breadcrumb background/border */
+
 :host ::ng-deep .topbar-breadcrumb {
     background: transparent !important;
     border: none !important;
     padding: 0;
 }
 
-/* ─── Page Content ───────────────────────────────────────── */
+
 .page-content {
     flex: 1;
     overflow-y: auto;
-    padding: 2rem; /* Le di un poco más de respiro al contenido principal */
-    background-color: var(--r4u-bg-page); /* Aseguramos que el fondo sea oscuro */
+    padding: 2rem; 
+    background-color: var(--r4u-bg-page); 
 }
 
-/* Logout button full width */
+
 :host ::ng-deep .logout-btn {
     width: 100%;
     justify-content: flex-start;
 }
 
-/* ===========================
-   BOTÓN CERRAR SESIÓN (NARANJA FORZADO)
-   =========================== */
+
 :host ::ng-deep .sidebar-nav-menu .p-menuitem.logout-menu-item > .p-menuitem-link .p-menuitem-icon,
 :host ::ng-deep .sidebar-nav-menu .p-menuitem.logout-menu-item > .p-menuitem-link .p-menuitem-text {
     color: var(--r4u-primary) !important;
     font-weight: 600 !important;
 }
 
-/* El Hover de Cerrar Sesión */
+
 :host ::ng-deep .sidebar-nav-menu .p-menuitem.logout-menu-item > .p-menuitem-link:hover {
     background-color: rgba(255, 69, 0, 0.15) !important;
 }

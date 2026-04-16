@@ -63,4 +63,19 @@ export class UserService {
             };
         }
     }
+
+    async deleteUser(id: number): Promise<ApiResponse<any>> {
+        try {
+            return await firstValueFrom(
+                this.http.delete<ApiResponse<any>>(`${this.API_URL}/${id}`)
+            );
+        } catch (error: any) {
+            return {
+                statusCode: error.status || 500,
+                intOpCode: 'ExUS500',
+                data: null,
+                message: error.error?.message || 'Error al eliminar usuario'
+            };
+        }
+    }
 }

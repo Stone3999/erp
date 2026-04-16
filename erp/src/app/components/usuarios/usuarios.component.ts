@@ -93,13 +93,13 @@ export class UsuariosComponent implements OnInit {
         this.dialogVisible = true;
     }
 
-    editUsuario(usuario: User): void {
+    editUsuario(usuario: User | any): void {
         this.isEditMode = true;
         this.editingId = usuario.id;
         this.usuarioForm.patchValue({
             nombre: usuario.name,
             correo: usuario.email,
-            activo: true, 
+            activo: usuario.is_active !== undefined ? usuario.is_active : true, 
             permisos: usuario.permissions || [] 
         });
         this.dialogVisible = true;
@@ -121,8 +121,9 @@ export class UsuariosComponent implements OnInit {
             const response = await this.userService.updateUser(this.editingId, { 
                 name: formValue.nombre, 
                 email: formValue.correo,
-                permissions: formValue.permisos 
-            });
+                permissions: formValue.permisos,
+                is_active: formValue.activo
+            } as any);
             
             if (response.statusCode === 200) {
                 this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Información actualizada con éxito.' });
@@ -157,8 +158,16 @@ export class UsuariosComponent implements OnInit {
             acceptLabel: 'Sí',
             rejectLabel: 'Cancelar',
             acceptButtonStyleClass: 'p-button-danger',
-            accept: () => {
-                this.messageService.add({ severity: 'warn', summary: 'No implementado', detail: 'El borrado de usuarios no está disponible en el backend.' });
+            accept: async () => {
+                this.loadingService.setLoading(true);
+                const res = await this.userService.deleteUser(usuario.id);
+                this.loadingService.setLoading(false);
+                if (res.statusCode === 200) {
+                    this.messageService.add({ severity: 'success', summary: 'Eliminado', detail: 'Usuario borrado del sistema.' });
+                    await this.loadUsers();
+                } else {
+                    this.messageService.add({ severity: 'error', summary: 'Error', detail: res.message });
+                }
             },
         });
     }

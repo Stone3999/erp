@@ -1,4 +1,4 @@
-/* ── Page layout ─────────────────────────────────────────────── */
+
 .page-container {
     width: 100%;
 }
@@ -20,7 +20,7 @@
     font-size: 0.95rem;
 }
 
-/* ── Toolbar ─────────────────────────────────────────────────── */
+
 :host ::ng-deep .grupos-toolbar {
     margin-bottom: 1rem;
     border-radius: 10px;
@@ -31,7 +31,7 @@
     color: #64748b;
 }
 
-/* ── Table ───────────────────────────────────────────────────── */
+
 :host ::ng-deep .grupos-table .p-datatable-thead > tr > th {
     font-weight: 600;
     font-size: 0.85rem;
@@ -40,7 +40,7 @@
     color: #475569;
 }
 
-/* ── Empty message ───────────────────────────────────────────── */
+
 .empty-message {
     display: flex;
     flex-direction: column;
@@ -56,7 +56,7 @@
     color: #cbd5e1;
 }
 
-/* ── Nivel badge ─────────────────────────────────────────────── */
+
 .nivel-badge {
     display: inline-block;
     padding: 0.2rem 0.65rem;
@@ -81,7 +81,7 @@
     color: #60a5fa;
 }
 
-/* ── Dialog form ─────────────────────────────────────────────── */
+
 .group-form {
     display: flex;
     flex-direction: column;
@@ -110,7 +110,7 @@
     width: 100%;
 }
 
-/* Row for miembros + tickets */
+
 .field-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -126,9 +126,7 @@
 }
 
 
-/* ==============================================
-   NUEVOS ESTILOS PARA LA GESTIÓN DE MIEMBROS (MODAL)
-   ============================================== */
+
 
 .panel-miembros {
     border-left: 1px solid var(--r4u-border);
@@ -146,7 +144,7 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    max-height: 280px; /* Limita la altura de la lista */
+    max-height: 280px; 
     overflow-y: auto;
     padding-right: 0.5rem;
 }
@@ -166,7 +164,7 @@
     background-color: rgba(255, 255, 255, 0.05);
 }
 
-/* Scrollbars custom para la lista de miembros */
+
 .members-list::-webkit-scrollbar { width: 6px; }
 .members-list::-webkit-scrollbar-track { background: transparent; }
 .members-list::-webkit-scrollbar-thumb { background-color: var(--r4u-border); border-radius: 10px; }

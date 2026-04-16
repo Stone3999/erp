@@ -15,7 +15,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'super-secreto-para-jwt-local';
 
 await fastify.register(cors, { origin: '*' });
 
-// --- REQUERIMIENTO: Rate Limiting ---
+
 await fastify.register(rateLimit, {
   max: 100,
   timeWindow: '1 minute',
@@ -29,7 +29,7 @@ await fastify.register(rateLimit, {
   }
 });
 
-// --- REQUERIMIENTO EXTRA (20% + 20%): Logs y Métricas centralizadas ---
+
 fastify.addHook('onRequest', async (request, reply) => {
   request.startTime = Date.now();
 });
@@ -37,7 +37,7 @@ fastify.addHook('onRequest', async (request, reply) => {
 fastify.addHook('onResponse', async (request, reply) => {
   const responseTime = Date.now() - request.startTime;
   
-  // Guardar log en Supabase
+  
   supabase.from('logs').insert([{
     endpoint: request.url,
     method: request.method,
@@ -46,14 +46,14 @@ fastify.addHook('onResponse', async (request, reply) => {
     status_code: reply.statusCode,
   }]).then();
 
-  // Guardar métrica en Supabase
+  
   supabase.from('metrics').insert([{
     endpoint: request.url,
     response_time_ms: responseTime
   }]).then();
 });
 
-// --- REQUERIMIENTO EXTRA: Registro de errores con stack traces ---
+
 fastify.addHook('onError', async (request, reply, error) => {
   console.error('[Gateway Error Trace]:', error);
   
@@ -63,15 +63,15 @@ fastify.addHook('onError', async (request, reply, error) => {
     user_email: request.user?.email || 'error_hook',
     ip: request.ip,
     status_code: reply.statusCode || 500,
-    error_stack: error.stack // Requiere columna error_stack en la tabla logs
+    error_stack: error.stack 
   }]).then();
 });
 
-// --- REQUERIMIENTO: Validación de Token y Permisos en API Gateway ---
+
 fastify.addHook('preHandler', async (request, reply) => {
   const path = request.url;
   
-  // Rutas públicas
+  
   if (path.startsWith('/auth/login') || path.startsWith('/auth/register')) {
     return;
   }
@@ -84,9 +84,19 @@ fastify.addHook('preHandler', async (request, reply) => {
   const token = authHeader.replace('Bearer ', '');
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    request.user = decoded; // { id, email, permissions }
+    request.user = decoded; 
     
-    // Inyectamos headers para los microservicios
+    
+    const { data: currentUser, error: userError } = await supabase
+        .from('users')
+        .select('is_active')
+        .eq('id', decoded.id)
+        .maybeSingle();
+    
+    if (userError || (currentUser && currentUser.is_active === false)) {
+        return reply.code(403).send({ statusCode: 403, intOpCode: 'ExUS403', data: null, message: 'Usuario inactivo' });
+    }
+
     request.headers['x-user-id'] = decoded.id;
     request.headers['x-user-name'] = decoded.name;
     request.headers['x-user-email'] = decoded.email;
@@ -95,7 +105,7 @@ fastify.addHook('preHandler', async (request, reply) => {
     const method = request.method;
     let requiredPerm = null;
 
-    // Determinar permiso requerido por ruta/método
+    
     if (path.startsWith('/tickets')) {
       if (method === 'POST') requiredPerm = 'tickets:add';
       if (method === 'PATCH' || method === 'PUT') requiredPerm = 'tickets:move';
@@ -106,21 +116,48 @@ fastify.addHook('preHandler', async (request, reply) => {
        if (method !== 'GET') requiredPerm = 'users:manage';
     }
 
+    
+    if (path === '/dashboard' || path === '/dashboard/') {
+        requiredPerm = 'view:dashboard';
+    }
+
     if (!requiredPerm) return;
 
-    // 1. Verificar Permiso Global (JWT)
+    
     const hasGlobalPerm = decoded.permissions && decoded.permissions.includes(requiredPerm);
-    const isSuperAdmin = decoded.permissions && decoded.permissions.includes('admin:all');
+    const isSuperAdmin = decoded.permissions && (decoded.permissions.includes('admin:all') || decoded.permissions.includes('tickets:edit_all'));
 
-    if (isSuperAdmin) return; // Super admin se salta todo
+    if (isSuperAdmin) return; 
 
-    // 2. Verificar Permiso por Grupo (Si aplica)
+    
+    if (path.startsWith('/tickets/') && (method === 'PATCH' || method === 'PUT')) {
+        const ticketId = path.split('/')[2]?.split('?')[0];
+        if (ticketId && ticketId.length > 30) {
+            const { data: ticket } = await supabase.from('tickets').select('assigned_to, workspace_id').eq('id', ticketId).single();
+            if (ticket) {
+                
+                if (ticket.assigned_to !== decoded.name) {
+                    return reply.code(403).send({ 
+                        statusCode: 403, 
+                        intOpCode: 'ExUS403', 
+                        data: null, 
+                        message: 'Forbidden: Solo el usuario asignado puede mover este ticket.' 
+                    });
+                }
+                
+                if (!request.body?.workspace_id) {
+                    request.body = { ...request.body, workspace_id: ticket.workspace_id };
+                }
+            }
+        }
+    }
+
     let workspaceId = request.body?.workspace_id || request.query?.workspace_id;
     
-    // Si no hay workspaceId pero hay ticket ID, buscamos el workspace_id del ticket
+    
     if (!workspaceId && path.startsWith('/tickets/')) {
         const ticketId = path.split('/')[2]?.split('?')[0];
-        if (ticketId && ticketId.length > 30) { // Validar que sea un UUID
+        if (ticketId && ticketId.length > 30) { 
             const { data: ticket } = await supabase.from('tickets').select('workspace_id').eq('id', ticketId).single();
             workspaceId = ticket?.workspace_id;
         }
@@ -137,7 +174,7 @@ fastify.addHook('preHandler', async (request, reply) => {
         const hasGroupPerm = member?.permissions && member.permissions.includes(requiredPerm);
         
         if (hasGroupPerm || hasGlobalPerm) {
-            return; // Tiene permiso en el grupo o globalmente
+            return; 
         } else {
             return reply.code(403).send({ 
                 statusCode: 403, 
@@ -148,7 +185,7 @@ fastify.addHook('preHandler', async (request, reply) => {
         }
     }
 
-    // Si no hay contexto de grupo, solo validamos global
+    
     if (!hasGlobalPerm) {
        return reply.code(403).send({ 
            statusCode: 403, 
@@ -164,7 +201,7 @@ fastify.addHook('preHandler', async (request, reply) => {
   }
 });
 
-// --- REQUERIMIENTO: Enrutamiento a Microservicios ---
+
 fastify.register(proxy, {
   upstream: process.env.USER_SERVICE_URL || 'http://localhost:3001',
   prefix: '/auth',

@@ -36,7 +36,7 @@ export class DashboardComponent implements OnInit {
     ) {}
 
     ngOnInit(): void {
-        this.loadingService.setLoading(false); // Aseguramos que se desbloquee al entrar
+        this.loadingService.setLoading(false); 
         this.isLoggedIn = this.authService.isLoggedIn();
         this.currentUser = this.authService.getCurrentUser();
         if (this.isLoggedIn) {

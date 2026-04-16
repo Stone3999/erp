@@ -3,13 +3,13 @@
     @if (isLoggedIn) {
     <div class="p-4">
         
-        <!-- HEADER BIENVENIDA -->
+        
         <div class="mb-4">
             <h1 class="text-3xl font-bold m-0" style="color: var(--r4u-text-main);">¡Hola, {{currentUser}}!</h1>
             <p style="color: var(--r4u-text-muted);">Aquí tienes un vistazo rápido de tus proyectos y tareas.</p>
         </div>
 
-        <!-- FILA ÚNICA: RESUMEN HORIZONTAL + GRÁFICA AL FINAL -->
+        
         <div class="dashboard-top-row mb-5">
             <div class="summary-container card">
                 <div class="summary-header">
@@ -40,7 +40,7 @@
             </div>
         </div>
 
-        <!-- SECCIÓN DE ROOMS -->
+        
         <div class="flex justify-content-between align-items-center mb-4 pt-2" style="border-top: 1px solid var(--r4u-border);">
             <h2 class="text-2xl font-bold m-0" style="color: var(--r4u-text-main);">Mis rooms autorizados</h2>
             <div *appHasPermission="'groups:manage'">
@@ -48,7 +48,7 @@
             </div>
         </div>
 
-        <!-- LISTA DE ROOMS -->
+        
         <div class="grid">
             <div class="col-12 md:col-6 lg:col-4 p-2" *ngFor="let group of groups">
                 <p-card styleClass="group-card">
@@ -89,7 +89,7 @@
                 </p-card>
             </div>
 
-            <!-- EMPTY STATE -->
+            
             <div class="col-12 text-center p-8" *ngIf="groups.length === 0">
                 <i class="pi pi-folder-open text-6xl mb-3" style="color: var(--r4u-border);"></i>
                 <h3 style="color: var(--r4u-text-muted);">Aún no perteneces a ningún room.</h3>

@@ -1,6 +1,6 @@
 <div class="room-container">
 
-    <!-- HEADER -->
+    
     <div class="flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="text-3xl font-bold m-0" style="color: var(--r4u-text-main);">Panel del Room</h1>
@@ -10,7 +10,7 @@
         </div>
     </div>
 
-    <!-- VIEW SWITCHER -->
+    
     <div class="flex justify-content-center mb-4">
         <p-selectButton 
             [options]="viewOptions" 
@@ -34,7 +34,7 @@
             <p-button label="Prioridad Alta" icon="pi pi-bolt" [outlined]="filtroActivo !== 'prioridad-alta'" size="small" severity="danger" (onClick)="filtroActivo = 'prioridad-alta'"></p-button>
         </div>
 
-        <!-- KANBAN BOARD -->
+        
         <div class="kanban-board view-animation" cdkDropListGroup *ngIf="!vistaTabla">
             <div class="kanban-column" *ngFor="let col of [
                 {label: 'Pendiente', list: pendientes, color: 'warning-header'},
@@ -72,7 +72,7 @@
             </div>
         </div>
 
-        <!-- LISTA TABLA -->
+        
         <div *ngIf="vistaTabla" class="p-4 border-round table-container view-animation" style="background-color: #242526; border: 1px solid var(--r4u-border);">
             <p-table [value]="todosLosTickets" [paginator]="true" [rows]="8" responsiveLayout="scroll" [rowHover]="true">
                 <ng-template pTemplate="header">
@@ -97,7 +97,7 @@
         </div>
     </div>
 
-    <!-- STATS RECUADROS (Encima de la gráfica) -->
+    
     <div class="room-stats-grid view-animation">
         <div class="room-stat-card rs-activos">
             <span class="rs-val">{{ stats.activos }}</span>
@@ -117,7 +117,7 @@
         </div>
     </div>
 
-    <!-- CHART AREA -->
+    
     <div class="flex flex-column align-items-center mb-5 mt-4">
         <h3 class="text-lg font-bold mb-3" style="color: var(--r4u-text-main);">Distribución de Tickets</h3>
         <p-card class="chart-card w-full md:w-6">
@@ -127,7 +127,7 @@
         </p-card>
     </div>
 
-    <!-- MODAL CREAR -->
+    
     <p-dialog header="Crear Nuevo Ticket" [(visible)]="showTicketModal" [modal]="true" [style]="{width: '550px'}" 
               [styleClass]="loading ? 'p-dialog-loading' : ''" [closable]="!loading" appendTo="body">
         <div class="flex flex-column gap-3 pt-3">
@@ -166,12 +166,12 @@
         </ng-template>
     </p-dialog>
 
-    <!-- MODAL DETALLES (3 COLUMNAS) -->
+    
     <p-dialog *ngIf="ticketEditando" [header]="ticketEditando.titulo" [(visible)]="showEditModal" [modal]="true" [style]="{width: '1100px'}" 
               [styleClass]="loading ? 'p-dialog-loading' : ''" [closable]="!loading" appendTo="body">
         
         <div class="detail-grid pt-4">
-            <!-- COLUMNA 1 -->
+            
             <div class="col-side">
                 <div class="flex flex-column gap-2">
                     <label class="font-bold text-xs uppercase" style="color: var(--r4u-text-muted);">Persona Asignada</label>
@@ -196,7 +196,7 @@
                 </div>
             </div>
 
-            <!-- COLUMNA 2 -->
+            
             <div class="col-main">
                 <div class="flex flex-column gap-2">
                     <label class="font-bold text-xs uppercase" style="color: var(--r4u-text-muted);">Título del Ticket</label>
@@ -208,7 +208,7 @@
                 </div>
             </div>
 
-            <!-- COLUMNA 3 -->
+            
             <div class="col-comments">
                 <label class="font-bold text-xs uppercase mb-3" style="color: var(--r4u-text-muted);">Conversación ({{ticketEditando.comentarios.length}})</label>
                 <div class="comments-container" #scrollMe>
