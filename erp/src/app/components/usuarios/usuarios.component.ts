@@ -20,6 +20,7 @@ import { HasPermissionDirective } from '../../directives/has-permission.directiv
 import { AuthService } from '../../services/auth.service';
 import { User, UserService } from '../../services/user.service';
 import { LoadingService } from '../../services/loading.service';
+import { PermissionService } from '../../services/permission.service';
 
 @Component({
     selector: 'app-usuarios',
