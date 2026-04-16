@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: erp-all-in-one-backend
+    name: erp-backend
     env: node
     plan: free
     rootDir: backend
