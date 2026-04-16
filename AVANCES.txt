@@ -3,6 +3,7 @@ ESTADO DE AVANCES
 
 --- REGLA DE ORO ---
 [!] Commits: "ERP Rooms4ums - Prueba 1: (UNA_PALABRA)"
+[!] Repositorio: https://github.com/Stone3999/erp
 
 --- ARQUITECTURA CORE ---
 [x] Implementar Esquema JSON Universal { statusCode, intOpCode, data }
