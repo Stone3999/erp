@@ -1,4 +1,5 @@
-<div class="dashboard-container" *ngIf="hasViewPermission; else noPermission">
+<div class="home-container" *ngIf="hasViewPermission; else noPermission">
+    
     <div class="flex justify-content-between align-items-center mb-5">
         <div>
             <h1 class="text-3xl font-bold m-0" style="color: var(--r4u-text-main);">Dashboard General</h1>
@@ -10,84 +11,88 @@
     </div>
 
     
-    <div class="grid mb-5">
-        <div class="col-12 md:col-3">
-            <div class="stat-card">
-                <div class="flex justify-content-between align-items-center mb-3">
-                    <span class="text-muted font-medium">Tickets Activos</span>
-                    <i class="pi pi-bolt text-blue-500 text-xl"></i>
+    <div class="card dashboard-top-row mb-5">
+        <div class="summary-container">
+            <div class="summary-header">
+                <span class="text-xl font-bold">Estado de tus Tareas</span>
+            </div>
+            <div class="stats-horizontal">
+                <div class="stat-item border-activos">
+                    <span class="stat-val text-blue-500">{{ globalStats.activos }}</span>
+                    <span class="stat-tit">Activos</span>
                 </div>
-                <div class="text-3xl font-bold">{{ globalStats.activos }}</div>
+                <div class="stat-item border-pendientes">
+                    <span class="stat-val text-yellow-500">{{ globalStats.pendientes }}</span>
+                    <span class="stat-tit">Pendientes</span>
+                </div>
+                <div class="stat-item border-terminados">
+                    <span class="stat-val text-green-500">{{ globalStats.terminados }}</span>
+                    <span class="stat-tit">Completados</span>
+                </div>
+                <div class="stat-item border-para-ti">
+                    <span class="stat-val text-primary">{{ globalStats.asignadosMi }}</span>
+                    <span class="stat-tit">Para ti</span>
+                </div>
             </div>
         </div>
-        <div class="col-12 md:col-3">
-            <div class="stat-card">
-                <div class="flex justify-content-between align-items-center mb-3">
-                    <span class="text-muted font-medium">En Espera</span>
-                    <i class="pi pi-clock text-yellow-500 text-xl"></i>
-                </div>
-                <div class="text-3xl font-bold">{{ globalStats.pendientes }}</div>
-            </div>
-        </div>
-        <div class="col-12 md:col-3">
-            <div class="stat-card">
-                <div class="flex justify-content-between align-items-center mb-3">
-                    <span class="text-muted font-medium">Completados</span>
-                    <i class="pi pi-check-circle text-green-500 text-xl"></i>
-                </div>
-                <div class="text-3xl font-bold">{{ globalStats.terminados }}</div>
-            </div>
-        </div>
-        <div class="col-12 md:col-3">
-            <div class="stat-card border-primary">
-                <div class="flex justify-content-between align-items-center mb-3">
-                    <span class="text-muted font-medium">Para ti</span>
-                    <i class="pi pi-user text-primary text-xl"></i>
-                </div>
-                <div class="text-3xl font-bold text-primary">{{ globalStats.asignadosMi }}</div>
-            </div>
+        <div class="chart-container border-left">
+            <p-chart type="doughnut" [data]="chartData" [options]="chartOptions" height="160px" width="160px"></p-chart>
         </div>
     </div>
 
+    
     <div class="grid">
-        
-        <div class="col-12 lg:col-4">
-            <p-card header="Estado Global" styleClass="h-full">
-                <div class="flex justify-content-center">
-                    <p-chart type="doughnut" [data]="chartData" [options]="chartOptions" height="250px"></p-chart>
-                </div>
-            </p-card>
-        </div>
-
-        
-        <div class="col-12 lg:col-8">
-            <p-card header="Tus Rooms / Workspaces" styleClass="h-full">
-                <div class="grid">
-                    <div class="col-12 md:col-6" *ngFor="let g of groups">
-                        <div class="group-item p-3 border-round mb-3 cursor-pointer" [routerLink]="['/dashboard/room', g.id]">
-                            <div class="flex justify-content-between align-items-start mb-3">
-                                <div>
-                                    <div class="font-bold text-lg mb-1">{{ g.name }}</div>
-                                    <p-tag [value]="g.category" severity="secondary"></p-tag>
-                                </div>
-                                <div class="text-right">
-                                    <div class="text-2xl font-bold text-primary">{{ g.tickets || 0 }}</div>
-                                    <div class="text-xs text-muted">Tickets</div>
-                                </div>
+        <div class="col-12">
+            <div class="flex align-items-center gap-2 mb-4">
+                <i class="pi pi-th-large text-primary"></i>
+                <h2 class="text-xl font-bold m-0">Tus Rooms / Workspaces</h2>
+            </div>
+            
+            <div class="grid">
+                <div class="col-12 md:col-6 lg:col-4" *ngFor="let g of groups">
+                    <div class="card group-card p-4 cursor-pointer" [routerLink]="['/dashboard/room', g.id]">
+                        <div class="flex justify-content-between align-items-start mb-4">
+                            <div class="icon-box">
+                                <i class="pi pi-folder"></i>
                             </div>
-                            <div class="flex gap-2 mt-2">
-                                <div class="flex-1 bg-blue-500 h-1rem border-round" [style.width]="'33%'" pTooltip="Activos"></div>
-                                <div class="flex-1 bg-yellow-500 h-1rem border-round" [style.width]="'33%'" pTooltip="Pendientes"></div>
-                                <div class="flex-1 bg-green-500 h-1rem border-round" [style.width]="'33%'" pTooltip="Terminados"></div>
+                            <p-tag [value]="g.category" severity="secondary"></p-tag>
+                        </div>
+                        
+                        <div class="font-bold text-xl mb-1">{{ g.name }}</div>
+                        <div class="text-sm text-muted mb-4">Nivel: {{ g.level }}</div>
+                        
+                        <div class="mini-stats-grid">
+                            <div class="m-stat-box">
+                                <span class="m-stat-v">{{ g.stats?.activos || 0 }}</span>
+                                <span class="m-stat-t">ACTIVOS</span>
+                            </div>
+                            <div class="m-stat-box">
+                                <span class="m-stat-v">{{ g.stats?.pendientes || 0 }}</span>
+                                <span class="m-stat-t">PEND.</span>
+                            </div>
+                            <div class="m-stat-box">
+                                <span class="m-stat-v">{{ g.stats?.terminados || 0 }}</span>
+                                <span class="m-stat-t">DONE</span>
+                            </div>
+                            <div class="m-stat-box highlight">
+                                <span class="m-stat-v text-primary">{{ g.stats?.asignadosMi || 0 }}</span>
+                                <span class="m-stat-t">TUS TICKETS</span>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-12 text-center p-5" *ngIf="groups.length === 0">
-                        <i class="pi pi-folder-open text-6xl text-muted mb-3"></i>
-                        <p class="text-muted">No perteneces a ningún room todavía.</p>
+
+                        <div class="flex align-items-center justify-content-between pt-3 border-top">
+                            <span class="text-sm font-medium"><i class="pi pi-users mr-1"></i> {{ g.miembros || 0 }} miembros</span>
+                            <span class="text-primary text-sm font-bold">Ver Room <i class="pi pi-arrow-right ml-1"></i></span>
+                        </div>
                     </div>
                 </div>
-            </p-card>
+
+                <div class="col-12 text-center p-8 card" *ngIf="groups.length === 0" style="background: rgba(255,255,255,0.02)">
+                    <i class="pi pi-inbox text-6xl text-muted mb-4"></i>
+                    <h3 class="text-xl font-bold mb-2">No hay actividad todavía</h3>
+                    <p class="text-muted">No perteneces a ningún room o workspace actualmente.</p>
+                </div>
+            </div>
         </div>
     </div>
 </div>
