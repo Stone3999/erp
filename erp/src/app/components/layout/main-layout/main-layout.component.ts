@@ -22,7 +22,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     menuItems: MenuItem[] = [];
 
     breadcrumbItems: MenuItem[] = [];
-    homeItem: MenuItem = { icon: 'pi pi-home', routerLink: '/dashboard', label: 'Inicio' };
+    homeItem: MenuItem = { icon: 'pi pi-home', routerLink: '/dashboard', label: 'Dashboard' };
 
     private routerSub!: Subscription;
 
@@ -54,7 +54,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
 
         this.menuItems = [
             {
-                label: 'Inicio',
+                label: 'Dashboard',
                 icon: 'pi pi-home',
                 routerLink: '/dashboard',
                 styleClass: url === '/dashboard' ? 'menu-active-item' : '',
@@ -62,7 +62,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
         ];
 
         
-        if (this.authService.hasPermission('groups:manage')) {
+        if (this.authService.hasPermission('groups:manage') || this.authService.hasPermission('admin:all')) {
             this.menuItems.push({
                 label: 'Gestión de Rooms',
                 icon: 'pi pi-users',
@@ -72,7 +72,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
         }
 
         
-        if (this.authService.hasPermission('users:manage')) {
+        if (this.authService.hasPermission('users:manage') || this.authService.hasPermission('admin:all')) {
             this.menuItems.push({
                 label: 'Usuarios',
                 icon: 'pi pi-user-edit',
