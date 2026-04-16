@@ -236,11 +236,11 @@ export class RoomComponent implements OnInit, AfterViewChecked {
         };
 
         const res = await this.ticketService.createTicket(nuevoTicket);
-        this.loading = false;
         if (res.statusCode === 201 && res.data) {
              await this.cargarTickets();
              this.showTicketModal = false;
         }
+        this.loading = false;
     }
 
     updateChart() {

@@ -115,19 +115,18 @@ export class UsuariosComponent implements OnInit {
 
         if (this.isEditMode && this.editingId !== null) {
             const response = await this.userService.updatePermissions(this.editingId, formValue.permisos);
-            this.loading = false;
             if (response.statusCode === 200) {
                 this.messageService.add({ severity: 'success', summary: 'Actualizado', detail: `Permisos de "${formValue.nombre}" actualizados.` });
-                this.loadUsers();
+                await this.loadUsers();
                 this.dialogVisible = false;
             } else {
                 this.messageService.add({ severity: 'error', summary: 'Error', detail: response.message || 'No se pudieron actualizar los permisos' });
             }
         } else {
-            this.loading = false;
             this.messageService.add({ severity: 'info', summary: 'Info', detail: 'La creación de usuarios debe realizarse a través del registro.' });
             this.dialogVisible = false;
         }
+        this.loading = false;
     }
 
     deleteUsuario(usuario: User): void {

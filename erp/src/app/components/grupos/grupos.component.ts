@@ -201,14 +201,14 @@ export class GruposComponent implements OnInit {
             }
         }
 
-        this.loading = false;
         if (response.statusCode === 200 || response.statusCode === 201) {
             this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Room guardado correctamente.' });
-            this.loadGroups();
+            await this.loadGroups();
             this.dialogVisible = false;
         } else {
             this.messageService.add({ severity: 'error', summary: 'Error', detail: response.message });
         }
+        this.loading = false;
     }
 
     deleteGroup(group: Group): void {
