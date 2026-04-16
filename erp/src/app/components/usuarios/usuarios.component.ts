@@ -116,6 +116,7 @@ export class UsuariosComponent implements OnInit {
         if (this.isEditMode && this.editingId !== null) {
             const response = await this.userService.updateUser(this.editingId, { 
                 name: formValue.nombre, 
+                email: formValue.correo,
                 permissions: formValue.permisos 
             });
             if (response.statusCode === 200) {

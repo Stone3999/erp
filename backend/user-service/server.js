@@ -40,10 +40,11 @@ fastify.get('/', async (request, reply) => {
 });
 
 fastify.patch('/:id', async (request, reply) => {
-  const { name, permissions } = request.body;
+  const { name, permissions, email } = request.body;
   const { id } = request.params;
   const updateData = {};
   if (name) updateData.name = name;
+  if (email) updateData.email = email;
   if (permissions) updateData.permissions = permissions;
 
   const { data, error } = await supabase.from('users').update(updateData).eq('id', id).select().single();
