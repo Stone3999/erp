@@ -24,7 +24,7 @@
         <p-table [value]="usuarios" [paginator]="true" [rows]="8" responsiveLayout="scroll" class="usuarios-table dark-table">
             <ng-template pTemplate="header">
                 <tr>
-                    <th>Nombre</th>
+                    <th>Nombre Completo</th>
                     <th>Correo</th>
                     <th style="width: 25%;">Permisos</th>
                     <th style="text-align:center">Estado</th>
@@ -63,15 +63,9 @@
           [styleClass]="loading ? 'p-dialog-loading' : ''" [closable]="!loading" (onHide)="closeDialog()">
     <form [formGroup]="usuarioForm" class="usuario-form">
 
-        <div class="field-row">
-            <div class="field">
-                <label for="nombre">Nombre <span class="required">*</span></label>
-                <input id="nombre" type="text" pInputText formControlName="nombre" placeholder="Nombre" [class.ng-invalid]="isInvalid('nombre')" />
-            </div>
-            <div class="field">
-                <label for="apellido">Apellido <span class="required">*</span></label>
-                <input id="apellido" type="text" pInputText formControlName="apellido" placeholder="Apellido" [class.ng-invalid]="isInvalid('apellido')" />
-            </div>
+        <div class="field">
+            <label for="nombre">Nombre Completo <span class="required">*</span></label>
+            <input id="nombre" type="text" pInputText formControlName="nombre" placeholder="Nombre Completo" [class.ng-invalid]="isInvalid('nombre')" class="w-full" />
         </div>
 
         <div class="field">
