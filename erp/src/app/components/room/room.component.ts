@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewChecked, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 import { AvatarModule } from 'primeng/avatar';
@@ -18,7 +18,6 @@ import { TicketService } from '../../services/ticket.service';
 import { UserService } from '../../services/user.service';
 import { GroupService } from '../../services/group.service';
 import { PermissionService } from '../../services/permission.service';
-import { LoadingService } from '../../services/loading.service';
 import { HasPermissionDirective } from '../../directives/has-permission.directive';
 
 export interface Comentario {
@@ -60,7 +59,7 @@ export interface RoomTicket {
     templateUrl: './room.component.html',
     styleUrl: './room.component.css',
 })
-export class RoomComponent implements OnInit, AfterViewChecked {
+export class RoomComponent implements OnInit, AfterViewChecked, OnDestroy {
     @ViewChild('scrollMe') private myScrollContainer!: ElementRef;
 
     isLoggedIn = false;
@@ -106,8 +105,7 @@ export class RoomComponent implements OnInit, AfterViewChecked {
         private userService: UserService,
         private groupService: GroupService,
         private permissionService: PermissionService,
-        private route: ActivatedRoute,
-        private loadingService: LoadingService
+        private route: ActivatedRoute
     ) {}
 
     async ngOnInit(): Promise<void> {
@@ -121,6 +119,11 @@ export class RoomComponent implements OnInit, AfterViewChecked {
 
         this.cargarTickets();
         this.cargarMiembros();
+    }
+
+    ngOnDestroy(): void {
+        // Al salir del room, dejamos de preguntar por permisos
+        this.permissionService.stopPolling();
     }
 
     ngAfterViewChecked() {
@@ -223,7 +226,7 @@ export class RoomComponent implements OnInit, AfterViewChecked {
     }
 
     async crearTicket() {
-        if (!this.nuevoTitulo.trim() || !this.groupId) return;
+        if (this.loading || !this.nuevoTitulo.trim() || !this.groupId) return;
 
         this.loading = true;
         this.loadingService.setLoading(true);
@@ -321,10 +324,8 @@ export class RoomComponent implements OnInit, AfterViewChecked {
         if (this.loading || !this.nuevoComentario.trim() || !this.ticketEditando) return;
         
         this.loading = true;
-        this.loadingService.setLoading(true);
         const res = await this.ticketService.addComment(this.ticketEditando.id as any, this.nuevoComentario, this.currentUser);
         this.loading = false;
-        this.loadingService.setLoading(false);
         if (res.statusCode === 201) {
             this.ticketEditando.comentarios.push({
                 usuario: this.currentUser,
