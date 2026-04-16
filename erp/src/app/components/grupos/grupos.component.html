@@ -113,7 +113,9 @@
                 <div class="member-item flex align-items-center gap-2 p-2 border-round mb-2" *ngFor="let m of currentMembers" style="background: rgba(255,255,255,0.05);">
                     <div class="flex flex-column flex-1">
                         <span class="font-bold text-sm" style="color: var(--r4u-text-main);">{{m.name}}</span>
-                        <span class="text-xs" [ngStyle]="{'color': m.role === 'Administrador' ? '#ef4444' : 'var(--r4u-text-muted)'}">{{m.role}}</span>
+                        <span class="text-xs" [ngStyle]="{'color': m.role === 'Administrador' ? '#ef4444' : 'var(--r4u-text-muted)'}">
+                            {{ m.role === 'Administrador' ? 'Creador' : m.role }}
+                        </span>
                     </div>
                     
                     <p-multiSelect 

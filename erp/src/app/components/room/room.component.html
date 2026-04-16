@@ -28,11 +28,9 @@
 
     <div class="main-workspace-area">
         
-        <!-- FILTROS -->
         <div class="flex gap-2 mb-3">
             <p-button label="Todos" [outlined]="filtroActivo !== 'todos'" size="small" severity="secondary" (onClick)="filtroActivo = 'todos'"></p-button>
             <p-button label="Mis Tickets" icon="pi pi-user" [outlined]="filtroActivo !== 'mis-tickets'" size="small" severity="info" (onClick)="filtroActivo = 'mis-tickets'"></p-button>
-            <p-button label="Sin Asignar" icon="pi pi-question-circle" [outlined]="filtroActivo !== 'sin-asignar'" size="small" severity="warn" (onClick)="filtroActivo = 'sin-asignar'"></p-button>
             <p-button label="Prioridad Alta" icon="pi pi-bolt" [outlined]="filtroActivo !== 'prioridad-alta'" size="small" severity="danger" (onClick)="filtroActivo = 'prioridad-alta'"></p-button>
         </div>
 

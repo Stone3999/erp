@@ -340,7 +340,6 @@ export class RoomComponent implements OnInit, AfterViewChecked, OnDestroy {
 
     cumpleFiltro(ticket: any): boolean {
         if (this.filtroActivo === 'mis-tickets') return ticket.asignado === this.currentUser;
-        if (this.filtroActivo === 'sin-asignar') return !ticket.asignado || ticket.asignado.trim() === 'Sin asignar';
         if (this.filtroActivo === 'prioridad-alta') return ticket.prioridad === 'Alta';
         return true; 
     }
