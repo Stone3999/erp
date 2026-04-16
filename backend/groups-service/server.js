@@ -11,29 +11,40 @@ fastify.get('/', async (request, reply) => {
   try {
     const user_id = request.headers['x-user-id']; 
     const userName = request.headers['x-user-name'] || '';
+    const permissionsRaw = request.headers['x-user-permissions'];
+    const globalPermissions = permissionsRaw ? JSON.parse(permissionsRaw) : [];
 
     if (!user_id) return reply.code(400).send({ statusCode: 400, message: 'User ID missing' });
 
-    // 1. Obtener los IDs de los workspaces donde el usuario es miembro
-    const { data: memberships, error: memError } = await supabase
-      .from('workspace_members')
-      .select('workspace_id')
-      .eq('user_id', user_id);
+    const isSuperAdmin = globalPermissions.includes('admin:all');
+    let workspaces;
 
-    if (memError) throw memError;
-    const workspaceIds = memberships.map(m => m.workspace_id);
+    if (isSuperAdmin) {
+      // SUPER ADMIN: Ve todo el sistema
+      const { data, error } = await supabase
+        .from('workspaces')
+        .select('*, users!created_by(name)');
+      if (error) throw error;
+      workspaces = data;
+    } else {
+      // USUARIO NORMAL: Solo donde es miembro
+      const { data: memberships, error: memError } = await supabase
+        .from('workspace_members')
+        .select('workspace_id')
+        .eq('user_id', user_id);
 
-    if (workspaceIds.length === 0) {
-        return { statusCode: 200, data: [] };
+      if (memError) throw memError;
+      const workspaceIds = memberships.map(m => m.workspace_id);
+
+      if (workspaceIds.length === 0) return { statusCode: 200, data: [] };
+
+      const { data, error } = await supabase
+        .from('workspaces')
+        .select('*, users!created_by(name)')
+        .in('id', workspaceIds);
+      if (error) throw error;
+      workspaces = data;
     }
-
-    // 2. Obtener los detalles de esos workspaces
-    const { data: workspaces, error } = await supabase
-      .from('workspaces')
-      .select('*, users!created_by(name)')
-      .in('id', workspaceIds);
-
-    if (error) throw error;
 
     const enrichedWorkspaces = await Promise.all(workspaces.map(async (ws) => {
       // Conteos detallados
@@ -189,18 +200,23 @@ fastify.post('/', async (request, reply) => {
     
     if (wsError) throw wsError;
 
-    // 2. Si hay miembros, agregarlos a la tabla intermedia
-    if (members && members.length > 0) {
-      const membersToInsert = members.map((userId) => ({
-        workspace_id: workspace.id,
-        user_id: userId
-      }));
-      
-      // Agregamos también al creador como miembro por defecto
-      membersToInsert.push({ workspace_id: workspace.id, user_id: created_by });
+    // 2. Preparar miembros (incluyendo al creador como Admin Pro)
+    const membersToInsert = (members || []).map((userId) => ({
+      workspace_id: workspace.id,
+      user_id: userId,
+      role: 'Miembro',
+      permissions: ['tickets:add', 'tickets:move', 'tickets:comment']
+    }));
+    
+    // Agregar al creador como Administrador con TODO
+    membersToInsert.push({ 
+      workspace_id: workspace.id, 
+      user_id: created_by,
+      role: 'Administrador',
+      permissions: ['tickets:add', 'tickets:move', 'tickets:delete', 'tickets:comment']
+    });
 
-      await supabase.from('workspace_members').insert(membersToInsert);
-    }
+    await supabase.from('workspace_members').insert(membersToInsert);
 
     return { statusCode: 201, data: workspace };
   } catch (err) {

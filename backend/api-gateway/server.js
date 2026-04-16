@@ -76,6 +76,7 @@ fastify.addHook('preHandler', async (request, reply) => {
     request.headers['x-user-id'] = decoded.id;
     request.headers['x-user-name'] = decoded.name;
     request.headers['x-user-email'] = decoded.email;
+    request.headers['x-user-permissions'] = JSON.stringify(decoded.permissions || []);
 
     const method = request.method;
     let requiredPerm = null;
