@@ -32,9 +32,9 @@ export class DashboardComponent implements OnInit {
     hasViewPermission = false;
 
     constructor(
-        private authService: AuthService,
+        public authService: AuthService,
         private groupService: GroupService,
-        private router: Router,
+        public router: Router,
         private loadingService: LoadingService,
         private permissionService: PermissionService
     ) {}
