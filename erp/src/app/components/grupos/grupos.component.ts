@@ -73,7 +73,7 @@ export class GruposComponent implements OnInit {
         private groupService: GroupService,
         private authService: AuthService,
         private userService: UserService,
-        private loadingService: LoadingService
+        public loadingService: LoadingService
     ) {}
 
     ngOnInit(): void {

@@ -18,7 +18,6 @@ import { InputIconModule } from 'primeng/inputicon';
 
 import { HasPermissionDirective } from '../../directives/has-permission.directive';
 import { AuthService } from '../../services/auth.service';
-
 import { User, UserService } from '../../services/user.service';
 import { LoadingService } from '../../services/loading.service';
 
@@ -44,7 +43,6 @@ export class UsuariosComponent implements OnInit {
     editingId: number | null = null;
     loading = false;
 
-    // --- REQUERIMIENTO TXT: Lista de permisos por acción ---
     listaPermisos = [
         { label: 'Crear Tickets', value: 'tickets:add' },
         { label: 'Mover Tickets', value: 'tickets:move' },
@@ -62,7 +60,7 @@ export class UsuariosComponent implements OnInit {
         private confirmationService: ConfirmationService,
         private userService: UserService,
         private authService: AuthService,
-        private loadingService: LoadingService
+        public loadingService: LoadingService
     ) {}
 
     ngOnInit(): void {

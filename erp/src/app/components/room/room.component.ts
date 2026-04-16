@@ -18,6 +18,7 @@ import { TicketService } from '../../services/ticket.service';
 import { UserService } from '../../services/user.service';
 import { GroupService } from '../../services/group.service';
 import { PermissionService } from '../../services/permission.service';
+import { LoadingService } from '../../services/loading.service';
 import { HasPermissionDirective } from '../../directives/has-permission.directive';
 
 export interface Comentario {
@@ -105,6 +106,7 @@ export class RoomComponent implements OnInit, AfterViewChecked, OnDestroy {
         private userService: UserService,
         private groupService: GroupService,
         private permissionService: PermissionService,
+        public loadingService: LoadingService,
         private route: ActivatedRoute
     ) {}
 
