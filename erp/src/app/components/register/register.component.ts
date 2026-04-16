@@ -17,6 +17,7 @@ import { InputMaskModule } from 'primeng/inputmask';
 import { TextareaModule } from 'primeng/textarea';
 import { MessageService } from 'primeng/api';
 import { AuthService, RegisteredUser } from '../../services/auth.service';
+import { LoadingService } from '../../services/loading.service';
 
 interface FieldError {
   [key: string]: string;
@@ -67,7 +68,8 @@ export class RegisterComponent {
   constructor(
     private router: Router,
     private authService: AuthService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private loadingService: LoadingService
   ) {
     this.maxDate = new Date();
     this.maxDate.setFullYear(this.maxDate.getFullYear() - 18);
@@ -160,6 +162,7 @@ export class RegisterComponent {
     }
 
     this.loading = true;
+    this.loadingService.setLoading(true);
 
     const userData: RegisteredUser = {
       usuario: this.usuario.trim(),
@@ -173,7 +176,6 @@ export class RegisterComponent {
 
     try {
       const response = await this.authService.register(userData);
-      this.loading = false;
 
       if (response.statusCode === 201) {
         this.messageService.add({
@@ -181,8 +183,22 @@ export class RegisterComponent {
           summary: 'Cuenta creada',
           detail: '¡Registro exitoso! Redirigiendo al login...',
         });
-        setTimeout(() => this.router.navigate(['/login']), 2000);
+        setTimeout(() => {
+          this.loading = false;
+          this.loadingService.setLoading(false);
+          this.router.navigate(['/login']);
+        }, 2000);
+      } else if (response.statusCode === 409) {
+        this.loading = false;
+        this.loadingService.setLoading(false);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Conflicto',
+          detail: 'El correo electrónico ya está registrado.',
+        });
       } else {
+        this.loading = false;
+        this.loadingService.setLoading(false);
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
@@ -191,6 +207,7 @@ export class RegisterComponent {
       }
     } catch (err) {
       this.loading = false;
+      this.loadingService.setLoading(false);
       this.messageService.add({
         severity: 'error',
         summary: 'Error de conexión',

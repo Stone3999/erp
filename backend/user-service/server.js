@@ -42,6 +42,24 @@ fastify.get('/', async (request, reply) => {
 fastify.patch('/:id', async (request, reply) => {
   const { name, permissions, email } = request.body;
   const { id } = request.params;
+  
+  // 1. Si se intenta cambiar el email, verificar que no esté en uso
+  if (email) {
+    const { data: existingUser } = await supabase
+      .from('users')
+      .select('id')
+      .eq('email', email)
+      .neq('id', id)
+      .maybeSingle();
+    
+    if (existingUser) {
+      return reply.code(409).send({ 
+        statusCode: 409, 
+        message: 'El correo electrónico ya está registrado por otro usuario.' 
+      });
+    }
+  }
+
   const updateData = {};
   if (name) updateData.name = name;
   if (email) updateData.email = email;

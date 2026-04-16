@@ -17,6 +17,7 @@ import { Group, GroupService } from '../../services/group.service';
 import { HasPermissionDirective } from '../../directives/has-permission.directive';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
+import { LoadingService } from '../../services/loading.service';
 
 @Component({
     selector: 'app-grupos',
@@ -69,7 +70,8 @@ export class GruposComponent implements OnInit {
         private confirmationService: ConfirmationService,
         private groupService: GroupService,
         private authService: AuthService,
-        private userService: UserService
+        private userService: UserService,
+        private loadingService: LoadingService
     ) {}
 
     ngOnInit(): void {
@@ -179,6 +181,7 @@ export class GruposComponent implements OnInit {
         if (this.loading || this.groupForm.invalid) return;
 
         this.loading = true;
+        this.loadingService.setLoading(true);
         const formValue = this.groupForm.value;
         const groupData: any = {
             name: formValue.nombre,
@@ -208,7 +211,10 @@ export class GruposComponent implements OnInit {
         } else {
             this.messageService.add({ severity: 'error', summary: 'Error', detail: response.message });
         }
-        setTimeout(() => this.loading = false, 300);
+        setTimeout(() => {
+            this.loading = false;
+            this.loadingService.setLoading(false);
+        }, 300);
     }
 
     deleteGroup(group: Group): void {

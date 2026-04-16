@@ -67,7 +67,8 @@ fastify.get('/', async (request, reply) => {
         ...ws,
         creator_name: ws.users?.name || 'Sistema',
         stats,
-        miembros: membersCount || 0
+        miembros: membersCount || 0,
+        tickets: stats.total
       };
     }));
 

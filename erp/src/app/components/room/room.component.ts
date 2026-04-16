@@ -18,6 +18,7 @@ import { TicketService } from '../../services/ticket.service';
 import { UserService } from '../../services/user.service';
 import { GroupService } from '../../services/group.service';
 import { PermissionService } from '../../services/permission.service';
+import { LoadingService } from '../../services/loading.service';
 import { HasPermissionDirective } from '../../directives/has-permission.directive';
 
 export interface Comentario {
@@ -105,7 +106,8 @@ export class RoomComponent implements OnInit, AfterViewChecked {
         private userService: UserService,
         private groupService: GroupService,
         private permissionService: PermissionService,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
+        private loadingService: LoadingService
     ) {}
 
     async ngOnInit(): Promise<void> {
@@ -224,6 +226,7 @@ export class RoomComponent implements OnInit, AfterViewChecked {
         if (!this.nuevoTitulo.trim() || !this.groupId) return;
 
         this.loading = true;
+        this.loadingService.setLoading(true);
         const nuevoTicket: any = {
             titulo: this.nuevoTitulo,
             descripcion: this.nuevaDescripcion,
@@ -240,7 +243,10 @@ export class RoomComponent implements OnInit, AfterViewChecked {
              await this.cargarTickets();
              this.showTicketModal = false;
         }
-        setTimeout(() => this.loading = false, 300);
+        setTimeout(() => {
+            this.loading = false;
+            this.loadingService.setLoading(false);
+        }, 300);
     }
 
     updateChart() {
@@ -286,9 +292,10 @@ export class RoomComponent implements OnInit, AfterViewChecked {
     }
 
     async guardarDetalles() {
-        if (!this.ticketEditando) return;
+        if (this.loading || !this.ticketEditando) return;
 
         this.loading = true;
+        this.loadingService.setLoading(true);
         const payload: any = {
             title: this.ticketEditando.titulo,
             description: this.ticketEditando.descripcion,
@@ -299,20 +306,25 @@ export class RoomComponent implements OnInit, AfterViewChecked {
         };
 
         const res = await this.ticketService.updateTicket(this.ticketEditando.id as any, payload);
-        this.loading = false;
         if (res.statusCode === 200) {
              await this.cargarTickets();
              this.showEditModal = false;
              this.ticketEditando = null;
         }
+        setTimeout(() => {
+            this.loading = false;
+            this.loadingService.setLoading(false);
+        }, 300);
     }
 
     async agregarComentario() {
         if (this.loading || !this.nuevoComentario.trim() || !this.ticketEditando) return;
         
         this.loading = true;
+        this.loadingService.setLoading(true);
         const res = await this.ticketService.addComment(this.ticketEditando.id as any, this.nuevoComentario, this.currentUser);
         this.loading = false;
+        this.loadingService.setLoading(false);
         if (res.statusCode === 201) {
             this.ticketEditando.comentarios.push({
                 usuario: this.currentUser,

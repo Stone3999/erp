@@ -14,6 +14,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { MessageService } from 'primeng/api';
 import { AuthService } from '../../services/auth.service';
+import { LoadingService } from '../../services/loading.service';
 
 @Component({
   selector: 'app-login',
@@ -47,7 +48,8 @@ export class LoginComponent {
   constructor(
     private router: Router,
     private authService: AuthService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private loadingService: LoadingService
   ) { }
 
   get hardcodedCredentials() {
@@ -75,10 +77,10 @@ export class LoginComponent {
     }
 
     this.loading = true;
+    this.loadingService.setLoading(true);
 
     try {
       const response = await this.authService.login(this.email, this.password);
-      this.loading = false;
 
       if (response.statusCode === 200) {
         const userData: any = response.data;
@@ -88,9 +90,13 @@ export class LoginComponent {
           detail: '¡Bienvenido ' + (userData?.user?.name || '') + '! Redirigiendo...',
         });
         setTimeout(() => {
+          this.loading = false;
+          this.loadingService.setLoading(false);
           this.router.navigate(['/dashboard']);
         }, 1500);
       } else {
+        this.loading = false;
+        this.loadingService.setLoading(false);
         this.messageService.add({
           severity: 'error',
           summary: 'Error de acceso',
@@ -99,6 +105,7 @@ export class LoginComponent {
       }
     } catch (err) {
       this.loading = false;
+      this.loadingService.setLoading(false);
       this.messageService.add({
         severity: 'error',
         summary: 'Error fatal',

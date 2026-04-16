@@ -563,3 +563,5 @@ p-divider {
 /* --- ESTADOS DE CARGA GLOBALES --- */
 .p-dialog-loading { opacity: 0.6 !important; pointer-events: none !important; transition: opacity 0.3s ease; }
 .p-dialog-loading .p-dialog-header-icons { display: none !important; }
+
+.global-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.2); z-index: 9999; pointer-events: all; cursor: wait; }

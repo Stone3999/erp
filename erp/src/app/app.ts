@@ -1,17 +1,16 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { ButtonModule } from 'primeng/button';
+import { CommonModule } from '@angular/common';
+import { LoadingService } from './services/loading.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ButtonModule],
+  standalone: true,
+  imports: [RouterOutlet, CommonModule],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
 export class App {
   protected readonly title = signal('erp');
-
-  onButtonClick() {
-    alert('¡PrimeNG está funcionando correctamente! 🎉');
-  }
+  public loadingService = inject(LoadingService);
 }

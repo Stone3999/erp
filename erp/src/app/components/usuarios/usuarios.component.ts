@@ -18,6 +18,7 @@ import { HasPermissionDirective } from '../../directives/has-permission.directiv
 import { AuthService } from '../../services/auth.service';
 
 import { User, UserService } from '../../services/user.service';
+import { LoadingService } from '../../services/loading.service';
 
 @Component({
     selector: 'app-usuarios',
@@ -57,7 +58,8 @@ export class UsuariosComponent implements OnInit {
         private messageService: MessageService,
         private confirmationService: ConfirmationService,
         private userService: UserService,
-        private authService: AuthService
+        private authService: AuthService,
+        private loadingService: LoadingService
     ) {}
 
     ngOnInit(): void {
@@ -111,6 +113,7 @@ export class UsuariosComponent implements OnInit {
         }
 
         this.loading = true;
+        this.loadingService.setLoading(true);
         const formValue = this.usuarioForm.value;
 
         if (this.isEditMode && this.editingId !== null) {
@@ -119,10 +122,13 @@ export class UsuariosComponent implements OnInit {
                 email: formValue.correo,
                 permissions: formValue.permisos 
             });
+            
             if (response.statusCode === 200) {
                 this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Información actualizada con éxito.' });
                 await this.loadUsers();
                 this.dialogVisible = false;
+            } else if (response.statusCode === 409) {
+                this.messageService.add({ severity: 'error', summary: 'Conflicto', detail: 'El correo electrónico ya está registrado por otro usuario.' });
             } else {
                 this.messageService.add({ severity: 'error', summary: 'Error', detail: response.message || 'No se pudo actualizar la información' });
             }
@@ -130,7 +136,11 @@ export class UsuariosComponent implements OnInit {
             this.messageService.add({ severity: 'info', summary: 'Info', detail: 'La creación de usuarios debe realizarse a través del registro.' });
             this.dialogVisible = false;
         }
-        setTimeout(() => this.loading = false, 300);
+        
+        setTimeout(() => {
+            this.loading = false;
+            this.loadingService.setLoading(false);
+        }, 300);
     }
 
     deleteUsuario(usuario: User): void {
