@@ -11,6 +11,7 @@ import { HasPermissionDirective } from '../../directives/has-permission.directiv
 import { ChartModule } from 'primeng/chart';
 
 import { LoadingService } from '../../services/loading.service';
+import { PermissionService } from '../../services/permission.service';
 
 @Component({
     selector: 'app-dashboard',
@@ -28,18 +29,23 @@ export class DashboardComponent implements OnInit {
     chartData: any;
     chartOptions: any;
 
+    hasViewPermission = false;
+
     constructor(
         private authService: AuthService,
         private groupService: GroupService,
         private router: Router,
-        private loadingService: LoadingService
+        private loadingService: LoadingService,
+        private permissionService: PermissionService
     ) {}
 
     ngOnInit(): void {
         this.loadingService.setLoading(false); 
         this.isLoggedIn = this.authService.isLoggedIn();
         this.currentUser = this.authService.getCurrentUser();
-        if (this.isLoggedIn) {
+        this.hasViewPermission = this.permissionService.hasPermission('view:dashboard');
+
+        if (this.isLoggedIn && this.hasViewPermission) {
             this.cargarGrupos();
         }
     }
