@@ -72,10 +72,10 @@ fastify.addHook('preHandler', async (request, reply) => {
     const decoded = jwt.verify(token, JWT_SECRET);
     request.user = decoded; // { id, email, permissions }
     
-    // Verificación fina de permisos por método (Como pide el TXT)
     const method = request.method;
     let requiredPerm = null;
 
+    // Determinar permiso requerido por ruta/método
     if (path.startsWith('/tickets')) {
       if (method === 'POST') requiredPerm = 'tickets:add';
       if (method === 'PATCH' || method === 'PUT') requiredPerm = 'tickets:move';
@@ -83,15 +83,63 @@ fastify.addHook('preHandler', async (request, reply) => {
     } else if (path.startsWith('/groups')) {
       if (method === 'POST' || method === 'DELETE' || method === 'PUT') requiredPerm = 'groups:manage';
     } else if (path.startsWith('/users')) {
-       // GET es público para usuarios logueados, otros métodos requieren users:manage
        if (method !== 'GET') requiredPerm = 'users:manage';
     }
 
-    if (requiredPerm && !decoded.permissions.includes(requiredPerm)) {
-       return reply.code(403).send({ statusCode: 403, intOpCode: 'ExUS403', data: null, message: 'Forbidden: Falta permiso ' + requiredPerm });
+    if (!requiredPerm) return;
+
+    // 1. Verificar Permiso Global (JWT)
+    const hasGlobalPerm = decoded.permissions && decoded.permissions.includes(requiredPerm);
+    const isSuperAdmin = decoded.permissions && decoded.permissions.includes('admin:all');
+
+    if (isSuperAdmin) return; // Super admin se salta todo
+
+    // 2. Verificar Permiso por Grupo (Si aplica)
+    let workspaceId = request.body?.workspace_id || request.query?.workspace_id;
+    
+    // Si no hay workspaceId pero hay ticket ID, buscamos el workspace_id del ticket
+    if (!workspaceId && path.startsWith('/tickets/')) {
+        const ticketId = path.split('/')[2]?.split('?')[0];
+        if (ticketId && ticketId.length > 30) { // Validar que sea un UUID
+            const { data: ticket } = await supabase.from('tickets').select('workspace_id').eq('id', ticketId).single();
+            workspaceId = ticket?.workspace_id;
+        }
+    }
+
+    if (workspaceId) {
+        const { data: member } = await supabase
+            .from('workspace_members')
+            .select('permissions')
+            .eq('workspace_id', workspaceId)
+            .eq('user_id', decoded.id)
+            .single();
+        
+        const hasGroupPerm = member?.permissions && member.permissions.includes(requiredPerm);
+        
+        if (hasGroupPerm || hasGlobalPerm) {
+            return; // Tiene permiso en el grupo o globalmente
+        } else {
+            return reply.code(403).send({ 
+                statusCode: 403, 
+                intOpCode: 'ExUS403', 
+                data: null, 
+                message: `Forbidden: Falta permiso ${requiredPerm} en este grupo.` 
+            });
+        }
+    }
+
+    // Si no hay contexto de grupo, solo validamos global
+    if (!hasGlobalPerm) {
+       return reply.code(403).send({ 
+           statusCode: 403, 
+           intOpCode: 'ExUS403', 
+           data: null, 
+           message: 'Forbidden: Falta permiso global ' + requiredPerm 
+       });
     }
 
   } catch (err) {
+    console.error('[Gateway Auth Error]:', err);
     return reply.code(401).send({ statusCode: 401, intOpCode: 'ExUS401', data: null, message: 'Invalid token' });
   }
 });

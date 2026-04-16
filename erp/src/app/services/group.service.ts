@@ -52,6 +52,36 @@ export class GroupService {
         }
     }
 
+    async getMyPermissions(groupId: string): Promise<ApiResponse<string[]>> {
+        try {
+            return await firstValueFrom(
+                this.http.get<ApiResponse<string[]>>(`${this.API_URL}/${groupId}/my-permissions`)
+            );
+        } catch (error: any) {
+            return {
+                statusCode: error.status || 500,
+                intOpCode: 'ExGR500',
+                data: null,
+                message: 'Error al obtener permisos locales'
+            };
+        }
+    }
+
+    async updateGroupMembers(groupId: number | string, members: any[]): Promise<ApiResponse> {
+        try {
+            return await firstValueFrom(
+                this.http.put<ApiResponse>(`${this.API_URL}/${groupId}/members`, { members })
+            );
+        } catch (error: any) {
+            return {
+                statusCode: error.status || 500,
+                intOpCode: 'ExGR500',
+                data: null,
+                message: 'Error al actualizar miembros'
+            };
+        }
+    }
+
     async createGroup(group: Partial<Group>): Promise<ApiResponse<Group>> {
         try {
             return await firstValueFrom(

@@ -17,6 +17,7 @@ import { AuthService } from '../../services/auth.service';
 import { TicketService } from '../../services/ticket.service';
 import { UserService } from '../../services/user.service';
 import { GroupService } from '../../services/group.service';
+import { PermissionService } from '../../services/permission.service';
 import { HasPermissionDirective } from '../../directives/has-permission.directive';
 
 export interface Comentario {
@@ -73,6 +74,7 @@ export class RoomComponent implements OnInit, AfterViewChecked {
     nuevaDescripcion: string = '';
     nuevaPrioridad: string = 'Media';
     nuevoEstado: string = 'Pendiente';
+    nuevoEstadoSeleccionado: string = 'Pendiente';
     nuevoAsignado: string = '';
     nuevaFechaLimite: string = '';
 
@@ -95,19 +97,26 @@ export class RoomComponent implements OnInit, AfterViewChecked {
 
     showEditModal = false;
     ticketEditando: RoomTicket | null = null;
+    loading: boolean = false;
 
     constructor(
         private authService: AuthService,
         private ticketService: TicketService,
         private userService: UserService,
         private groupService: GroupService,
+        private permissionService: PermissionService,
         private route: ActivatedRoute
     ) {}
 
-    ngOnInit(): void {
+    async ngOnInit(): Promise<void> {
         this.isLoggedIn = this.authService.isLoggedIn();
         this.currentUser = this.authService.getCurrentUser();
         this.groupId = this.route.snapshot.paramMap.get('id');
+        
+        if (this.groupId) {
+            await this.permissionService.refreshPermissionsForGroup(this.groupId);
+        }
+
         this.cargarTickets();
         this.cargarMiembros();
     }
@@ -214,6 +223,7 @@ export class RoomComponent implements OnInit, AfterViewChecked {
     async crearTicket() {
         if (!this.nuevoTitulo.trim() || !this.groupId) return;
 
+        this.loading = true;
         const nuevoTicket: any = {
             titulo: this.nuevoTitulo,
             descripcion: this.nuevaDescripcion,
@@ -226,6 +236,7 @@ export class RoomComponent implements OnInit, AfterViewChecked {
         };
 
         const res = await this.ticketService.createTicket(nuevoTicket);
+        this.loading = false;
         if (res.statusCode === 201 && res.data) {
              await this.cargarTickets();
              this.showTicketModal = false;
@@ -277,6 +288,7 @@ export class RoomComponent implements OnInit, AfterViewChecked {
     async guardarDetalles() {
         if (!this.ticketEditando) return;
 
+        this.loading = true;
         const payload: any = {
             title: this.ticketEditando.titulo,
             description: this.ticketEditando.descripcion,
@@ -287,6 +299,7 @@ export class RoomComponent implements OnInit, AfterViewChecked {
         };
 
         const res = await this.ticketService.updateTicket(this.ticketEditando.id as any, payload);
+        this.loading = false;
         if (res.statusCode === 200) {
              await this.cargarTickets();
              this.showEditModal = false;
@@ -297,7 +310,9 @@ export class RoomComponent implements OnInit, AfterViewChecked {
     async agregarComentario() {
         if (!this.nuevoComentario.trim() || !this.ticketEditando) return;
         
+        this.loading = true;
         const res = await this.ticketService.addComment(this.ticketEditando.id as any, this.nuevoComentario, this.currentUser);
+        this.loading = false;
         if (res.statusCode === 201) {
             this.ticketEditando.comentarios.push({
                 usuario: this.currentUser,
@@ -321,15 +336,15 @@ export class RoomComponent implements OnInit, AfterViewChecked {
     }
 
     puedeMoverTicket(ticket: RoomTicket): boolean {
-        if (this.authService.hasPermission('tickets:edit_all')) return true;
-        const tienePermisoMover = this.authService.hasPermission('tickets:move');
+        if (this.permissionService.hasPermission('tickets:edit_all')) return true;
+        const tienePermisoMover = this.permissionService.hasPermission('tickets:move');
         const esSuTicket = ticket.asignado === this.currentUser;
         return tienePermisoMover && esSuTicket;
     }
 
     get puedeEditarTodo(): boolean {
         if (!this.ticketEditando) return false;
-        return this.ticketEditando.creador === this.currentUser || this.authService.hasPermission('tickets:edit_all');
+        return this.ticketEditando.creador === this.currentUser || this.permissionService.hasPermission('tickets:edit_all');
     }
 
     estaVencido(ticket: RoomTicket): boolean {

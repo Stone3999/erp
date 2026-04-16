@@ -95,19 +95,68 @@ fastify.get('/:id/members', async (request, reply) => {
   const { id } = request.params;
   const { data, error } = await supabase
     .from('workspace_members')
-    .select('user_id, users(name, email)')
+    .select('user_id, role, permissions, users(name, email)')
     .eq('workspace_id', id);
   
   if (error) return reply.code(500).send({ statusCode: 500, message: error.message });
   
-  // Mapeamos para que sea más fácil de leer en el front (Limpiado de TS)
   const members = data.map((m) => ({
     id: m.user_id,
     name: m.users.name,
-    email: m.users.email
+    email: m.users.email,
+    role: m.role,
+    permissions: m.permissions
   }));
   
   return { statusCode: 200, data: members };
+});
+
+// NUEVA RUTA: Obtener mis permisos específicos en este grupo
+fastify.get('/:id/my-permissions', async (request, reply) => {
+  const { id } = request.params;
+  const userId = request.headers['x-user-id'];
+
+  if (!userId) return reply.code(400).send({ statusCode: 400, message: 'User ID missing' });
+
+  const { data, error } = await supabase
+    .from('workspace_members')
+    .select('permissions, role')
+    .eq('workspace_id', id)
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  if (error) return reply.code(500).send({ statusCode: 500, message: error.message });
+  
+  return { 
+    statusCode: 200, 
+    data: data ? data.permissions : [] 
+  };
+});
+
+// NUEVA RUTA: Actualizar miembros (incluyendo sus permisos)
+fastify.put('/:id/members', async (request, reply) => {
+  const { id } = request.params;
+  const { members } = request.body; // Expects array of { user_id, role, permissions }
+
+  try {
+    // 1. Borrar miembros actuales
+    await supabase.from('workspace_members').delete().eq('workspace_id', id);
+
+    // 2. Insertar nuevos miembros con sus permisos
+    const { error } = await supabase.from('workspace_members').insert(
+      members.map(m => ({
+        workspace_id: id,
+        user_id: m.id,
+        role: m.role || 'Miembro',
+        permissions: m.permissions || ['tickets:add', 'tickets:move', 'tickets:comment']
+      }))
+    );
+
+    if (error) throw error;
+    return { statusCode: 200, message: 'Miembros actualizados' };
+  } catch (err) {
+    return reply.code(500).send({ statusCode: 500, message: err.message });
+  }
 });
 
 fastify.post('/', async (request, reply) => {

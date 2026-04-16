@@ -11,6 +11,7 @@ import { SelectModule } from 'primeng/select';
 import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
+import { MultiSelectModule } from 'primeng/multiselect';
 
 import { Group, GroupService } from '../../services/group.service';
 import { HasPermissionDirective } from '../../directives/has-permission.directive';
@@ -23,7 +24,7 @@ import { UserService } from '../../services/user.service';
     imports: [
         CommonModule, ReactiveFormsModule, FormsModule, ButtonModule, TableModule,
         DialogModule, ToastModule, ToolbarModule, InputTextModule,
-        InputNumberModule, SelectModule, ConfirmDialogModule,
+        InputNumberModule, SelectModule, ConfirmDialogModule, MultiSelectModule,
         HasPermissionDirective
     ],
     providers: [MessageService, ConfirmationService],
@@ -36,10 +37,18 @@ export class GruposComponent implements OnInit {
     dialogVisible = false;
     isEditMode = false;
     editingId: number | null = null;
+    loading = false;
 
     allSystemUsers: any[] = [];
     currentMembers: any[] = [];
     selectedUserToAdd: any = null;
+
+    listaPermisos = [
+        { label: 'Crear Tickets', value: 'tickets:add' },
+        { label: 'Mover Tickets', value: 'tickets:move' },
+        { label: 'Borrar Tickets', value: 'tickets:delete' },
+        { label: 'Comentar', value: 'tickets:comment' }
+    ];
 
     categorias = [
         { label: 'Tecnología', value: 'Tecnología' },
@@ -110,7 +119,8 @@ export class GruposComponent implements OnInit {
                 id: user.id, 
                 name: user.name, 
                 email: user.email, 
-                role: 'Administrador' 
+                role: 'Administrador',
+                permissions: this.listaPermisos.map(p => p.value)
             });
         }
         this.dialogVisible = true;
@@ -135,7 +145,8 @@ export class GruposComponent implements OnInit {
                 id: m.id,
                 name: m.name,
                 email: m.email,
-                role: 'Miembro'
+                role: m.role || 'Miembro',
+                permissions: m.permissions || ['tickets:add', 'tickets:move', 'tickets:comment']
             }));
         }
     }
@@ -150,7 +161,8 @@ export class GruposComponent implements OnInit {
             id: this.selectedUserToAdd.id, 
             name: this.selectedUserToAdd.name, 
             email: this.selectedUserToAdd.email, 
-            role: 'Miembro' 
+            role: 'Miembro',
+            permissions: ['tickets:add', 'tickets:move', 'tickets:comment']
         });
         this.selectedUserToAdd = null;
     }
@@ -162,26 +174,34 @@ export class GruposComponent implements OnInit {
     closeDialog(): void {
         this.dialogVisible = false;
     }
-async saveGroup() {
-    if (this.groupForm.invalid) return;
 
-    const formValue = this.groupForm.value;
-    const groupData: any = {
-        name: formValue.nombre,
-        category: formValue.categoria,
-        level: formValue.nivel,
-        created_by: this.authService.getUserId(),
-        members: this.currentMembers.map(m => m.id)
-    };
+    async saveGroup() {
+        if (this.groupForm.invalid) return;
 
-    let response;
-    if (this.isEditMode && this.editingId !== null) {
-        // Enviamos todo el objeto para que el backend pueda sincronizar miembros
-        response = await this.groupService.updateGroup(this.editingId, groupData);
-    } else {
-        response = await this.groupService.createGroup(groupData);
-    }
+        this.loading = true;
+        const formValue = this.groupForm.value;
+        const groupData: any = {
+            name: formValue.nombre,
+            category: formValue.categoria,
+            level: formValue.nivel,
+            created_by: this.authService.getUserId(),
+            members: this.currentMembers.map(m => m.id)
+        };
 
+        let response;
+        if (this.isEditMode && this.editingId !== null) {
+            response = await this.groupService.updateGroup(this.editingId, groupData);
+            if (response.statusCode === 200) {
+                await this.groupService.updateGroupMembers(this.editingId, this.currentMembers);
+            }
+        } else {
+            response = await this.groupService.createGroup(groupData);
+            if (response.statusCode === 201 && response.data) {
+                await this.groupService.updateGroupMembers(response.data.id, this.currentMembers);
+            }
+        }
+
+        this.loading = false;
         if (response.statusCode === 200 || response.statusCode === 201) {
             this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Room guardado correctamente.' });
             this.loadGroups();

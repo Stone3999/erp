@@ -165,7 +165,7 @@
         </div>
         <ng-template pTemplate="footer">
             <p-button label="Cancelar" (onClick)="showTicketModal = false" severity="secondary" [text]="true"></p-button>
-            <p-button label="Crear Ticket" (onClick)="crearTicket()" severity="primary" [disabled]="!nuevoTitulo"></p-button>
+            <p-button label="Crear Ticket" (onClick)="crearTicket()" severity="primary" [disabled]="!nuevoTitulo" [loading]="loading"></p-button>
         </ng-template>
     </p-dialog>
 
@@ -227,14 +227,14 @@
                 </div>
                 <div class="p-inputgroup mt-2">
                     <input pInputText [(ngModel)]="nuevoComentario" placeholder="Escribir mensaje..." (keyup.enter)="agregarComentario()" />
-                    <button pButton icon="pi pi-send" (click)="agregarComentario()" severity="primary"></button>
+                    <button pButton icon="pi pi-send" (click)="agregarComentario()" severity="primary" [loading]="loading"></button>
                 </div>
             </div>
         </div>
 
         <ng-template pTemplate="footer">
             <p-button label="Cerrar" (onClick)="showEditModal = false" severity="secondary" [text]="true"></p-button>
-            <p-button label="Guardar Cambios" icon="pi pi-save" (onClick)="guardarDetalles()" severity="primary"></p-button>
+            <p-button label="Guardar Cambios" icon="pi pi-save" (onClick)="guardarDetalles()" severity="primary" [loading]="loading"></p-button>
         </ng-template>
     </p-dialog>
 

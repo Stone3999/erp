@@ -38,6 +38,7 @@ export class UsuariosComponent implements OnInit {
     dialogVisible = false;
     isEditMode = false;
     editingId: number | null = null;
+    loading = false;
 
     // --- REQUERIMIENTO TXT: Lista de permisos por acción ---
     listaPermisos = [
@@ -95,7 +96,7 @@ export class UsuariosComponent implements OnInit {
         this.usuarioForm.patchValue({
             nombre: usuario.name,
             correo: usuario.email,
-            activo: true, // Backend doesn't seem to have 'active' field in the schema provided
+            activo: true, 
             permisos: usuario.permissions || [] 
         });
         this.dialogVisible = true;
@@ -108,10 +109,12 @@ export class UsuariosComponent implements OnInit {
             return;
         }
 
+        this.loading = true;
         const formValue = this.usuarioForm.value;
 
         if (this.isEditMode && this.editingId !== null) {
             const response = await this.userService.updatePermissions(this.editingId, formValue.permisos);
+            this.loading = false;
             if (response.statusCode === 200) {
                 this.messageService.add({ severity: 'success', summary: 'Actualizado', detail: `Permisos de "${formValue.nombre}" actualizados.` });
                 this.loadUsers();
@@ -120,15 +123,13 @@ export class UsuariosComponent implements OnInit {
                 this.messageService.add({ severity: 'error', summary: 'Error', detail: response.message || 'No se pudieron actualizar los permisos' });
             }
         } else {
-            // El backend no tiene un endpoint de 'crear usuario' con permisos directamente en el user-service fuera de /auth/register
-            // Podríamos usar el register si fuera necesario, pero usualmente los usuarios se registran ellos mismos.
+            this.loading = false;
             this.messageService.add({ severity: 'info', summary: 'Info', detail: 'La creación de usuarios debe realizarse a través del registro.' });
             this.dialogVisible = false;
         }
     }
 
     deleteUsuario(usuario: User): void {
-        // REQUERIMIENTO: No eliminarte a ti mismo (Seguridad Básica)
         if (usuario.email === 'admin@miapp.com') {
             this.messageService.add({ severity: 'warn', summary: 'Bloqueado', detail: 'No puedes eliminar al administrador principal.' });
             return;
@@ -142,7 +143,6 @@ export class UsuariosComponent implements OnInit {
             rejectLabel: 'Cancelar',
             acceptButtonStyleClass: 'p-button-danger',
             accept: () => {
-                // El backend no tiene un DELETE /users/:id en el código que vi, solo para tickets y grupos.
                 this.messageService.add({ severity: 'warn', summary: 'No implementado', detail: 'El borrado de usuarios no está disponible en el backend.' });
             },
         });

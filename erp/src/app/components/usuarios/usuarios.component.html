@@ -97,6 +97,6 @@
 
     <ng-template pTemplate="footer">
         <p-button label="Cancelar" icon="pi pi-times" [text]="true" severity="secondary" (onClick)="closeDialog()"></p-button>
-        <p-button [label]="isEditMode ? 'Actualizar' : 'Guardar'" icon="pi pi-check" (onClick)="saveUsuario()"></p-button>
+        <p-button [label]="isEditMode ? 'Actualizar' : 'Guardar'" icon="pi pi-check" (onClick)="saveUsuario()" [loading]="loading"></p-button>
     </ng-template>
 </p-dialog>
