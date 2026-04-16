@@ -79,7 +79,6 @@
             <p-table [value]="todosLosTickets" [paginator]="true" [rows]="8" responsiveLayout="scroll" [rowHover]="true">
                 <ng-template pTemplate="header">
                     <tr>
-                        <th pSortableColumn="id">ID</th>
                         <th pSortableColumn="titulo">Título</th>
                         <th pSortableColumn="estado">Estado</th>
                         <th pSortableColumn="asignado">Asignado</th>
@@ -89,7 +88,6 @@
                 </ng-template>
                 <ng-template pTemplate="body" let-ticket>
                     <tr style="color: var(--r4u-text-main);">
-                        <td class="font-bold text-primary">#{{ticket.id}}</td>
                         <td class="font-bold">{{ticket.titulo}}</td>
                         <td><p-tag [value]="ticket.estado" severity="info"></p-tag></td>
                         <td>{{ticket.asignado}}</td>
