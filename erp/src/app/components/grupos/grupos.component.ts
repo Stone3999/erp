@@ -92,7 +92,7 @@ export class GruposComponent implements OnInit {
     }
 
     async loadGroups() {
-        const response = await this.groupService.getGroups();
+        const response = await this.groupService.getGroups(true);
         if (response.statusCode === 200 && response.data) {
             this.groups = response.data;
         }

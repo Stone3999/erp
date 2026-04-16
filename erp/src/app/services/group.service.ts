@@ -22,10 +22,10 @@ export class GroupService {
     private http = inject(HttpClient);
     private readonly API_URL = `${environment.apiUrl}/groups`;
 
-    async getGroups(): Promise<ApiResponse<Group[]>> {
+    async getGroups(all: boolean = false): Promise<ApiResponse<Group[]>> {
         try {
             return await firstValueFrom(
-                this.http.get<ApiResponse<Group[]>>(this.API_URL)
+                this.http.get<ApiResponse<Group[]>>(`${this.API_URL}${all ? '?all=true' : ''}`)
             );
         } catch (error: any) {
             return {

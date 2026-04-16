@@ -61,16 +61,20 @@ fastify.get('/', async (request, reply) => {
     const userName = request.headers['x-user-name'] || '';
     const permissionsRaw = request.headers['x-user-permissions'];
     const globalPermissions = permissionsRaw ? JSON.parse(permissionsRaw) : [];
+    const showAll = request.query.all === 'true'; 
+
     if (!user_id) return reply.code(400).send({ statusCode: 400, intOpCode: 'ExGR400', message: 'User ID missing' });
 
-    const isSuperAdmin = globalPermissions.includes('admin:all') || globalPermissions.includes('groups:manage');
+    const isManager = globalPermissions.includes('admin:all') || globalPermissions.includes('groups:manage');
     let workspaces;
 
-    if (isSuperAdmin) {
+    if (showAll && isManager) {
+      
       const { data, error } = await supabase.from('workspaces').select('*, users!created_by(name)');
       if (error) throw error;
       workspaces = data;
     } else {
+      
       const { data: memberships, error: memError } = await supabase.from('workspace_members').select('workspace_id').eq('user_id', user_id);
       if (memError) throw memError;
       const workspaceIds = memberships.map(m => m.workspace_id);
