@@ -10,9 +10,15 @@
 
     <p-toolbar class="usuarios-toolbar" styleClass="dark-toolbar">
         <ng-template pTemplate="start">
-            <!-- REQUERIMIENTO: permiso 'users:manage' -->
-            <div *appHasPermission="'users:manage'">
-                <p-button label="Nuevo Usuario" icon="pi pi-user-plus" (onClick)="openNew()"></p-button>
+            <div class="flex gap-3 align-items-center">
+                <!-- REQUERIMIENTO: permiso 'users:manage' -->
+                <div *appHasPermission="'users:manage'">
+                    <p-button label="Nuevo Usuario" icon="pi pi-user-plus" (onClick)="openNew()"></p-button>
+                </div>
+                <p-iconfield iconPosition="left">
+                    <p-inputicon styleClass="pi pi-search"></p-inputicon>
+                    <input pInputText type="text" (input)="dt.filterGlobal($any($event.target).value, 'contains')" placeholder="Buscar usuario..." />
+                </p-iconfield>
             </div>
         </ng-template>
         <ng-template pTemplate="end">
@@ -21,7 +27,8 @@
     </p-toolbar>
 
     <div class="table-card p-3 mt-3">
-        <p-table [value]="usuarios" [paginator]="true" [rows]="8" responsiveLayout="scroll" class="usuarios-table dark-table">
+        <p-table #dt [value]="usuarios" [paginator]="true" [rows]="8" responsiveLayout="scroll" 
+                 [globalFilterFields]="['name', 'email']" class="usuarios-table dark-table">
             <ng-template pTemplate="header">
                 <tr>
                     <th>Nombre Completo</th>

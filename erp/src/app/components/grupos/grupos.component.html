@@ -10,8 +10,14 @@
 
     <p-toolbar class="grupos-toolbar" styleClass="dark-toolbar">
         <ng-template pTemplate="start">
-            <div>
-                <p-button label="Nuevo Room" icon="pi pi-plus" (onClick)="openNew()"></p-button>
+            <div class="flex gap-3 align-items-center">
+                <div>
+                    <p-button label="Nuevo Room" icon="pi pi-plus" (onClick)="openNew()"></p-button>
+                </div>
+                <p-iconfield iconPosition="left">
+                    <p-inputicon styleClass="pi pi-search"></p-inputicon>
+                    <input pInputText type="text" (input)="dt.filterGlobal($any($event.target).value, 'contains')" placeholder="Buscar room..." />
+                </p-iconfield>
             </div>
         </ng-template>
         <ng-template pTemplate="end">
@@ -20,7 +26,8 @@
     </p-toolbar>
 
     <div class="table-card p-3 mt-3">
-        <p-table [value]="groups" [paginator]="true" [rows]="8" [rowsPerPageOptions]="[5, 8, 15]" responsiveLayout="scroll" class="grupos-table">
+        <p-table #dt [value]="groups" [paginator]="true" [rows]="8" [rowsPerPageOptions]="[5, 8, 15]" responsiveLayout="scroll" 
+                 [globalFilterFields]="['name', 'category', 'creator_name']" class="grupos-table">
             <ng-template pTemplate="header">
                 <tr>
                     <th>Nombre</th>

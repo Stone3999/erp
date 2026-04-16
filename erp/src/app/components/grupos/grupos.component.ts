@@ -12,6 +12,8 @@ import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
 
 import { Group, GroupService } from '../../services/group.service';
 import { HasPermissionDirective } from '../../directives/has-permission.directive';
