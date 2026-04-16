@@ -149,6 +149,7 @@ export class RegisterComponent {
   }
 
   async onRegister(): Promise<void> {
+    if (this.loading) return;
     if (!this.validateForm()) {
       this.messageService.add({
         severity: 'warn',

@@ -176,7 +176,7 @@ export class GruposComponent implements OnInit {
     }
 
     async saveGroup() {
-        if (this.groupForm.invalid) return;
+        if (this.loading || this.groupForm.invalid) return;
 
         this.loading = true;
         const formValue = this.groupForm.value;

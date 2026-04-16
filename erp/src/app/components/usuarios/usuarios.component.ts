@@ -103,6 +103,7 @@ export class UsuariosComponent implements OnInit {
     }
 
     async saveUsuario() {
+        if (this.loading) return;
         if (this.usuarioForm.invalid) {
             this.usuarioForm.markAllAsTouched();
             this.messageService.add({ severity: 'warn', summary: 'Formulario inválido', detail: 'Completa todos los campos.' });

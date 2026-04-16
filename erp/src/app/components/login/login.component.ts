@@ -64,6 +64,7 @@ export class LoginComponent {
   }
 
   async onLogin(): Promise<void> {
+    if (this.loading) return;
     if (!this.email || !this.password) {
       this.messageService.add({
         severity: 'warn',

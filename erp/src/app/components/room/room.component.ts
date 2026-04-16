@@ -308,7 +308,7 @@ export class RoomComponent implements OnInit, AfterViewChecked {
     }
 
     async agregarComentario() {
-        if (!this.nuevoComentario.trim() || !this.ticketEditando) return;
+        if (this.loading || !this.nuevoComentario.trim() || !this.ticketEditando) return;
         
         this.loading = true;
         const res = await this.ticketService.addComment(this.ticketEditando.id as any, this.nuevoComentario, this.currentUser);
