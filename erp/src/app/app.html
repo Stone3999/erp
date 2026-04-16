@@ -1,7 +1,7 @@
 <div *ngIf="loadingService.isLoading() || connectivityService.isOffline()" class="global-overlay"></div>
 
 <p-dialog 
-    [visible]="connectivityService.isOffline()" 
+    [(visible)]="showOfflineModal" 
     [modal]="true" 
     [closable]="false" 
     [draggable]="false" 

@@ -1,4 +1,4 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, signal, inject, OnInit, NgZone } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { LoadingService } from './services/loading.service';
@@ -13,12 +13,27 @@ import { ButtonModule } from 'primeng/button';
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
-export class App {
+export class App implements OnInit {
   protected readonly title = signal('erp');
   public loadingService = inject(LoadingService);
   public connectivityService = inject(ConnectivityService);
+  
+  // Variable local para binding de PrimeNG que sí permite lectura/escritura (aunque no escribamos)
+  showOfflineModal = false;
+
+  constructor() {}
+
+  ngOnInit() {
+    // Sincronizar el estado de la señal con la variable local para el modal
+    // (A veces PrimeNG tiene issues con signals directos en [visible])
+    import('rxjs').then(({ interval }) => {
+        interval(500).subscribe(() => {
+            this.showOfflineModal = this.connectivityService.isOffline();
+        });
+    });
+  }
 
   reconnect() {
-    window.location.reload();
+    this.connectivityService.retry();
   }
 }

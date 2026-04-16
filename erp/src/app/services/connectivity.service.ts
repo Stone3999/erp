@@ -1,11 +1,11 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, NgZone } from '@angular/core';
 import { Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ConnectivityService {
-  private _isOffline = signal<boolean>(false);
+  private _isOffline = signal<boolean>(!navigator.onLine);
   private _showReconnectButton = signal<boolean>(false);
   private _message = signal<string>('Sin conexión a internet. Reintentando...');
 
@@ -13,8 +13,23 @@ export class ConnectivityService {
   showReconnectButton = this._showReconnectButton.asReadonly();
   message = this._message.asReadonly();
 
-  // Subject para notificar que se quiere intentar reconectar manualmente
   onRetryManual = new Subject<void>();
+
+  constructor(private ngZone: NgZone) {
+    // Escuchar eventos globales del navegador para detectar desconexión al instante
+    window.addEventListener('online', () => {
+      this.ngZone.run(() => {
+        this.setOffline(false);
+      });
+    });
+
+    window.addEventListener('offline', () => {
+      this.ngZone.run(() => {
+        this.setOffline(true, 'Se ha perdido la conexión a internet.');
+        this.setShowReconnect(true); // En desconexión total mostramos el botón directo
+      });
+    });
+  }
 
   setOffline(offline: boolean, msg: string = 'Sin conexión a internet. Reintentando...') {
     this._isOffline.set(offline);
@@ -32,6 +47,11 @@ export class ConnectivityService {
   }
 
   retry() {
-    this.onRetryManual.next();
+    if (navigator.onLine) {
+        this.setOffline(false);
+        window.location.reload();
+    } else {
+        this._message.set('Sigues sin conexión. Por favor verifica tu internet.');
+    }
   }
 }
