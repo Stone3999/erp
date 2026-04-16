@@ -29,7 +29,8 @@ import { LoadingService } from '../../services/loading.service';
         CommonModule, ReactiveFormsModule, ButtonModule, TableModule,
         DialogModule, ToastModule, ToolbarModule, InputTextModule,
         SelectModule, ToggleSwitchModule, ConfirmDialogModule,
-        MultiSelectModule, TagModule, HasPermissionDirective
+        MultiSelectModule, TagModule, HasPermissionDirective,
+        IconFieldModule, InputIconModule
     ],
     providers: [MessageService, ConfirmationService],
     templateUrl: './usuarios.component.html',

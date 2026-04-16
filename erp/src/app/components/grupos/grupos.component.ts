@@ -28,7 +28,7 @@ import { LoadingService } from '../../services/loading.service';
         CommonModule, ReactiveFormsModule, FormsModule, ButtonModule, TableModule,
         DialogModule, ToastModule, ToolbarModule, InputTextModule,
         InputNumberModule, SelectModule, ConfirmDialogModule, MultiSelectModule,
-        HasPermissionDirective
+        HasPermissionDirective, IconFieldModule, InputIconModule
     ],
     providers: [MessageService, ConfirmationService],
     templateUrl: './grupos.component.html',
