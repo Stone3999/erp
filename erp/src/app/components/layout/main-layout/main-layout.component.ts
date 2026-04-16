@@ -8,6 +8,7 @@ import { MenuModule } from 'primeng/menu';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { AuthService } from '../../../services/auth.service';
+import { PermissionService } from '../../../services/permission.service';
 
 @Component({
     selector: 'app-main-layout',
@@ -25,10 +26,12 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     homeItem: MenuItem = { icon: 'pi pi-home', routerLink: '/dashboard', label: 'Dashboard' };
 
     private routerSub!: Subscription;
+    private permissionSub!: Subscription;
 
     constructor(
         private authService: AuthService,
-        private router: Router
+        private router: Router,
+        private permissionService: PermissionService
     ) {}
 
     ngOnInit(): void {
@@ -43,10 +46,16 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
                 this.buildMenu();
                 this.updateBreadcrumb(e.urlAfterRedirects ?? e.url);
             });
+
+        
+        this.permissionSub = this.permissionService.permissions$.subscribe(() => {
+            this.buildMenu();
+        });
     }
 
     ngOnDestroy(): void {
         this.routerSub?.unsubscribe();
+        this.permissionSub?.unsubscribe();
     }
 
     buildMenu(): void {
