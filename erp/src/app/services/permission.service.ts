@@ -57,6 +57,10 @@ export class PermissionService implements OnDestroy {
 
   
   async forceRefresh(): Promise<void> {
+    
+    await this.authService.refreshToken();
+
+    
     if (this.currentGroupId) {
       const res = await this.groupService.getMyPermissions(this.currentGroupId);
       if (res.statusCode === 200) {

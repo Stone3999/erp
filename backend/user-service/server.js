@@ -72,6 +72,27 @@ fastify.post('/auth/login', { schema: loginSchema }, async (request, reply) => {
   return { statusCode: 200, intOpCode: 'SxUS200', data: { token, user: { name: user.name, email: user.email, id: user.id, permissions: user.permissions } }};
 });
 
+fastify.get('/auth/refresh', async (request, reply) => {
+  try {
+    const authHeader = request.headers.authorization;
+    if (!authHeader) return reply.code(401).send({ statusCode: 401, message: 'No token' });
+    
+    const oldToken = authHeader.replace('Bearer ', '');
+    const decoded = jwt.verify(oldToken, JWT_SECRET);
+    
+    const { data: user, error } = await supabase.from('users').select('*').eq('id', decoded.id).maybeSingle();
+    
+    if (!user || user.is_active === false) {
+      return reply.code(403).send({ statusCode: 403, message: 'Usuario inactivo o no encontrado' });
+    }
+
+    const newToken = jwt.sign({ id: user.id, email: user.email, name: user.name, permissions: user.permissions }, JWT_SECRET, { expiresIn: '24h' });
+    return { statusCode: 200, intOpCode: 'SxUS200', data: { token: newToken } };
+  } catch (err) {
+    return reply.code(401).send({ statusCode: 401, message: 'Invalid token' });
+  }
+});
+
 fastify.get('/', async (request, reply) => {
   const { data, error } = await supabase.from('users').select('id, email, name, permissions, is_active');
   if (error) return reply.code(500).send({ statusCode: 500, intOpCode: 'ExUS500', message: error.message });

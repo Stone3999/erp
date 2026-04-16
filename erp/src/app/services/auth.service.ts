@@ -82,6 +82,25 @@ export class AuthService {
     }
 
     
+    async refreshToken(): Promise<boolean> {
+        try {
+            const response = await firstValueFrom(
+                this.http.get<ApiResponse>(`${this.API_GATEWAY}/auth/refresh`)
+            );
+            if (response.statusCode === 200 && response.data) {
+                const { token } = response.data as any;
+                this.setToken(token);
+                console.log('[AuthService] Token refrescado exitosamente.');
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error('[AuthService] Error al refrescar token:', error);
+            return false;
+        }
+    }
+
+    
     async register(user: RegisteredUser): Promise<ApiResponse> {
         try {
             const payload = {
