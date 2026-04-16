@@ -4,11 +4,13 @@ import { Router } from '@angular/router';
 import { catchError, throwError, retry, timer, tap } from 'rxjs';
 import { AuthService } from './auth.service';
 import { ConnectivityService } from './connectivity.service';
+import { PermissionService } from './permission.service';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const router = inject(Router);
   const connectivityService = inject(ConnectivityService);
+  const permissionService = inject(PermissionService);
   
   const token = authService.getToken();
   const isPublicRoute = req.url.includes('/auth/login') || req.url.includes('/auth/register');
@@ -45,10 +47,13 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         console.error('[Network Error] No se pudo conectar al servidor.');
         connectivityService.setOffline(true);
         connectivityService.setShowReconnect(true);
-      } else if (error.status === 401 || error.status === 403) {
-        console.warn('Sesión expirada o sin permisos. Redirigiendo al login...');
+      } else if (error.status === 401) {
+        console.warn('Sesión expirada. Redirigiendo al login...');
         authService.logout();
         router.navigate(['/login']);
+      } else if (error.status === 403) {
+        console.warn('[Interceptor] Permiso denegado. Forzando refresco de permisos...');
+        permissionService.forceRefresh();
       }
       
       return throwError(() => error);

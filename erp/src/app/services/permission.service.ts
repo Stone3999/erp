@@ -35,23 +35,34 @@ export class PermissionService implements OnDestroy {
     console.log(`[PermissionService] Iniciando monitoreo constante para el grupo: ${groupId}`);
     
     
-    this.pollingSub = interval(15000)
+    this.pollingSub = interval(5000)
       .pipe(
         startWith(0), 
         switchMap(() => this.groupService.getMyPermissions(groupId))
       )
       .subscribe({
         next: (res) => {
-          if (res.statusCode === 200 && res.data) {
-            
-            if (JSON.stringify(this.localPermissions) !== JSON.stringify(res.data)) {
-              this.localPermissions = res.data;
-              console.log('[PermissionService] Permisos actualizados en vivo:', this.localPermissions);
-            }
-          }
+          this.updateLocalPermissions(res.data);
         },
         error: (err) => console.error('[PermissionService] Error en monitoreo en vivo:', err)
       });
+  }
+
+  private updateLocalPermissions(data: string[] | null): void {
+    if (data && JSON.stringify(this.localPermissions) !== JSON.stringify(data)) {
+        this.localPermissions = data;
+        console.log('[PermissionService] Permisos actualizados en vivo:', this.localPermissions);
+    }
+  }
+
+  
+  async forceRefresh(): Promise<void> {
+    if (this.currentGroupId) {
+      const res = await this.groupService.getMyPermissions(this.currentGroupId);
+      if (res.statusCode === 200) {
+        this.updateLocalPermissions(res.data);
+      }
+    }
   }
 
   

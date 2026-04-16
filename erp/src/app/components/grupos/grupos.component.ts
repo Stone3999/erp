@@ -73,6 +73,7 @@ export class GruposComponent implements OnInit {
         private groupService: GroupService,
         private authService: AuthService,
         private userService: UserService,
+        private permissionService: PermissionService,
         public loadingService: LoadingService
     ) {}
 
@@ -208,6 +209,7 @@ export class GruposComponent implements OnInit {
 
         if (response.statusCode === 200 || response.statusCode === 201) {
             this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Room guardado correctamente.' });
+            await this.permissionService.forceRefresh(); 
             await this.loadGroups();
             this.dialogVisible = false;
         } else {

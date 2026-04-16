@@ -60,6 +60,7 @@ export class UsuariosComponent implements OnInit {
         private confirmationService: ConfirmationService,
         private userService: UserService,
         private authService: AuthService,
+        private permissionService: PermissionService,
         public loadingService: LoadingService
     ) {}
 
@@ -127,6 +128,7 @@ export class UsuariosComponent implements OnInit {
             
             if (response.statusCode === 200) {
                 this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Información actualizada con éxito.' });
+                await this.permissionService.forceRefresh(); 
                 await this.loadUsers();
                 this.dialogVisible = false;
             } else if (response.statusCode === 409) {
