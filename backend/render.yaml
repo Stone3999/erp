@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: erp-backend
+    name: erp-rooms4ums-backend
     env: node
     plan: free
     rootDir: backend
