@@ -208,7 +208,7 @@ export class GruposComponent implements OnInit {
         } else {
             this.messageService.add({ severity: 'error', summary: 'Error', detail: response.message });
         }
-        this.loading = false;
+        setTimeout(() => this.loading = false, 300);
     }
 
     deleteGroup(group: Group): void {

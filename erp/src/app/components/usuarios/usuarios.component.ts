@@ -126,7 +126,7 @@ export class UsuariosComponent implements OnInit {
             this.messageService.add({ severity: 'info', summary: 'Info', detail: 'La creación de usuarios debe realizarse a través del registro.' });
             this.dialogVisible = false;
         }
-        this.loading = false;
+        setTimeout(() => this.loading = false, 300);
     }
 
     deleteUsuario(usuario: User): void {

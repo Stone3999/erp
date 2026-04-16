@@ -59,7 +59,8 @@
 
 </div>
 
-<p-dialog [(visible)]="dialogVisible" [header]="isEditMode ? 'Editar Usuario' : 'Nuevo Usuario'" [modal]="true" [style]="{ width: '550px' }" [closable]="true" (onHide)="closeDialog()">
+<p-dialog [(visible)]="dialogVisible" [header]="isEditMode ? 'Editar Usuario' : 'Nuevo Usuario'" [modal]="true" [style]="{ width: '600px' }" 
+          [styleClass]="loading ? 'p-dialog-loading' : ''" [closable]="!loading" (onHide)="closeDialog()">
     <form [formGroup]="usuarioForm" class="usuario-form">
 
         <div class="field-row">

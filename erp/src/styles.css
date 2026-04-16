@@ -560,3 +560,6 @@ p-divider {
 .terms-link:hover {
     opacity: 0.8;
 }
+/* --- ESTADOS DE CARGA GLOBALES --- */
+.p-dialog-loading { opacity: 0.6 !important; pointer-events: none !important; transition: opacity 0.3s ease; }
+.p-dialog-loading .p-dialog-header-icons { display: none !important; }

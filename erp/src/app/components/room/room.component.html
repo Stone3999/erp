@@ -132,7 +132,8 @@
     </div>
 
     <!-- MODAL CREAR -->
-    <p-dialog header="Crear Nuevo Ticket" [(visible)]="showTicketModal" [modal]="true" [style]="{width: '550px'}" appendTo="body">
+    <p-dialog header="Crear Nuevo Ticket" [(visible)]="showTicketModal" [modal]="true" [style]="{width: '550px'}" 
+              [styleClass]="loading ? 'p-dialog-loading' : ''" [closable]="!loading" appendTo="body">
         <div class="flex flex-column gap-3 pt-3">
             <div class="flex flex-column gap-1">
                 <label class="font-bold text-sm" style="color: var(--r4u-text-muted);">Título del Ticket *</label>
@@ -170,7 +171,8 @@
     </p-dialog>
 
     <!-- MODAL DETALLES (3 COLUMNAS) -->
-    <p-dialog *ngIf="ticketEditando" [header]="ticketEditando.titulo" [(visible)]="showEditModal" [modal]="true" [style]="{width: '1100px'}" appendTo="body">
+    <p-dialog *ngIf="ticketEditando" [header]="ticketEditando.titulo" [(visible)]="showEditModal" [modal]="true" [style]="{width: '1100px'}" 
+              [styleClass]="loading ? 'p-dialog-loading' : ''" [closable]="!loading" appendTo="body">
         
         <div class="detail-grid pt-4">
             <!-- COLUMNA 1 -->

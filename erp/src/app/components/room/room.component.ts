@@ -240,7 +240,7 @@ export class RoomComponent implements OnInit, AfterViewChecked {
              await this.cargarTickets();
              this.showTicketModal = false;
         }
-        this.loading = false;
+        setTimeout(() => this.loading = false, 300);
     }
 
     updateChart() {
