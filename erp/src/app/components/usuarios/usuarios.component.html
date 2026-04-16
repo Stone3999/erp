@@ -50,7 +50,9 @@
                         </div>
                     </td>
                     <td style="text-align:center">
-                        <span class="estado-badge estado-activo">Activo</span>
+                        <span [class]="usuario.is_active !== false ? 'estado-badge estado-activo' : 'estado-badge estado-inactivo'">
+                            {{ usuario.is_active !== false ? 'Activo' : 'Bloqueado' }}
+                        </span>
                     </td>
                     <td style="text-align:center">
                         <div class="flex justify-content-center gap-2" *appHasPermission="'users:manage'">
