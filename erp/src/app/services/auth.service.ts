@@ -32,15 +32,31 @@ export class AuthService {
     constructor() {}
 
     private setToken(value: string) {
-        sessionStorage.setItem('session_token', value);
+        // --- REQUERIMIENTO: Guardar token en Cookies ---
+        const d = new Date();
+        d.setTime(d.getTime() + (24 * 60 * 60 * 1000)); // 24h
+        const expires = "expires=" + d.toUTCString();
+        document.cookie = `session_token=${value};${expires};path=/;SameSite=Lax`;
     }
 
     public getToken(): string | null {
-        return sessionStorage.getItem('session_token');
+        const name = "session_token=";
+        const decodedCookie = decodeURIComponent(document.cookie);
+        const ca = decodedCookie.split(';');
+        for (let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) === ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) === 0) {
+                return c.substring(name.length, c.length);
+            }
+        }
+        return null;
     }
 
     private deleteToken() {
-        sessionStorage.removeItem('session_token');
+        document.cookie = "session_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     }
 
     // --- LOGIN REAL AL API GATEWAY ---
@@ -68,7 +84,6 @@ export class AuthService {
     // --- REGISTER REAL AL API GATEWAY ---
     async register(user: RegisteredUser): Promise<ApiResponse> {
         try {
-            // Renombramos campos para que coincidan con lo que espera el microservicio
             const payload = {
                 email: user.email,
                 password: user.password,
@@ -127,7 +142,6 @@ export class AuthService {
         return payload.permissions.includes(permission);
     }
 
-    // Ya no exponemos las credenciales hardcodeadas (Seguridad Pro)
     getHardcodedCredentials() {
         return [
             { email: 'admin@miapp.com', password: 'Admin@12345 (Admin)' },

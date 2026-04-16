@@ -37,7 +37,7 @@ fastify.addHook('onRequest', async (request, reply) => {
 fastify.addHook('onResponse', async (request, reply) => {
   const responseTime = Date.now() - request.startTime;
   
-  // Guardar log en Supabase (de forma asíncrona para no bloquear)
+  // Guardar log en Supabase
   supabase.from('logs').insert([{
     endpoint: request.url,
     method: request.method,
@@ -50,6 +50,20 @@ fastify.addHook('onResponse', async (request, reply) => {
   supabase.from('metrics').insert([{
     endpoint: request.url,
     response_time_ms: responseTime
+  }]).then();
+});
+
+// --- REQUERIMIENTO EXTRA: Registro de errores con stack traces ---
+fastify.addHook('onError', async (request, reply, error) => {
+  console.error('[Gateway Error Trace]:', error);
+  
+  supabase.from('logs').insert([{
+    endpoint: request.url,
+    method: request.method,
+    user_email: request.user?.email || 'error_hook',
+    ip: request.ip,
+    status_code: reply.statusCode || 500,
+    error_stack: error.stack // Requiere columna error_stack en la tabla logs
   }]).then();
 });
 
