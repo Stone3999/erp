@@ -39,6 +39,18 @@ fastify.get('/', async (request, reply) => {
   return { statusCode: 200, data };
 });
 
+fastify.patch('/:id', async (request, reply) => {
+  const { name, permissions } = request.body;
+  const { id } = request.params;
+  const updateData = {};
+  if (name) updateData.name = name;
+  if (permissions) updateData.permissions = permissions;
+
+  const { data, error } = await supabase.from('users').update(updateData).eq('id', id).select().single();
+  if (error) return reply.code(500).send({ statusCode: 500, message: error.message });
+  return { statusCode: 200, data };
+});
+
 fastify.patch('/:id/permissions', async (request, reply) => {
   const { permissions } = request.body;
   const { id } = request.params;

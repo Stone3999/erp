@@ -114,13 +114,16 @@ export class UsuariosComponent implements OnInit {
         const formValue = this.usuarioForm.value;
 
         if (this.isEditMode && this.editingId !== null) {
-            const response = await this.userService.updatePermissions(this.editingId, formValue.permisos);
+            const response = await this.userService.updateUser(this.editingId, { 
+                name: formValue.nombre, 
+                permissions: formValue.permisos 
+            });
             if (response.statusCode === 200) {
-                this.messageService.add({ severity: 'success', summary: 'Actualizado', detail: `Permisos de "${formValue.nombre}" actualizados.` });
+                this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Información actualizada con éxito.' });
                 await this.loadUsers();
                 this.dialogVisible = false;
             } else {
-                this.messageService.add({ severity: 'error', summary: 'Error', detail: response.message || 'No se pudieron actualizar los permisos' });
+                this.messageService.add({ severity: 'error', summary: 'Error', detail: response.message || 'No se pudo actualizar la información' });
             }
         } else {
             this.messageService.add({ severity: 'info', summary: 'Info', detail: 'La creación de usuarios debe realizarse a través del registro.' });
