@@ -43,7 +43,6 @@ export class LoginComponent {
   password: string = '';
   rememberMe: boolean = false;
   loading: boolean = false;
-  showCredentials: boolean = false;
 
   constructor(
     private router: Router,
@@ -52,19 +51,6 @@ export class LoginComponent {
     private loadingService: LoadingService
   ) { 
     this.loadingService.setLoading(false);
-  }
-
-  get hardcodedCredentials() {
-    return this.authService.getHardcodedCredentials();
-  }
-
-  toggleCredentials(): void {
-    this.showCredentials = !this.showCredentials;
-  }
-
-  fillCredentials(email: string, password: string): void {
-    this.email = email;
-    this.password = password;
   }
 
   async onLogin(): Promise<void> {

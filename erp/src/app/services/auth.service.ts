@@ -141,11 +141,4 @@ export class AuthService {
         if (!payload || !payload.permissions) return false;
         return payload.permissions.includes(permission);
     }
-
-    getHardcodedCredentials() {
-        return [
-            { email: 'admin@miapp.com', password: 'Admin@12345 (Admin)' },
-            { email: 'usuario@miapp.com', password: 'User@12345! (Agente)' }
-        ];
-    }
 }

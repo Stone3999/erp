@@ -16,29 +16,6 @@
       </ng-template>
 
       <p-fluid>
-        <!-- CREDENCIALES DE PRUEBA -->
-        <div class="mb-4">
-          <p-button label="Ver credenciales de prueba" icon="pi pi-info-circle" severity="info" [outlined]="true"
-            size="small" (onClick)="toggleCredentials()" [style]="{ width: '100%' }">
-          </p-button>
-          <div *ngIf="showCredentials" class="credentials-box">
-            <p class="text-sm font-semibold" style="margin: 0 0 0.5rem;">
-              <i class="pi pi-key mr-1"></i>Credenciales hardcodeadas:
-            </p>
-            <div *ngFor="let cred of hardcodedCredentials" class="credentials-item"
-              (click)="fillCredentials(cred.email, cred.password)">
-              <div>
-                <div class="text-sm"><strong>Email:</strong> {{ cred.email }}</div>
-                <div class="text-sm"><strong>Pass:</strong> {{ cred.password }}</div>
-              </div>
-              <i class="pi pi-copy text-primary" title="Usar estas credenciales"></i>
-            </div>
-            <p class="text-xs" style="color: #6b7280; margin: 0.5rem 0 0;">
-              <i class="pi pi-info-circle mr-1"></i>Haz clic en una para autocompletar
-            </p>
-          </div>
-        </div>
-
         <!-- EMAIL -->
         <div class="field-group">
           <label for="email">
