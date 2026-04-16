@@ -1,2 +1,27 @@
-<div *ngIf="loadingService.isLoading()" class="global-overlay"></div>
+<div *ngIf="loadingService.isLoading() || connectivityService.isOffline()" class="global-overlay"></div>
+
+<p-dialog 
+    [(visible)]="connectivityService.isOffline" 
+    [modal]="true" 
+    [closable]="false" 
+    [draggable]="false" 
+    [resizable]="false"
+    header="Error de Conexión"
+    [style]="{ width: '400px' }">
+    
+    <div class="flex flex-column align-items-center p-3 text-center">
+        <i class="pi pi-wifi text-6xl mb-3 text-orange-500"></i>
+        <p class="font-bold">{{ connectivityService.message() }}</p>
+        
+        <p-button 
+            *ngIf="connectivityService.showReconnectButton()" 
+            label="Reintentar ahora" 
+            icon="pi pi-refresh" 
+            (onClick)="reconnect()" 
+            class="mt-4"
+            severity="warn">
+        </p-button>
+    </div>
+</p-dialog>
+
 <router-outlet />

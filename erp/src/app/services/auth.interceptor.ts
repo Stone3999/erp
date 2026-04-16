@@ -1,20 +1,18 @@
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { catchError, throwError } from 'rxjs';
+import { catchError, throwError, retry, timer, tap } from 'rxjs';
 import { AuthService } from './auth.service';
+import { ConnectivityService } from './connectivity.service';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const router = inject(Router);
+  const connectivityService = inject(ConnectivityService);
   
-  // LOG SIEMPRE ACTIVO: Anuncio de la petición en la consola
-  console.log(`[HTTP Interceptor] Request -> ${req.method} ${req.url}`);
-
   const token = authService.getToken();
   const isPublicRoute = req.url.includes('/auth/login') || req.url.includes('/auth/register');
 
-  // Clonamos la petición para añadir el encabezado de Authorization si el token existe y no es una ruta pública
   let authReq = req;
   if (token && !isPublicRoute) {
     authReq = req.clone({
@@ -25,15 +23,34 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   }
 
   return next(authReq).pipe(
+    retry({
+        count: 2,
+        delay: (error, retryCount) => {
+            // Solo reintentamos si es error de red (status 0)
+            if (error.status === 0) {
+                connectivityService.setOffline(true, `Sin conexión. Reintento ${retryCount}/2 en 5 segundos...`);
+                return timer(5000);
+            }
+            throw error;
+        }
+    }),
+    tap(() => {
+        // Si la petición tiene éxito, nos aseguramos de quitar el modal si estaba puesto
+        if (connectivityService.isOffline()) {
+            connectivityService.setOffline(false);
+        }
+    }),
     catchError((error: HttpErrorResponse) => {
-      // Manejo global de errores (401: No autorizado, 403: Prohibido)
-      if (error.status === 401 || error.status === 403) {
+      if (error.status === 0) {
+        console.error('[Network Error] No se pudo conectar al servidor.');
+        connectivityService.setOffline(true);
+        connectivityService.setShowReconnect(true);
+      } else if (error.status === 401 || error.status === 403) {
         console.warn('Sesión expirada o sin permisos. Redirigiendo al login...');
         authService.logout();
         router.navigate(['/login']);
       }
       
-      // Retornamos el error para que el componente que hizo la petición también pueda manejarlo si es necesario
       return throwError(() => error);
     })
   );
