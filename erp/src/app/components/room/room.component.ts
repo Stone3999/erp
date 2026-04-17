@@ -257,8 +257,15 @@ export class RoomComponent implements OnInit, AfterViewChecked, OnDestroy {
 
         const res = await this.ticketService.createTicket(nuevoTicket);
         if (res.statusCode === 201 && res.data) {
+             this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Ticket creado correctamente.' });
              await this.cargarTickets();
              this.showTicketModal = false;
+        } else {
+            this.messageService.add({ 
+                severity: 'error', 
+                summary: 'Error al crear ticket', 
+                detail: res.message || 'No tienes permiso o hubo un fallo en el servidor.' 
+            });
         }
         setTimeout(() => {
             this.loading = false;
