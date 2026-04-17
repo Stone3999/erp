@@ -60,9 +60,10 @@ fastify.addHook('preHandler', async (request, reply) => {
     const decoded = jwt.verify(token, JWT_SECRET);
     request.user = decoded;
 
+    
     const { data: user } = await supabase.from('users').select('is_active').eq('id', decoded.id).maybeSingle();
     if (user && user.is_active === false) {
-      return reply.code(403).send({ statusCode: 403, intOpCode: 'ExUS403', message: 'Usuario inactivo' });
+      return reply.code(403).send({ statusCode: 403, message: 'Usuario inactivo' });
     }
 
     request.headers['x-user-id'] = decoded.id;
@@ -92,14 +93,15 @@ fastify.addHook('preHandler', async (request, reply) => {
     if (isSuperAdmin) return;
 
     
-    const hasGlobalPerm = decoded.permissions?.includes(requiredPerm);
-    if (hasGlobalPerm) return;
+    if (decoded.permissions?.includes(requiredPerm)) return;
 
     
-    let workspaceId = request.body?.workspace_id || request.query?.workspace_id;
+    
+    let workspaceId = request.headers['x-workspace-id'] || request.query?.workspace_id;
     let ticketData = null;
 
-    if (path.startsWith('/tickets/') && !workspaceId) {
+    
+    if (!workspaceId && path.startsWith('/tickets/')) {
       const ticketId = path.split('/')[2]?.split('?')[0];
       if (ticketId && ticketId.length > 30) {
         const { data: ticket } = await supabase.from('tickets').select('workspace_id, assigned_to').eq('id', ticketId).single();
@@ -126,8 +128,7 @@ fastify.addHook('preHandler', async (request, reply) => {
       return reply.code(403).send({ statusCode: 403, message: `Forbidden: Falta permiso [${requiredPerm}] en el room.` });
     }
 
-    
-    return reply.code(403).send({ statusCode: 403, message: `Forbidden: No tienes el permiso global [${requiredPerm}].` });
+    return reply.code(403).send({ statusCode: 403, message: `Forbidden: Falta permiso global [${requiredPerm}].` });
 
   } catch (err) {
     if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {

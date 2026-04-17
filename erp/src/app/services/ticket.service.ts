@@ -86,19 +86,13 @@ export class TicketService {
         }
     }
 
-    async createTicket(ticket: Partial<Ticket>): Promise<ApiResponse<any>> {
+    async createTicket(ticket: any): Promise<ApiResponse<any>> {
         try {
-            const payload = {
-                title: ticket.titulo,
-                description: ticket.descripcion,
-                priority: ticket.prioridad,
-                status: ticket.estado,
-                assigned_to: ticket.asignadoA,
-                workspace_id: ticket.grupoId,
-                created_by: ticket.creador
-            };
+            const workspaceId = ticket.workspace_id || ticket.grupoId;
             return await firstValueFrom(
-                this.http.post<ApiResponse<any>>(this.API_URL, payload)
+                this.http.post<ApiResponse<any>>(this.API_URL, ticket, {
+                    headers: { 'x-workspace-id': workspaceId?.toString() || '' }
+                })
             );
         } catch (error: any) {
             return {
@@ -112,8 +106,11 @@ export class TicketService {
 
     async updateTicket(id: number, payload: any): Promise<ApiResponse<any>> {
         try {
+            const workspaceId = payload.workspace_id || '';
             return await firstValueFrom(
-                this.http.patch<ApiResponse<any>>(`${this.API_URL}/${id}`, payload)
+                this.http.patch<ApiResponse<any>>(`${this.API_URL}/${id}`, payload, {
+                    headers: { 'x-workspace-id': workspaceId?.toString() || '' }
+                })
             );
         } catch (error: any) {
             return {
