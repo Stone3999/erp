@@ -60,10 +60,9 @@ fastify.addHook('preHandler', async (request, reply) => {
     const decoded = jwt.verify(token, JWT_SECRET);
     request.user = decoded;
 
-    
     const { data: user } = await supabase.from('users').select('is_active').eq('id', decoded.id).maybeSingle();
     if (user && user.is_active === false) {
-      return reply.code(403).send({ statusCode: 403, message: 'Usuario inactivo' });
+      return reply.code(403).send({ statusCode: 403, intOpCode: 'ExUS403', message: 'Usuario inactivo' });
     }
 
     request.headers['x-user-id'] = decoded.id;
@@ -89,26 +88,22 @@ fastify.addHook('preHandler', async (request, reply) => {
     if (!requiredPerm) return;
 
     
-    const isSuperAdmin = decoded.permissions?.includes('admin:all') || decoded.permissions?.includes('tickets:edit_all');
+    const globalPerms = decoded.permissions || [];
+    const isSuperAdmin = globalPerms.includes('admin:all') || globalPerms.includes('tickets:edit_all');
     if (isSuperAdmin) return;
 
     
-    if (decoded.permissions?.includes(requiredPerm)) return;
-
+    const hasGlobalPerm = globalPerms.includes(requiredPerm);
     
     
     let workspaceId = request.headers['x-workspace-id'] || request.query?.workspace_id;
-    let ticketData = null;
 
     
-    if (path.startsWith('/tickets/') && !workspaceId) {
+    if (!workspaceId && path.startsWith('/tickets/')) {
       const ticketId = path.split('/')[2]?.split('?')[0];
-      if (ticketId) {
+      if (ticketId && ticketId.length > 20) { 
         const { data: ticket } = await supabase.from('tickets').select('workspace_id, assigned_to').eq('id', ticketId).maybeSingle();
-        if (ticket) {
-          ticketData = ticket;
-          workspaceId = ticket.workspace_id;
-        }
+        if (ticket) workspaceId = ticket.workspace_id;
       }
     }
 
@@ -117,24 +112,35 @@ fastify.addHook('preHandler', async (request, reply) => {
       const localPerms = member?.permissions || [];
       const hasLocalPerm = localPerms.includes(requiredPerm);
 
-      if (requiredPerm === 'tickets:move' && hasLocalPerm) {
-        const canMoveAll = localPerms.includes('tickets:moveall');
-        if (!canMoveAll && ticketData && ticketData.assigned_to !== decoded.name) {
-          return reply.code(403).send({ statusCode: 403, message: 'Forbidden: No eres el dueño del ticket.' });
-        }
+      
+      if (hasGlobalPerm || hasLocalPerm) {
+          
+          if (requiredPerm === 'tickets:move' && !globalPerms.includes('tickets:moveall') && !localPerms.includes('tickets:moveall')) {
+              
+              const { data: tk } = await supabase.from('tickets').select('assigned_to').eq('id', path.split('/')[2]?.split('?')[0]).maybeSingle();
+              if (tk && tk.assigned_to !== decoded.name) {
+                  return reply.code(403).send({ statusCode: 403, message: 'Forbidden: No eres el dueño de este ticket.' });
+              }
+          }
+          return; 
       }
 
-      if (hasLocalPerm) return;
-      return reply.code(403).send({ statusCode: 403, message: `Forbidden: Falta permiso [${requiredPerm}] en el room.` });
+      return reply.code(403).send({ 
+          statusCode: 403, 
+          message: `Forbidden: No tienes el permiso [${requiredPerm}] ni global ni en el room [${workspaceId}].` 
+      });
     }
 
-    return reply.code(403).send({ statusCode: 403, message: `Forbidden: Falta permiso global [${requiredPerm}].` });
+    
+    if (!hasGlobalPerm) {
+      return reply.code(403).send({ statusCode: 403, message: `Forbidden: Falta permiso global [${requiredPerm}].` });
+    }
 
   } catch (err) {
     if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {
       return reply.code(401).send({ statusCode: 401, message: 'Invalid token' });
     }
-    return reply.code(500).send({ statusCode: 500, message: 'Gateway Error: ' + err.message });
+    return reply.code(500).send({ statusCode: 500, message: 'Gateway Auth Error: ' + err.message });
   }
 });
 
