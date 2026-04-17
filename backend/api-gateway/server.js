@@ -123,29 +123,21 @@ fastify.addHook('preHandler', async (request, reply) => {
     if (!requiredPerm) return;
 
     
-    const hasGlobalPerm = decoded.permissions && decoded.permissions.includes(requiredPerm);
     const isSuperAdmin = decoded.permissions && (decoded.permissions.includes('admin:all') || decoded.permissions.includes('tickets:edit_all'));
 
     if (isSuperAdmin) return; 
 
     
     let workspaceId = request.body?.workspace_id || request.query?.workspace_id;
+    let ticketData = null;
     
     
-    if (!workspaceId && path.startsWith('/tickets/')) {
+    if (path.startsWith('/tickets/')) {
         const ticketId = path.split('/')[2]?.split('?')[0];
         if (ticketId && ticketId.length > 30) { 
-            const { data: ticket } = await supabase.from('tickets').select('workspace_id, assigned_to_id').eq('id', ticketId).single();
-            workspaceId = ticket?.workspace_id;
-
-            
-            if (requiredPerm === 'tickets:move') {
-                const canMoveAll = member?.permissions?.includes('tickets:moveall') || decoded.permissions?.includes('tickets:moveall') || decoded.permissions?.includes('admin:all');
-                
-                if (!canMoveAll && ticket && ticket.assigned_to_id !== decoded.id) {
-                     return reply.code(403).send({ statusCode: 403, intOpCode: 'ExUS403', message: 'Forbidden: Este ticket no te pertenece y no tienes tickets:moveall.' });
-                }
-            }
+            const { data: ticket } = await supabase.from('tickets').select('workspace_id, assigned_to').eq('id', ticketId).single();
+            ticketData = ticket;
+            if (ticket) workspaceId = ticket.workspace_id;
         }
     }
 
@@ -156,10 +148,24 @@ fastify.addHook('preHandler', async (request, reply) => {
             .select('permissions')
             .eq('workspace_id', workspaceId)
             .eq('user_id', decoded.id)
-            .single();
+            .maybeSingle();
         
-        const hasLocalPerm = member?.permissions && member.permissions.includes(requiredPerm);
+        const localPerms = member?.permissions || [];
+        const hasLocalPerm = localPerms.includes(requiredPerm);
         
+        
+        if (requiredPerm === 'tickets:move' && (hasLocalPerm || hasGlobalPerm)) {
+            const canMoveAll = localPerms.includes('tickets:moveall') || decoded.permissions?.includes('tickets:moveall');
+            
+            if (!canMoveAll && ticketData && ticketData.assigned_to !== decoded.name) {
+                return reply.code(403).send({ 
+                    statusCode: 403, 
+                    intOpCode: 'ExUS403', 
+                    message: 'Forbidden: Solo puedes mover tus propios tickets.' 
+                });
+            }
+        }
+
         if (hasLocalPerm || hasGlobalPerm) {
             return; 
         } else {
