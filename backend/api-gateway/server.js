@@ -67,6 +67,7 @@ fastify.addHook('preHandler', async (request, reply) => {
 
     request.headers['x-user-id'] = decoded.id;
     request.headers['x-user-name'] = decoded.name;
+    request.headers['x-user-email'] = decoded.email;
     request.headers['x-user-permissions'] = JSON.stringify(decoded.permissions || []);
 
     const method = request.method;
@@ -86,9 +87,15 @@ fastify.addHook('preHandler', async (request, reply) => {
 
     if (!requiredPerm) return;
 
+    
     const isSuperAdmin = decoded.permissions?.includes('admin:all') || decoded.permissions?.includes('tickets:edit_all');
     if (isSuperAdmin) return;
 
+    
+    const hasGlobalPerm = decoded.permissions?.includes(requiredPerm);
+    if (hasGlobalPerm) return;
+
+    
     let workspaceId = request.body?.workspace_id || request.query?.workspace_id;
     let ticketData = null;
 
@@ -107,22 +114,20 @@ fastify.addHook('preHandler', async (request, reply) => {
       const { data: member } = await supabase.from('workspace_members').select('permissions').eq('workspace_id', workspaceId).eq('user_id', decoded.id).maybeSingle();
       const localPerms = member?.permissions || [];
       const hasLocalPerm = localPerms.includes(requiredPerm);
-      const hasGlobalPerm = decoded.permissions?.includes(requiredPerm);
 
-      if (requiredPerm === 'tickets:move' && (hasLocalPerm || hasGlobalPerm)) {
-        const canMoveAll = localPerms.includes('tickets:moveall') || decoded.permissions?.includes('tickets:moveall');
+      if (requiredPerm === 'tickets:move' && hasLocalPerm) {
+        const canMoveAll = localPerms.includes('tickets:moveall');
         if (!canMoveAll && ticketData && ticketData.assigned_to !== decoded.name) {
           return reply.code(403).send({ statusCode: 403, message: 'Forbidden: No eres el dueño del ticket.' });
         }
       }
 
-      if (hasLocalPerm || hasGlobalPerm) return;
+      if (hasLocalPerm) return;
       return reply.code(403).send({ statusCode: 403, message: `Forbidden: Falta permiso [${requiredPerm}] en el room.` });
     }
 
-    if (!decoded.permissions?.includes(requiredPerm)) {
-      return reply.code(403).send({ statusCode: 403, message: `Forbidden: Falta permiso global [${requiredPerm}].` });
-    }
+    
+    return reply.code(403).send({ statusCode: 403, message: `Forbidden: No tienes el permiso global [${requiredPerm}].` });
 
   } catch (err) {
     if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {
