@@ -186,6 +186,10 @@ export class RoomComponent implements OnInit, AfterViewChecked, OnDestroy {
     }
 
     async drop(event: CdkDragDrop<RoomTicket[]>, nuevoEstado: string) {
+        if (!this.permissionService.hasPermission('tickets:move')) {
+            return;
+        }
+
         if (event.previousContainer === event.container) {
             moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
         } else {
