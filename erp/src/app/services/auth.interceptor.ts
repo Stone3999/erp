@@ -48,12 +48,16 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         connectivityService.setOffline(true);
         connectivityService.setShowReconnect(true);
       } else if (error.status === 401) {
-        console.warn('Sesión expirada. Redirigiendo al login...');
+        
+        console.warn('[Interceptor] Sesión expirada o inválida (401). Redirigiendo...');
         authService.logout();
         router.navigate(['/login']);
       } else if (error.status === 403) {
-        console.warn('[Interceptor] Permiso denegado. Forzando refresco de permisos...');
+        
+        console.warn('[Interceptor] Permiso denegado (403). Forzando refresco...');
         permissionService.forceRefresh();
+      } else if (error.status === 500) {
+        console.error('[Interceptor] Error interno del Gateway (500).');
       }
       
       return throwError(() => error);
