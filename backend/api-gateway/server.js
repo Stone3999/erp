@@ -135,12 +135,16 @@ fastify.addHook('preHandler', async (request, reply) => {
     if (!workspaceId && path.startsWith('/tickets/')) {
         const ticketId = path.split('/')[2]?.split('?')[0];
         if (ticketId && ticketId.length > 30) { 
-            const { data: ticket } = await supabase.from('tickets').select('workspace_id, assigned_to').eq('id', ticketId).single();
+            const { data: ticket } = await supabase.from('tickets').select('workspace_id, assigned_to_id').eq('id', ticketId).single();
             workspaceId = ticket?.workspace_id;
 
             
-            if (requiredPerm === 'tickets:move' && ticket && ticket.assigned_to !== decoded.name) {
-                 return reply.code(403).send({ statusCode: 403, intOpCode: 'ExUS403', message: 'Forbidden: No eres el dueño del ticket.' });
+            if (requiredPerm === 'tickets:move') {
+                const canMoveAll = member?.permissions?.includes('tickets:moveall') || decoded.permissions?.includes('tickets:moveall') || decoded.permissions?.includes('admin:all');
+                
+                if (!canMoveAll && ticket && ticket.assigned_to_id !== decoded.id) {
+                     return reply.code(403).send({ statusCode: 403, intOpCode: 'ExUS403', message: 'Forbidden: Este ticket no te pertenece y no tienes tickets:moveall.' });
+                }
             }
         }
     }

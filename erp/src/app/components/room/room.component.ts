@@ -39,6 +39,7 @@ export interface RoomTicket {
     descripcion?: string;
     estado: string;
     asignado: string;
+    asignado_id?: string; 
     creador: string;
     prioridad: string;
     fecha: Date;
@@ -159,6 +160,7 @@ export class RoomComponent implements OnInit, AfterViewChecked, OnDestroy {
             descripcion: t.description || '',
             estado: t.status || 'Pendiente',
             asignado: t.assigned_to || 'Sin asignar',
+            asignado_id: t.assigned_to_id, 
             creador: t.creator_name || t.created_by || 'Sistema',
             prioridad: t.priority || 'Media',
             fecha: t.created_at ? new Date(t.created_at) : new Date(),
@@ -172,21 +174,10 @@ export class RoomComponent implements OnInit, AfterViewChecked, OnDestroy {
         };
     }
 
-    async cargarTickets() {
-        if (!this.groupId) return;
-        const response = await this.ticketService.getTicketsByGroup(this.groupId as any);
-        if (response.statusCode === 200 && response.data) {
-            const tickets = response.data.map((t: any) => this.mapToRoomTicket(t));
-            this.pendientes = tickets.filter((t: any) => t.estado === 'Pendiente');
-            this.enProgreso = tickets.filter((t: any) => t.estado === 'En Progreso');
-            this.revision = tickets.filter((t: any) => t.estado === 'Revisión');
-            this.finalizados = tickets.filter((t: any) => t.estado === 'Finalizado');
-            this.updateStatsFromLists();
-        }
-    }
-
     async drop(event: CdkDragDrop<RoomTicket[]>, nuevoEstado: string) {
-        if (!this.permissionService.hasPermission('tickets:move')) {
+        const ticket = event.previousContainer.data[event.currentIndex] || event.previousContainer.data[event.previousIndex];
+        if (!this.puedeMoverTicket(ticket)) {
+            this.messageService.add({ severity: 'error', summary: 'Denegado', detail: 'No tienes permiso para mover este ticket.' });
             return;
         }
 
@@ -290,7 +281,6 @@ export class RoomComponent implements OnInit, AfterViewChecked, OnDestroy {
     }
 
     async abrirDetalles(ticket: RoomTicket) {
-        if (!this.puedeMoverTicket(ticket)) return; 
         
         const res = await this.ticketService.getTicketById(ticket.id as any);
         if (res.statusCode === 200 && res.data) {
@@ -354,10 +344,16 @@ export class RoomComponent implements OnInit, AfterViewChecked, OnDestroy {
     }
 
     puedeMoverTicket(ticket: RoomTicket): boolean {
-        if (this.permissionService.hasPermission('tickets:edit_all')) return true;
-        const tienePermisoMover = this.permissionService.hasPermission('tickets:move');
+        
+        if (this.permissionService.hasPermission('tickets:moveall') || this.authService.hasPermission('admin:all')) {
+            return true;
+        }
+
+        
+        const tienePermisoBase = this.permissionService.hasPermission('tickets:move');
         const esSuTicket = ticket.asignado === this.currentUser;
-        return tienePermisoMover && esSuTicket;
+
+        return tienePermisoBase && esSuTicket;
     }
 
     get puedeEditarTodo(): boolean {
