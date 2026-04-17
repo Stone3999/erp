@@ -123,6 +123,7 @@ export class RoomComponent implements OnInit, AfterViewChecked, OnDestroy {
         
         if (this.groupId) {
             await this.permissionService.refreshPermissionsForGroup(this.groupId);
+            await this.permissionService.forceRefresh(); 
         }
 
         this.cargarTickets();
@@ -210,7 +211,10 @@ export class RoomComponent implements OnInit, AfterViewChecked, OnDestroy {
             const ticketMovido = event.container.data[event.currentIndex];
             ticketMovido.estado = nuevoEstado;
             this.updateStatsFromLists();
-            await this.ticketService.updateTicket(ticketMovido.id as any, { status: nuevoEstado });
+            await this.ticketService.updateTicket(ticketMovido.id as any, { 
+                status: nuevoEstado,
+                workspace_id: this.groupId 
+            });
         }
     }
 

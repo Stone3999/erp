@@ -101,10 +101,10 @@ fastify.addHook('preHandler', async (request, reply) => {
     let ticketData = null;
 
     
-    if (!workspaceId && path.startsWith('/tickets/')) {
+    if (path.startsWith('/tickets/') && !workspaceId) {
       const ticketId = path.split('/')[2]?.split('?')[0];
-      if (ticketId && ticketId.length > 30) {
-        const { data: ticket } = await supabase.from('tickets').select('workspace_id, assigned_to').eq('id', ticketId).single();
+      if (ticketId) {
+        const { data: ticket } = await supabase.from('tickets').select('workspace_id, assigned_to').eq('id', ticketId).maybeSingle();
         if (ticket) {
           ticketData = ticket;
           workspaceId = ticket.workspace_id;
