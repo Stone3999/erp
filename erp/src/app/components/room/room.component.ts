@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, ViewChild, ElementRef, AfterViewChecked, OnDestroy } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
@@ -12,6 +12,8 @@ import { SelectModule } from 'primeng/select';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { SelectButtonModule } from 'primeng/selectbutton';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { AuthService } from '../../services/auth.service';
 import { TicketService } from '../../services/ticket.service';
@@ -52,12 +54,14 @@ export interface RoomTicket {
     selector: 'app-room',
     standalone: true,
     imports: [
-        CommonModule, RouterModule, FormsModule, 
+        CommonModule, RouterModule, FormsModule, ReactiveFormsModule,
         ButtonModule, CardModule, AvatarModule, 
         TagModule, ChartModule, DialogModule, InputTextModule,
         DragDropModule, TableModule, SelectModule,
-        SelectButtonModule, HasPermissionDirective
+        SelectButtonModule, HasPermissionDirective,
+        ToastModule
     ],
+    providers: [MessageService],
     templateUrl: './room.component.html',
     styleUrl: './room.component.css',
 })
@@ -108,6 +112,7 @@ export class RoomComponent implements OnInit, AfterViewChecked, OnDestroy {
         private groupService: GroupService,
         public permissionService: PermissionService,
         public loadingService: LoadingService,
+        private messageService: MessageService,
         private route: ActivatedRoute
     ) {}
 
@@ -125,7 +130,6 @@ export class RoomComponent implements OnInit, AfterViewChecked, OnDestroy {
     }
 
     ngOnDestroy(): void {
-        
         this.permissionService.stopPolling();
     }
 
@@ -174,8 +178,21 @@ export class RoomComponent implements OnInit, AfterViewChecked, OnDestroy {
         };
     }
 
+    async cargarTickets() {
+        if (!this.groupId) return;
+        const response = await this.ticketService.getTicketsByGroup(this.groupId as any);
+        if (response.statusCode === 200 && response.data) {
+            const tickets = response.data.map((t: any) => this.mapToRoomTicket(t));
+            this.pendientes = tickets.filter((t: any) => t.estado === 'Pendiente');
+            this.enProgreso = tickets.filter((t: any) => t.estado === 'En Progreso');
+            this.revision = tickets.filter((t: any) => t.estado === 'Revisión');
+            this.finalizados = tickets.filter((t: any) => t.estado === 'Finalizado');
+            this.updateStatsFromLists();
+        }
+    }
+
     async drop(event: CdkDragDrop<RoomTicket[]>, nuevoEstado: string) {
-        const ticket = event.previousContainer.data[event.currentIndex] || event.previousContainer.data[event.previousIndex];
+        const ticket = event.previousContainer.data[event.previousIndex];
         if (!this.puedeMoverTicket(ticket)) {
             this.messageService.add({ severity: 'error', summary: 'Denegado', detail: 'No tienes permiso para mover este ticket.' });
             return;
@@ -281,7 +298,6 @@ export class RoomComponent implements OnInit, AfterViewChecked, OnDestroy {
     }
 
     async abrirDetalles(ticket: RoomTicket) {
-        
         const res = await this.ticketService.getTicketById(ticket.id as any);
         if (res.statusCode === 200 && res.data) {
             this.ticketEditando = this.mapToRoomTicket(res.data);
@@ -344,15 +360,11 @@ export class RoomComponent implements OnInit, AfterViewChecked, OnDestroy {
     }
 
     puedeMoverTicket(ticket: RoomTicket): boolean {
-        
         if (this.permissionService.hasPermission('tickets:moveall') || this.authService.hasPermission('admin:all')) {
             return true;
         }
-
-        
         const tienePermisoBase = this.permissionService.hasPermission('tickets:move');
         const esSuTicket = ticket.asignado === this.currentUser;
-
         return tienePermisoBase && esSuTicket;
     }
 
