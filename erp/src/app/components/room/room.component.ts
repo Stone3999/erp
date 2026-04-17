@@ -245,14 +245,14 @@ export class RoomComponent implements OnInit, AfterViewChecked, OnDestroy {
         this.loading = true;
         this.loadingService.setLoading(true);
         const nuevoTicket: any = {
-            titulo: this.nuevoTitulo,
-            descripcion: this.nuevaDescripcion,
-            estado: this.nuevoEstado,
-            asignadoA: this.nuevoAsignado,
-            creador: this.authService.getUserId(),
-            prioridad: this.nuevaPrioridad,
-            grupoId: this.groupId,
-            fechaLimite: this.nuevaFechaLimite || undefined
+            title: this.nuevoTitulo, 
+            description: this.nuevaDescripcion,
+            status: this.nuevoEstado,
+            assigned_to: this.nuevoAsignado, 
+            created_by: this.authService.getUserId(), 
+            priority: this.nuevaPrioridad,
+            workspace_id: this.groupId, 
+            due_date: this.nuevaFechaLimite || null 
         };
 
         const res = await this.ticketService.createTicket(nuevoTicket);
