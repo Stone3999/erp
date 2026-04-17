@@ -49,7 +49,8 @@ export class GruposComponent implements OnInit {
 
     listaPermisos = [
         { label: 'Crear Tickets', value: 'tickets:add' },
-        { label: 'Mover Tickets', value: 'tickets:move' },
+        { label: 'Mover Propios', value: 'tickets:move' },
+        { label: 'Mover Todos', value: 'tickets:moveall' },
         { label: 'Borrar Tickets', value: 'tickets:delete' },
         { label: 'Comentar', value: 'tickets:comment' }
     ];
