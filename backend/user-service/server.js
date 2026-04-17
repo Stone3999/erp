@@ -68,8 +68,8 @@ fastify.post('/auth/login', { schema: loginSchema }, async (request, reply) => {
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) return reply.code(401).send({ statusCode: 401, intOpCode: 'ExUS401', message: 'Credenciales inválidas' });
   
-  const token = jwt.sign({ id: user.id, email: user.email, name: user.name, permissions: user.permissions }, JWT_SECRET, { expiresIn: '24h' });
-  return { statusCode: 200, intOpCode: 'SxUS200', data: { token, user: { name: user.name, email: user.email, id: user.id, permissions: user.permissions } }};
+  const token = jwt.sign({ id: user.id, email: user.email, name: user.name, permissions: user.permissions || [] }, JWT_SECRET, { expiresIn: '24h' });
+  return { statusCode: 200, intOpCode: 'SxUS200', data: { token, user: { name: user.name, email: user.email, id: user.id, permissions: user.permissions || [] } }};
 });
 
 fastify.get('/auth/refresh', async (request, reply) => {
@@ -80,13 +80,13 @@ fastify.get('/auth/refresh', async (request, reply) => {
     const oldToken = authHeader.replace('Bearer ', '');
     const decoded = jwt.verify(oldToken, JWT_SECRET);
     
-    const { data: user, error } = await supabase.from('users').select('*').eq('id', decoded.id).maybeSingle();
+    const { data: user, error } = await supabase.from('users').select('id, email, name, permissions, is_active').eq('id', decoded.id).maybeSingle();
     
     if (!user || user.is_active === false) {
-      return reply.code(403).send({ statusCode: 403, message: 'Usuario inactivo o no encontrado' });
+      return reply.code(403).send({ statusCode: 403, message: 'Usuario inactivo' });
     }
 
-    const newToken = jwt.sign({ id: user.id, email: user.email, name: user.name, permissions: user.permissions }, JWT_SECRET, { expiresIn: '24h' });
+    const newToken = jwt.sign({ id: user.id, email: user.email, name: user.name, permissions: user.permissions || [] }, JWT_SECRET, { expiresIn: '24h' });
     return { statusCode: 200, intOpCode: 'SxUS200', data: { token: newToken } };
   } catch (err) {
     return reply.code(401).send({ statusCode: 401, message: 'Invalid token' });

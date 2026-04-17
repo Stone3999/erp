@@ -116,7 +116,6 @@ fastify.addHook('preHandler', async (request, reply) => {
        if (method !== 'GET') requiredPerm = 'users:manage';
     }
 
-    
     if (path === '/dashboard' || path === '/dashboard/') {
         requiredPerm = 'view:dashboard';
     }
@@ -130,40 +129,24 @@ fastify.addHook('preHandler', async (request, reply) => {
     if (isSuperAdmin) return; 
 
     
-    if (path.startsWith('/tickets/') && (method === 'PATCH' || method === 'PUT')) {
-        const ticketId = path.split('/')[2]?.split('?')[0];
-        if (ticketId && ticketId.length > 30) {
-            const { data: ticket } = await supabase.from('tickets').select('assigned_to, workspace_id').eq('id', ticketId).single();
-            if (ticket) {
-                
-                if (ticket.assigned_to !== decoded.name) {
-                    return reply.code(403).send({ 
-                        statusCode: 403, 
-                        intOpCode: 'ExUS403', 
-                        data: null, 
-                        message: 'Forbidden: Solo el usuario asignado puede mover este ticket.' 
-                    });
-                }
-                
-                if (!request.body?.workspace_id) {
-                    request.body = { ...request.body, workspace_id: ticket.workspace_id };
-                }
-            }
-        }
-    }
-
     let workspaceId = request.body?.workspace_id || request.query?.workspace_id;
     
     
     if (!workspaceId && path.startsWith('/tickets/')) {
         const ticketId = path.split('/')[2]?.split('?')[0];
         if (ticketId && ticketId.length > 30) { 
-            const { data: ticket } = await supabase.from('tickets').select('workspace_id').eq('id', ticketId).single();
+            const { data: ticket } = await supabase.from('tickets').select('workspace_id, assigned_to').eq('id', ticketId).single();
             workspaceId = ticket?.workspace_id;
+
+            
+            if (requiredPerm === 'tickets:move' && ticket && ticket.assigned_to !== decoded.name) {
+                 return reply.code(403).send({ statusCode: 403, intOpCode: 'ExUS403', message: 'Forbidden: No eres el dueño del ticket.' });
+            }
         }
     }
 
     if (workspaceId) {
+        
         const { data: member } = await supabase
             .from('workspace_members')
             .select('permissions')
@@ -171,16 +154,15 @@ fastify.addHook('preHandler', async (request, reply) => {
             .eq('user_id', decoded.id)
             .single();
         
-        const hasGroupPerm = member?.permissions && member.permissions.includes(requiredPerm);
+        const hasLocalPerm = member?.permissions && member.permissions.includes(requiredPerm);
         
-        if (hasGroupPerm || hasGlobalPerm) {
+        if (hasLocalPerm || hasGlobalPerm) {
             return; 
         } else {
             return reply.code(403).send({ 
                 statusCode: 403, 
                 intOpCode: 'ExUS403', 
-                data: null, 
-                message: `Forbidden: Falta permiso ${requiredPerm} en este grupo.` 
+                message: `Forbidden: No tienes el permiso [${requiredPerm}] en este Workspace.` 
             });
         }
     }
@@ -190,8 +172,7 @@ fastify.addHook('preHandler', async (request, reply) => {
        return reply.code(403).send({ 
            statusCode: 403, 
            intOpCode: 'ExUS403', 
-           data: null, 
-           message: 'Forbidden: Falta permiso global ' + requiredPerm 
+           message: `Forbidden: No tienes el permiso global [${requiredPerm}].` 
        });
     }
 

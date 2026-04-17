@@ -45,7 +45,11 @@
                 <div [class]="'kanban-header ' + col.color">
                     <h3>{{col.label}} ({{col.list.length}})</h3>
                 </div>
-                <div class="kanban-list" cdkDropList [cdkDropListData]="col.list" (cdkDropListDropped)="drop($event, col.label)">
+                <div class="kanban-list" 
+                     cdkDropList 
+                     [cdkDropListData]="col.list" 
+                     [cdkDropListDisabled]="!permissionService.hasPermission('tickets:move')"
+                     (cdkDropListDropped)="drop($event, col.label)">
                     <div class="ticket-card" 
                          *ngFor="let item of col.list" 
                          cdkDrag 
