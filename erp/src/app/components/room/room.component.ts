@@ -105,7 +105,7 @@ export class RoomComponent implements OnInit, AfterViewChecked, OnDestroy {
         private ticketService: TicketService,
         private userService: UserService,
         private groupService: GroupService,
-        private permissionService: PermissionService,
+        public permissionService: PermissionService,
         public loadingService: LoadingService,
         private route: ActivatedRoute
     ) {}
