@@ -45,11 +45,6 @@ export class UsuariosComponent implements OnInit {
     loading = false;
 
     listaPermisos = [
-        { label: 'Crear Tickets', value: 'tickets:add' },
-        { label: 'Mover Tickets', value: 'tickets:move' },
-        { label: 'Editar Todo', value: 'tickets:edit_all' },
-        { label: 'Borrar Tickets', value: 'tickets:delete' },
-        { label: 'Comentar', value: 'tickets:comment' },
         { label: 'Ver Dashboard', value: 'view:dashboard' },
         { label: 'Gestionar Usuarios', value: 'users:manage' },
         { label: 'Gestionar Grupos', value: 'groups:manage' }
